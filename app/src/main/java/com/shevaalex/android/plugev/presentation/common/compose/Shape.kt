@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.ui.theme
+package com.shevaalex.android.plugev.presentation.common.compose
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes
