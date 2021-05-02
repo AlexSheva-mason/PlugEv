@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.ui.theme
+package com.shevaalex.android.plugev.presentation.common.compose
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

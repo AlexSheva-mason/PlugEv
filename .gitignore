@@ -19,4 +19,5 @@ build/
 .idea/gradle.xml
 .idea/assetWizardSettings.xml
 .idea/vcs.xml
+.idea/deploymentTargetDropDown.xml
 *.iml
