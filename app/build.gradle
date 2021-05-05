@@ -81,6 +81,9 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:2.2.3'
     implementation 'com.google.maps.android:maps-utils-ktx:3.0.0'
 
+    //Location services
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
+
     //LeakCanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 
