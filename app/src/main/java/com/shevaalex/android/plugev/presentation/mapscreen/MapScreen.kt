@@ -65,7 +65,7 @@ fun MapViewContainer(
             googleMap.setPadding(
                 0,
                 insets.statusBars.top,
-                0,
+                insets.navigationBars.right,
                 insets.navigationBars.bottom
             )
             checkLocationPermission(
