@@ -87,4 +87,9 @@ dependencies {
     //LeakCanary
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 
+    //Retrofit + Gson
+    def retrofitVersion = "2.9.0"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+
 }
