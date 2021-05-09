@@ -12,7 +12,7 @@ private const val BASE_URL = "https://api.openchargemap.io/v3/poi/"
 
 @Module
 @InstallIn(ViewModelComponent::class)
-abstract class DataModule {
+object DataModule {
 
     @Provides
     fun provideRetrofitBuilder(): Retrofit.Builder {
