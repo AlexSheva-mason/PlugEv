@@ -26,6 +26,7 @@ android {
             useSupportLibrary true
         }
         manifestPlaceholders = [ googleMapsKey : localProperties.getProperty("googleMapsApiKey", "") ]
+        buildConfigField "String", "OPEN_CHARGE_MAP_KEY", "\"${localProperties['openChargeMapKey']}\""
     }
 
     buildTypes {
