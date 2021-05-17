@@ -26,7 +26,7 @@ fun ChargingStationNetworkDto.toDomainModel(): ChargingStation {
         addressLine2 = this.addressInfo.addressLine2 ?: "",
         town = this.addressInfo.town ?: "",
         province = this.addressInfo.province ?: "",
-        postCode = this.addressInfo.postCode,
+        postCode = this.addressInfo.postCode ?: "",
         distanceMiles = BigDecimal(this.addressInfo.distanceMiles)
             .setScale(2, RoundingMode.HALF_EVEN)
             .toString(),

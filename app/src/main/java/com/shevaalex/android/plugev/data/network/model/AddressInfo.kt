@@ -10,7 +10,7 @@ data class AddressInfo(
     @SerializedName("AddressLine2") val addressLine2: String?,
     @SerializedName("Town") val town: String?,
     @SerializedName("StateOrProvince") val province: String?,
-    @SerializedName("Postcode") val postCode: String,
+    @SerializedName("Postcode") val postCode: String?,
     @SerializedName("Distance") val distanceMiles: Double,
     @SerializedName("Latitude") val latitude: Double,
     @SerializedName("Longitude") val longitude: Double
