@@ -12,7 +12,7 @@ data class ChargingStationNetworkDto(
     @SerializedName("UsageCost") val usageCost: String?,
     @SerializedName("AddressInfo") val addressInfo: AddressInfo,
     @SerializedName("UsageType") val usageType: UsageType?,
-    @SerializedName("StatusType") val statusType: StatusType,
+    @SerializedName("StatusType") val statusType: StatusType?,
     @SerializedName("Connections") val connections: List<ConnectionNetworkDto>,
     @SerializedName("NumberOfPoints") val nOfPoints: Int
 )
@@ -35,8 +35,8 @@ fun ChargingStationNetworkDto.toDomainModel(): ChargingStation {
         usageTypeTitle = this.usageType?.title ?: "",
         isPayAtLocation = this.usageType?.isPayAtLocation,
         isMembershipRequired = this.usageType?.isMembershipRequired,
-        statusTypeTitle = this.statusType.title,
-        isOperationalStatus = this.statusType.isOperational,
+        statusTypeTitle = this.statusType?.title ?: "",
+        isOperationalStatus = this.statusType?.isOperational ?: false,
         connections = this.connections.map { it.toDomainModel() },
         totalNumberOfPoints = this.nOfPoints
     )
