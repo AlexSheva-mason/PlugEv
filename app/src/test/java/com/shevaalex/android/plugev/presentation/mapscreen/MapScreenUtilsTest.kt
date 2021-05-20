@@ -21,4 +21,17 @@ class MapScreenUtilsTest {
         assertThat(result).isEqualTo(distanceMiles)
     }
 
+    @Test
+    fun string_truncate_does_not_trim_shorter_string() {
+        val expectedResult = "1234567"
+        assertThat(expectedResult.truncate(8)).isEqualTo(expectedResult)
+    }
+
+    @Test
+    fun string_truncate_trims_longer_string() {
+        val initialValue = "1234567890"
+        val expectedResult = "1234..."
+        assertThat(initialValue.truncate(4)).isEqualTo(expectedResult)
+    }
+
 }

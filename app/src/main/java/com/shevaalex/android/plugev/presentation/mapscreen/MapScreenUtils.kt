@@ -13,3 +13,11 @@ fun computeDistanceMiles(from: LatLng, to: LatLng): Float {
     val distanceMiles = distanceMeters.div(1609.344)
     return BigDecimal(distanceMiles).setScale(2, RoundingMode.HALF_EVEN).toFloat()
 }
+
+fun String.truncate(numberOfChars: Int): String {
+    return if (this.length < numberOfChars) {
+        this
+    } else {
+        this.take(numberOfChars).plus("...")
+    }
+}
