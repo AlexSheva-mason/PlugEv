@@ -7,6 +7,7 @@ import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.domain.model.DataResult
 import com.shevaalex.android.plugev.domain.repository.ChargingStationRepository
 import dagger.hilt.android.scopes.ViewModelScoped
+import java.lang.Exception
 import javax.inject.Inject
 
 @ViewModelScoped
@@ -21,13 +22,19 @@ class ChargingStationRepositoryImpl
         distance: Float
     ): DataResult<List<ChargingStation>> {
         return retrofitCall {
-            apiService.getChargingStationsForLocation(
-                latitude = latitude,
-                longitude = longitude,
-                distance = distance
-            ).map {
-                it.toDomainModel()
-            }
+            apiService
+                .getChargingStationsForLocation(
+                    latitude = latitude,
+                    longitude = longitude,
+                    distance = distance
+                )
+                .mapNotNull {
+                    try {
+                        it.toDomainModel()
+                    } catch (ex: Exception) {
+                        null
+                    }
+                }
         }
     }
 
