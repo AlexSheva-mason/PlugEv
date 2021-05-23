@@ -17,7 +17,7 @@ class RetrofitSafeCallTest {
     @ExperimentalCoroutinesApi
     @Test
     fun `if call successful function returns DataResultSuccess`() = runBlockingTest {
-        val testData = DataFactory.getExpectedChargingStationDomainModel()
+        val testData = DataFactory.getChargingStationDomainModel()
         val successCall = suspend {
             testData
         }

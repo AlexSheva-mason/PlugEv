@@ -2,12 +2,13 @@ package com.shevaalex.android.plugev.data
 
 import com.shevaalex.android.plugev.data.network.model.*
 import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.presentation.mapscreen.MapScreenIntent
 
 object DataFactory {
 
     fun getChargingStationDto(): ChargingStationNetworkDto {
         return ChargingStationNetworkDto(
-            id = "id",
+            id = "id${getAddressInfo().latitude}",
             usageCost = "usageCost",
             addressInfo = getAddressInfo(),
             usageType = getUsageType(),
@@ -17,9 +18,12 @@ object DataFactory {
         )
     }
 
-    fun getExpectedChargingStationDomainModel(): ChargingStation {
+    fun getChargingStationDomainModel(
+        latitude: Double = 51.72215137119824,
+        longitude: Double = 0.047445889881063685
+    ): ChargingStation {
         return ChargingStation(
-            id = "id",
+            id = "id$latitude",
             usageCost = "usageCost",
             addressTitle = "addressInfoTitle",
             addressLine1 = "addressLine1",
@@ -28,8 +32,8 @@ object DataFactory {
             province = "province",
             postCode = "postCode",
             distanceMiles = "1.23",
-            latitude = 51.72215137119824,
-            longitude = 0.047445889881063685,
+            latitude = latitude,
+            longitude = longitude,
             usageTypeTitle = "usageTypeTitle",
             isPayAtLocation = true,
             isMembershipRequired = true,
@@ -76,17 +80,33 @@ object DataFactory {
         )
     }
 
-    fun getConnectionNetworkDto(typeNum: String, power: Double, quantity: Int) = ConnectionNetworkDto(
-        connectionType = getConnectionType(typeNum),
-        statusType = getStatusType(),
-        power = power,
-        quantity = quantity
-    )
+    fun getConnectionNetworkDto(typeNum: String, power: Double, quantity: Int) =
+        ConnectionNetworkDto(
+            connectionType = getConnectionType(typeNum),
+            statusType = getStatusType(),
+            power = power,
+            quantity = quantity
+        )
 
     private fun getConnectionType(type: String): ConnectionType {
         return ConnectionType(
             formalName = "connectionType$type",
             title = "connectionTitle"
+        )
+    }
+
+    fun getMapScreenIntentShowChargingStationsForCurrentMapPosition(
+        zoom: Float = 10f,
+        latitude: Double = 0.0,
+        longitude: Double = 0.0,
+        distance: Float = 10f
+    )
+            : MapScreenIntent.ShowChargingStationsForCurrentMapPosition {
+        return MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
+            zoom = zoom,
+            latitude = latitude,
+            longitude = longitude,
+            distance = distance
         )
     }
 

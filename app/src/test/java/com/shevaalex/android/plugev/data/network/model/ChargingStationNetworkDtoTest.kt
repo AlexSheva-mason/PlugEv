@@ -9,7 +9,7 @@ class ChargingStationNetworkDtoTest {
     @Test
     fun `charging station dto should map to domain model`() {
         val chargeStationDto = DataFactory.getChargingStationDto()
-        val expectedResult = DataFactory.getExpectedChargingStationDomainModel()
+        val expectedResult = DataFactory.getChargingStationDomainModel()
         assertThat(chargeStationDto.toDomainModel()).isEqualTo(expectedResult)
     }
 
