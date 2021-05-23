@@ -2,14 +2,22 @@ package com.shevaalex.android.plugev.service.googlemap
 
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
-import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.clustering.ClusterManager
+import com.shevaalex.android.plugev.domain.model.ChargingStation
 
 class PlugEvClusterManager(
     context: Context,
     googleMap: GoogleMap,
     private val onCameraIdle: () -> Unit
-) : ClusterManager<ClusterItem>(context, googleMap) {
+) : ClusterManager<ChargingStation>(context, googleMap) {
+
+    init {
+        renderer = PlugEvClusterRenderer(
+            context = context,
+            googleMap = googleMap,
+            clusterManager = this
+        )
+    }
 
     override fun onCameraIdle() {
         super.onCameraIdle()
