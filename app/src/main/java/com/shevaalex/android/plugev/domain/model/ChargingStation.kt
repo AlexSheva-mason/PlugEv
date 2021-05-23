@@ -22,7 +22,7 @@ data class ChargingStation(
     val isPayAtLocation: Boolean?,
     val isMembershipRequired: Boolean?,
     val statusTypeTitle: String,
-    val isOperationalStatus: Boolean,
+    val isOperationalStatus: Boolean?,
     val connections: List<Connection>,
     val totalNumberOfPoints: Int
 ) : ClusterItem {
@@ -46,6 +46,7 @@ data class Connection(
     val connectionTitle: String,
     val statusTitle: String,
     val isOperationalStatus: Boolean?,
+    val powerLevel: Int,
     val power: String,
     val quantity: Int,
 )

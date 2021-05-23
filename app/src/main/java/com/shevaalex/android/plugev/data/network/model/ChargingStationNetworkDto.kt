@@ -36,7 +36,7 @@ fun ChargingStationNetworkDto.toDomainModel(): ChargingStation {
         isPayAtLocation = this.usageType?.isPayAtLocation,
         isMembershipRequired = this.usageType?.isMembershipRequired,
         statusTypeTitle = this.statusType?.title ?: "",
-        isOperationalStatus = this.statusType?.isOperational ?: false,
+        isOperationalStatus = this.statusType?.isOperational,
         connections = this.connections.map { it.toDomainModel() },
         totalNumberOfPoints = this.nOfPoints
     )

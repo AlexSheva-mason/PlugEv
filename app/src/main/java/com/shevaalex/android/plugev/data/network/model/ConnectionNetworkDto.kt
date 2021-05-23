@@ -8,6 +8,7 @@ import com.shevaalex.android.plugev.domain.model.Connection
 data class ConnectionNetworkDto(
     @SerializedName("ConnectionType") val connectionType: ConnectionType?,
     @SerializedName("StatusType") val statusType: StatusType?,
+    @SerializedName("LevelID") val powerLevel: Int?,
     @SerializedName("PowerKW") val power: Double?,
     @SerializedName("Quantity") val quantity: Int,
 )
@@ -18,6 +19,7 @@ fun ConnectionNetworkDto.toDomainModel(): Connection {
         connectionTitle = this.connectionType?.title ?: "",
         statusTitle = this.statusType?.title ?: "",
         isOperationalStatus = this.statusType?.isOperational,
+        powerLevel = this.powerLevel ?: 1,
         power = this.power?.toString() ?: "",
         quantity = this.quantity
     )
