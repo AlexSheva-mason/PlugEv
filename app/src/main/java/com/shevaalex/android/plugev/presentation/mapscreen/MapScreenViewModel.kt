@@ -69,7 +69,8 @@ class MapScreenViewModel
                                     uiMessage = uiInfoResultsLimited(
                                         isResultLimitReached = result.data.size == API_RESULT_LIMIT,
                                         limit = API_RESULT_LIMIT
-                                    )
+                                    ),
+                                    fetchError = null
                                 )
                             )
                         }
@@ -79,6 +80,7 @@ class MapScreenViewModel
                                     cameraZoom = zoom,
                                     cameraPosition = LatLng(latitude, longitude),
                                     isLoading = false,
+                                    uiMessage = null,
                                     fetchError = uiErrorRetrofitException(result.e)
                                 )
                             )
