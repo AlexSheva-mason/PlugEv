@@ -4,18 +4,21 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 
 /**
  * iterates list and checks if item is already in ClusterManager Algorithm's Collection
  * adds an item if it's not present in the Collection
  */
-fun addItemsToCollection(
+suspend fun addItemsToCollection(
     chargingStationList: List<ChargingStation>,
     latLngBounds: LatLngBounds,
     evClusterManager: PlugEvClusterManager
-) {
+) = withContext(Dispatchers.Default) {
     for (chargingStation in chargingStationList) {
+        ensureActive()
         val position = LatLng(chargingStation.latitude, chargingStation.longitude)
         if (latLngBounds.contains(position)) {
             val existentItem = evClusterManager.algorithm.items.find { clusterItem ->
@@ -32,11 +35,12 @@ fun addItemsToCollection(
 /**
  * iterates through items in ClusterManager Algorithm and purges ones that are not within visibleRegion
  */
-fun removeItemFromCollection(
+suspend fun removeItemFromCollection(
     latLngBounds: LatLngBounds,
     evClusterManager: PlugEvClusterManager
-) {
+) = withContext(Dispatchers.Default) {
     evClusterManager.algorithm.items.forEach { clusterItem ->
+        ensureActive()
         if (!latLngBounds.contains(clusterItem.position)) {
             evClusterManager.removeItem(clusterItem)
         }
