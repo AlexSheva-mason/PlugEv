@@ -1,19 +1,27 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.insets.navigationBarsPadding
+import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
@@ -21,50 +29,114 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.ktx.awaitMap
 import com.shevaalex.android.plugev.R
+import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
 import kotlinx.coroutines.launch
 
-//Default Lat / Lng for location (London)
-private const val DEFAULT_LATITUDE = 51.5026838
-private const val DEFAULT_LONGITUDE = -0.1166801
-
 @Composable
-fun MapScreen(modifier: Modifier, locationProviderClient: FusedLocationProviderClient) {
+fun MapScreen(
+    modifier: Modifier,
+    locationProviderClient: FusedLocationProviderClient,
+) {
+    val snackState = remember { SnackbarHostState() }
+    val viewModel: MapScreenViewModel = viewModel()
+    val viewState by viewModel.state.collectAsState()
     val mapView = rememberMapViewWithLifecycle()
-    Column(modifier = modifier) {
+
+    LaunchedEffect(viewState.chargingStations, viewState.fetchError, viewState.uiMessage) {
+        val message = viewState.fetchError?.message ?: viewState.uiMessage?.message
+        message?.let { messageText ->
+            snackState.showSnackbar(message = messageText)
+        }
+    }
+
+    Box {
         MapViewContainer(
             map = mapView,
-            locationProviderClient = locationProviderClient
+            locationProviderClient = locationProviderClient,
+            viewModel = viewModel,
+            chargingStationList = viewState.chargingStations,
+            cameraPosition = viewState.cameraPosition,
+            cameraZoom = viewState.cameraZoom
         )
+        if (viewState.isLoading) {
+            LinearProgressIndicator(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .navigationBarsPadding(bottom = false, left = false, right = true)
+            )
+        }
+        SnackbarHost(
+            hostState = snackState,
+            modifier = modifier
+                .align(Alignment.BottomCenter)
+                .widthIn(min = 100.dp, max = 344.dp)
+                .navigationBarsPadding(bottom = true, left = false, right = true)
+                .padding(16.dp),
+        ) { data ->
+            Snack(
+                message = data.message,
+                isError = viewState.fetchError != null
+            )
+        }
     }
 }
 
+@SuppressLint("PotentialBehaviorOverride", "MissingPermission")
 @Composable
 fun MapViewContainer(
     map: MapView,
-    locationProviderClient: FusedLocationProviderClient
+    locationProviderClient: FusedLocationProviderClient,
+    viewModel: MapScreenViewModel = viewModel(),
+    chargingStationList: List<ChargingStation>,
+    cameraPosition: LatLng,
+    cameraZoom: Float
 ) {
     val context = LocalContext.current
-    var lastKnownPosition by rememberSaveable {
-        mutableStateOf(LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE))
-    }
+    var mapInitialized by remember(map) { mutableStateOf(false) }
+    val insets = LocalWindowInsets.current
+    val progressIndicatorStrokePx =
+        with(LocalDensity.current) { ProgressIndicatorDefaults.StrokeWidth.toPx().toInt() }
     val coroutineScope = rememberCoroutineScope()
+    var clusterManager: PlugEvClusterManager? by remember(map) { mutableStateOf(null) }
     val requestLauncher = rememberLauncher(
         locationProviderClient = locationProviderClient
     ) {
-        lastKnownPosition = it
-    }
-    val insets = LocalWindowInsets.current
-    AndroidView({ map }) { mapView ->
-        //read value here to trigger recomposition when permission status changes
-        val position = lastKnownPosition
         coroutineScope.launch {
-            val googleMap = mapView.awaitMap()
+            val googleMap = map.awaitMap()
+            googleMap.isMyLocationEnabled = true
+            googleMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(it, cameraZoom)
+            )
+        }
+    }
+
+    LaunchedEffect(map, mapInitialized) {
+        if (!mapInitialized) {
+            val googleMap = map.awaitMap()
+            clusterManager = PlugEvClusterManager(context, googleMap) {
+                viewModel.submitIntent(
+                    MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
+                        zoom = googleMap.cameraPosition.zoom,
+                        latitude = googleMap.cameraPosition.target.latitude,
+                        longitude = googleMap.cameraPosition.target.longitude,
+                        distance = computeDistanceMiles(
+                            googleMap.cameraPosition.target,
+                            googleMap.projection.visibleRegion.farLeft
+                        )
+                    )
+                )
+            }
+            googleMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(cameraPosition, cameraZoom)
+            )
             googleMap.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(context, R.raw.google_map_style)
             )
             googleMap.setPadding(
                 0,
-                insets.statusBars.top,
+                (insets.statusBars.top).plus(progressIndicatorStrokePx),
                 insets.navigationBars.right,
                 insets.navigationBars.bottom
             )
@@ -72,17 +144,53 @@ fun MapViewContainer(
                 context = context,
                 requestLauncher = requestLauncher,
             ) {
-                setLastKnownPosition(locationProviderClient) { lastKnownPosition = it }
                 googleMap.isMyLocationEnabled = true
+                getLastKnownPosition(locationProviderClient) { lastKnownPosition ->
+                    //if viewState has camera position at defaults -> move camera to lastKnownPosition
+                    if (cameraPosition == LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE)) {
+                        googleMap.moveCamera(
+                            CameraUpdateFactory.newLatLngZoom(lastKnownPosition, cameraZoom)
+                        )
+                    }
+                }
             }
-            googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    position,
-                    17f
-                )
-            )
+            mapInitialized = true
         }
     }
+
+    AndroidView({ map }) { mapView ->
+        coroutineScope.launch {
+            val googleMap = mapView.awaitMap()
+
+            clusterManager?.let { evClusterManager ->
+                googleMap.setOnCameraIdleListener(evClusterManager)
+                googleMap.setOnMarkerClickListener(evClusterManager)
+                val latLngBounds = googleMap.projection.visibleRegion.latLngBounds
+
+                addItemsToCollection(
+                    chargingStationList = chargingStationList,
+                    latLngBounds = latLngBounds,
+                    evClusterManager = evClusterManager
+                )
+
+                removeItemFromCollection(
+                    latLngBounds = latLngBounds,
+                    evClusterManager = evClusterManager
+                )
+
+                //re-cluster the map
+                evClusterManager.cluster()
+            }
+
+        }
+    }
+
+    DisposableEffect(map) {
+        onDispose {
+            clusterManager = null
+        }
+    }
+
 }
 
 private fun checkLocationPermission(
@@ -112,13 +220,14 @@ private fun rememberLauncher(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            setLastKnownPosition(locationProviderClient, onLastLocationChange)
+            getLastKnownPosition(locationProviderClient, onLastLocationChange)
         }
     }
 }
 
 
-private fun setLastKnownPosition(
+@SuppressLint("MissingPermission")
+private fun getLastKnownPosition(
     locationProviderClient: FusedLocationProviderClient,
     onLastLocationChange: (LatLng) -> Unit
 ) {
@@ -131,5 +240,34 @@ private fun setLastKnownPosition(
         }
     } catch (e: SecurityException) {
         println(e.message)
+    }
+}
+
+@Composable
+fun Snack(message: String, isError: Boolean) {
+    Card(
+        shape = MaterialTheme.shapes.small,
+        backgroundColor = MaterialTheme.colors.background,
+        elevation = 6.dp
+    ) {
+        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+            Spacer(
+                modifier = Modifier
+                    .weight(0.05f)
+                    .fillMaxHeight()
+                    .background(
+                        if (isError) MaterialTheme.colors.error
+                        else MaterialTheme.colors.primary
+                    )
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.body2,
+                modifier = Modifier
+                    .weight(0.95f)
+                    .padding(16.dp)
+                    .align(Alignment.CenterVertically)
+            )
+        }
     }
 }
