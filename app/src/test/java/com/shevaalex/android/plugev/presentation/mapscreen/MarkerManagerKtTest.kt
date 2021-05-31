@@ -2,14 +2,22 @@ package com.shevaalex.android.plugev.presentation.mapscreen
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.shevaalex.android.plugev.CoroutinesTestRule
 import com.shevaalex.android.plugev.data.DataFactory.getChargingStationDomainModel
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class MarkerManagerKtTest {
+
+    @get:Rule
+    val coroutineTestRule = CoroutinesTestRule()
 
     @MockK
     private lateinit var clusterManager: PlugEvClusterManager
@@ -45,11 +53,13 @@ class MarkerManagerKtTest {
             getChargingStationDomainModel(52.202899622094066, 0.10845701204142827)
         )
 
-        addItemsToCollection(
-            chargingStationList = chargingStationList,
-            latLngBounds = latLngBounds,
-            evClusterManager = clusterManager
-        )
+        runBlocking {
+            addItemsToCollection(
+                chargingStationList = chargingStationList,
+                latLngBounds = latLngBounds,
+                evClusterManager = clusterManager
+            )
+        }
 
         verify(exactly = 0) {
             clusterManager.addItem(any())
@@ -78,11 +88,13 @@ class MarkerManagerKtTest {
             itemToAdd
         )
 
-        addItemsToCollection(
-            chargingStationList = chargingStationList,
-            latLngBounds = latLngBounds,
-            evClusterManager = clusterManager
-        )
+        runBlocking {
+            addItemsToCollection(
+                chargingStationList = chargingStationList,
+                latLngBounds = latLngBounds,
+                evClusterManager = clusterManager
+            )
+        }
 
         verify(atMost = 1) {
             clusterManager.addItem(any())
@@ -110,11 +122,13 @@ class MarkerManagerKtTest {
             getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
         )
 
-        addItemsToCollection(
-            chargingStationList = chargingStationList,
-            latLngBounds = latLngBounds,
-            evClusterManager = clusterManager
-        )
+        runBlocking {
+            addItemsToCollection(
+                chargingStationList = chargingStationList,
+                latLngBounds = latLngBounds,
+                evClusterManager = clusterManager
+            )
+        }
 
         verify(exactly = 0) {
             clusterManager.addItem(any())
@@ -132,10 +146,12 @@ class MarkerManagerKtTest {
             getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
         )
 
-        removeItemFromCollection(
-            latLngBounds = latLngBounds,
-            evClusterManager = clusterManager
-        )
+        runBlocking {
+            removeItemFromCollection(
+                latLngBounds = latLngBounds,
+                evClusterManager = clusterManager
+            )
+        }
 
         verify(exactly = 0) {
             clusterManager.removeItem(any())
@@ -153,10 +169,12 @@ class MarkerManagerKtTest {
             getChargingStationDomainModel(53.20332286606809, 0.13211238948885104),
         )
 
-        removeItemFromCollection(
-            latLngBounds = latLngBounds,
-            evClusterManager = clusterManager
-        )
+        runBlocking {
+            removeItemFromCollection(
+                latLngBounds = latLngBounds,
+                evClusterManager = clusterManager
+            )
+        }
 
         verify(exactly = 1) {
             clusterManager.removeItem(
