@@ -33,12 +33,14 @@ import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @Composable
 fun MapScreen(
     modifier: Modifier,
     locationProviderClient: FusedLocationProviderClient,
 ) {
-    val snackState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val scaffoldState = rememberBottomSheetScaffoldState()
     val viewModel: MapScreenViewModel = viewModel()
     val viewState by viewModel.state.collectAsState()
     val mapView = rememberMapViewWithLifecycle()
@@ -46,39 +48,77 @@ fun MapScreen(
     LaunchedEffect(viewState.chargingStations, viewState.fetchError, viewState.uiMessage) {
         val message = viewState.fetchError?.message ?: viewState.uiMessage?.message
         message?.let { messageText ->
-            snackState.showSnackbar(message = messageText)
+            scaffoldState.snackbarHostState.showSnackbar(message = messageText)
         }
     }
 
-    Box {
-        MapViewContainer(
-            map = mapView,
-            locationProviderClient = locationProviderClient,
-            viewModel = viewModel,
-            chargingStationList = viewState.chargingStations,
-            cameraPosition = viewState.cameraPosition,
-            cameraZoom = viewState.cameraZoom
-        )
-        if (viewState.isLoading) {
-            LinearProgressIndicator(
-                modifier = modifier
+    LaunchedEffect(viewState.shouldShowBottomSheet) {
+        if (viewState.shouldShowBottomSheet) scaffoldState.bottomSheetState.expand()
+    }
+
+    BottomSheetScaffold(
+        sheetContent = {
+            Box(
+                Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
-                    .navigationBarsPadding(bottom = false, left = false, right = true)
+                    .height(128.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Swipe up to expand sheet")
+            }
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(64.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Sheet content")
+                Spacer(Modifier.height(20.dp))
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            scaffoldState.bottomSheetState.collapse()
+                        }
+                    }
+                ) {
+                    Text("Click to collapse sheet")
+                }
+            }
+        },
+        scaffoldState = scaffoldState,
+        snackbarHost = { snackbarHostState ->
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = modifier
+                    .widthIn(min = 100.dp, max = 344.dp)
+                    .navigationBarsPadding(bottom = true, left = false, right = true)
+                    .padding(16.dp),
+            ) { data ->
+                Snack(
+                    message = data.message,
+                    isError = viewState.fetchError != null
+                )
+            }
+        },
+        sheetPeekHeight = 0.dp,
+    ) {
+        Box {
+            MapViewContainer(
+                map = mapView,
+                locationProviderClient = locationProviderClient,
+                viewModel = viewModel,
+                chargingStationList = viewState.chargingStations,
+                cameraPosition = viewState.cameraPosition,
+                cameraZoom = viewState.cameraZoom
             )
-        }
-        SnackbarHost(
-            hostState = snackState,
-            modifier = modifier
-                .align(Alignment.BottomCenter)
-                .widthIn(min = 100.dp, max = 344.dp)
-                .navigationBarsPadding(bottom = true, left = false, right = true)
-                .padding(16.dp),
-        ) { data ->
-            Snack(
-                message = data.message,
-                isError = viewState.fetchError != null
-            )
+            if (viewState.isLoading) {
+                LinearProgressIndicator(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .navigationBarsPadding(bottom = false, left = false, right = true)
+                )
+            }
         }
     }
 }
@@ -115,7 +155,15 @@ fun MapViewContainer(
     LaunchedEffect(map, mapInitialized) {
         if (!mapInitialized) {
             val googleMap = map.awaitMap()
-            clusterManager = PlugEvClusterManager(context, googleMap) {
+            clusterManager = PlugEvClusterManager(
+                context = context,
+                googleMap = googleMap,
+                onMarkerClick = { id ->
+                    viewModel.submitIntent(
+                        MapScreenIntent.ShowBottomSheetWithInfo(id)
+                    )
+                }
+            ) {
                 viewModel.submitIntent(
                     MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
                         zoom = googleMap.cameraPosition.zoom,
