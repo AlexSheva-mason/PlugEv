@@ -6,6 +6,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -24,6 +25,11 @@ class PlugEvClusterRenderer(
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(drawable.toBitmap()))
         }
         super.onBeforeClusterItemRendered(item, markerOptions)
+    }
+
+    override fun onClusterItemRendered(clusterItem: ChargingStation, marker: Marker) {
+        marker.tag = clusterItem.id
+        super.onClusterItemRendered(clusterItem, marker)
     }
 
     private fun getIconDrawable(item: ChargingStation): Drawable? {
