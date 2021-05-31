@@ -48,7 +48,9 @@ class MapScreenViewModelTest {
             chargingStations = listOf(),
             isLoading = true,
             uiMessage = null,
-            fetchError = null
+            fetchError = null,
+            shouldShowBottomSheet = false,
+            bottomSheetInfoObject = null
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)
     }
@@ -86,7 +88,9 @@ class MapScreenViewModelTest {
                 chargingStations = list,
                 isLoading = false,
                 uiMessage = null,
-                fetchError = null
+                fetchError = null,
+                shouldShowBottomSheet = false,
+                bottomSheetInfoObject = null
             )
         )
     }
@@ -111,7 +115,9 @@ class MapScreenViewModelTest {
                 chargingStations = list,
                 isLoading = false,
                 uiMessage = expectedInfoMessage,
-                fetchError = null
+                fetchError = null,
+                shouldShowBottomSheet = false,
+                bottomSheetInfoObject = null
             )
         )
     }
@@ -134,7 +140,9 @@ class MapScreenViewModelTest {
                 chargingStations = listOf(),
                 isLoading = false,
                 uiMessage = null,
-                fetchError = null
+                fetchError = null,
+                shouldShowBottomSheet = false,
+                bottomSheetInfoObject = null
             )
         )
     }
@@ -157,7 +165,32 @@ class MapScreenViewModelTest {
                 chargingStations = listOf(),
                 isLoading = false,
                 uiMessage = null,
-                fetchError = expectedErrorMessage
+                fetchError = expectedErrorMessage,
+                shouldShowBottomSheet = false,
+                bottomSheetInfoObject = null
+            )
+        )
+    }
+
+    @Test
+    fun `should verify viewState when submitting ShowBottomSheetWithInfo intent`() {
+        //GIVEN
+        val intent = MapScreenIntent.ShowBottomSheetWithInfo("testId")
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            MapScreenViewState(
+                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
+                cameraZoom = MAP_DEFAULT_ZOOM,
+                chargingStations = listOf(),
+                isLoading = true,
+                uiMessage = null,
+                fetchError = null,
+                shouldShowBottomSheet = true,
+                bottomSheetInfoObject = null
             )
         )
     }

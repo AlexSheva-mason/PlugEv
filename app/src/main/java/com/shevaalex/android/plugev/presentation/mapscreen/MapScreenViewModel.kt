@@ -35,6 +35,7 @@ class MapScreenViewModel
                         longitude = intent.longitude,
                         distance = intent.distance
                     )
+                    is MapScreenIntent.ShowBottomSheetWithInfo -> onShowBottomSheet(id = intent.id)
                 }
             }
         }
@@ -76,7 +77,9 @@ class MapScreenViewModel
                                         isResultLimitReached = result.data.size == API_RESULT_LIMIT,
                                         limit = API_RESULT_LIMIT
                                     ),
-                                    fetchError = null
+                                    fetchError = null,
+                                    shouldShowBottomSheet = false,
+                                    bottomSheetInfoObject = null
                                 )
                             )
                         }
@@ -87,7 +90,9 @@ class MapScreenViewModel
                                     cameraPosition = LatLng(latitude, longitude),
                                     isLoading = false,
                                     uiMessage = null,
-                                    fetchError = uiErrorRetrofitException(result.e)
+                                    fetchError = uiErrorRetrofitException(result.e),
+                                    shouldShowBottomSheet = false,
+                                    bottomSheetInfoObject = null
                                 )
                             )
                         }
@@ -95,6 +100,15 @@ class MapScreenViewModel
                 }
             }
         }
+    }
+
+    private fun onShowBottomSheet(id: String) {
+        setState(
+            state.value.copy(
+                shouldShowBottomSheet = true,
+                bottomSheetInfoObject = state.value.chargingStations.find { it.id == id }
+            )
+        )
     }
 
     fun submitIntent(intent: MapScreenIntent) {
