@@ -56,4 +56,5 @@ private fun getMapOptions(): GoogleMapOptions {
     return GoogleMapOptions().compassEnabled(true)
         .tiltGesturesEnabled(false)
         .minZoomPreference(10.0f)
+        .mapToolbarEnabled(false)
 }
