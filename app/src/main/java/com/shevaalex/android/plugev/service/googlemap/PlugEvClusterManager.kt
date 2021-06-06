@@ -27,7 +27,10 @@ class PlugEvClusterManager(
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
-        onMarkerClick.invoke(marker.tag as String)
+        val tag = marker.tag
+        if(tag is String) {
+            onMarkerClick.invoke(tag)
+        }
         return super.onMarkerClick(marker)
     }
 
