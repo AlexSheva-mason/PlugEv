@@ -13,4 +13,6 @@ sealed class MapScreenIntent {
         val id: String
     ) : MapScreenIntent()
 
+    object HideBottomSheet: MapScreenIntent()
+
 }
