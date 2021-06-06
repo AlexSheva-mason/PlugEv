@@ -19,6 +19,8 @@ class ConnectionNetworkDtoTest {
             connectionTitle = "connectionTitle",
             statusTitle = "statusTypeTitle",
             isOperationalStatus = true,
+            powerLevel = 3,
+            powerLevelTitle = "test power level",
             power = "7.53",
             quantity = 5
         )

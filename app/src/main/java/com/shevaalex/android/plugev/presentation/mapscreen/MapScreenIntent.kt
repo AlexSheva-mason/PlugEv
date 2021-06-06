@@ -9,4 +9,10 @@ sealed class MapScreenIntent {
         val distance: Float
     ) : MapScreenIntent()
 
+    data class ShowBottomSheetWithInfo(
+        val id: String
+    ) : MapScreenIntent()
+
+    object HideBottomSheet: MapScreenIntent()
+
 }

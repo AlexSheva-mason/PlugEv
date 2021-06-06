@@ -10,7 +10,8 @@ data class MapScreenViewState(
     val chargingStations: List<ChargingStation> = listOf(),
     val isLoading: Boolean = true,
     val uiMessage: UiState.UiInfo? = null,
-    val fetchError: UiState.UiError? = null
+    val fetchError: UiState.UiError? = null,
+    val bottomSheetInfoObject: ChargingStation? = null
 ) {
 
     override fun toString(): String {
@@ -19,7 +20,8 @@ data class MapScreenViewState(
                 " \n chargingStations=${chargingStations.size}," +
                 " \n isLoading=$isLoading," +
                 " \n uiMessage=$uiMessage," +
-                " \n fetchError=$fetchError)"
+                " \n fetchError=$fetchError," +
+                " \n bottomSheetInfoObject=$bottomSheetInfoObject)"
     }
 
 }

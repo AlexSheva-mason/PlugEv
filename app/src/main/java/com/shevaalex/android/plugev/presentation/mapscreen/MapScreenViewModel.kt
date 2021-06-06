@@ -2,7 +2,6 @@ package com.shevaalex.android.plugev.presentation.mapscreen
 
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.SphericalUtil
 import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
 import com.shevaalex.android.plugev.domain.model.DataResult
 import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
@@ -18,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MapScreenViewModel
 @Inject constructor(
-    private val getChargeStationListUseCase: GetChargeStationListUseCase
+    private val getChargeStationListUseCase: GetChargeStationListUseCase,
+    private val requestValidator: MapScreenRequestValidator
 ) : BaseViewModel<MapScreenViewState>(
     initialState = MapScreenViewState()
 ) {
@@ -35,6 +35,8 @@ class MapScreenViewModel
                         longitude = intent.longitude,
                         distance = intent.distance
                     )
+                    is MapScreenIntent.ShowBottomSheetWithInfo -> onShowBottomSheet(id = intent.id)
+                    is MapScreenIntent.HideBottomSheet -> onHideBottomSheet()
                 }
             }
         }
@@ -46,7 +48,13 @@ class MapScreenViewModel
         distance: Float,
         latitude: Double
     ) {
-        if (validateNewPositionForRequest(latitude, longitude, zoom)) {
+        if (requestValidator.validateNewPositionForRequest(
+                state.value,
+                latitude,
+                longitude,
+                zoom
+            )
+        ) {
             viewModelScope.launch {
                 setState(
                     state.value.copy(
@@ -91,30 +99,25 @@ class MapScreenViewModel
         }
     }
 
-    fun submitIntent(intent: MapScreenIntent) {
-        viewModelScope.launch { pendingIntent.emit(intent) }
+    private fun onShowBottomSheet(id: String) {
+        setState(
+            state.value.copy(
+                isLoading = false,
+                bottomSheetInfoObject = state.value.chargingStations.find { it.id == id }
+            )
+        )
     }
 
-    /**
-     * To prevent a new request being made when clicking on the same marker or a marker nearby:
-     * @returns true if a new request should be made, based on:
-     * MapScreenViewState.cameraPosition distance to a new camera position -> should be more than 25m OR
-     * MapScreenViewState.chargingStations -> list is empty OR
-     * MapScreenViewState.cameraZoom -> has been zoomed out
-     */
-    private fun validateNewPositionForRequest(
-        latitude: Double,
-        longitude: Double,
-        zoom: Float
-    ): Boolean {
-        val distanceM = SphericalUtil
-            .computeDistanceBetween(
-                LatLng(state.value.cameraPosition.latitude, state.value.cameraPosition.longitude),
-                LatLng(latitude, longitude)
+    private fun onHideBottomSheet() {
+        setState(
+            state.value.copy(
+                bottomSheetInfoObject = null
             )
-            .toInt()
-        val zoomedOut = state.value.cameraZoom > zoom
-        return state.value.chargingStations.isEmpty() || distanceM > 25 || zoomedOut
+        )
+    }
+
+    fun submitIntent(intent: MapScreenIntent) {
+        viewModelScope.launch { pendingIntent.emit(intent) }
     }
 
 }

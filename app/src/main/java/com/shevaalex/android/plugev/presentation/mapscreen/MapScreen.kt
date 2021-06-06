@@ -3,6 +3,7 @@ package com.shevaalex.android.plugev.presentation.mapscreen
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -15,15 +16,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -33,52 +37,95 @@ import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @Composable
 fun MapScreen(
     modifier: Modifier,
     locationProviderClient: FusedLocationProviderClient,
 ) {
-    val snackState = remember { SnackbarHostState() }
+    val scaffoldState = rememberBottomSheetScaffoldState()
     val viewModel: MapScreenViewModel = viewModel()
     val viewState by viewModel.state.collectAsState()
+    val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
 
-    LaunchedEffect(viewState.chargingStations, viewState.fetchError, viewState.uiMessage) {
+    val mapIntent = viewState.bottomSheetInfoObject?.let {
+        getMapIntentForChargingStation(it, context)
+    }
+
+    LaunchedEffect(viewState.fetchError, viewState.uiMessage) {
         val message = viewState.fetchError?.message ?: viewState.uiMessage?.message
+        val duration = if (viewState.uiMessage != null) {
+            SnackbarDuration.Indefinite
+        } else SnackbarDuration.Short
         message?.let { messageText ->
-            snackState.showSnackbar(message = messageText)
+            scaffoldState.snackbarHostState.showSnackbar(message = messageText, duration = duration)
         }
     }
 
-    Box {
-        MapViewContainer(
-            map = mapView,
-            locationProviderClient = locationProviderClient,
-            viewModel = viewModel,
-            chargingStationList = viewState.chargingStations,
-            cameraPosition = viewState.cameraPosition,
-            cameraZoom = viewState.cameraZoom
-        )
-        if (viewState.isLoading) {
-            LinearProgressIndicator(
+    BottomSheetScaffold(
+        sheetContent = {
+            viewState.bottomSheetInfoObject?.let {
+                BottomSheet(
+                    chargingStation = it,
+                    modifier = Modifier
+                        .navigationBarsPadding(
+                            bottom = true,
+                            left = false,
+                            right = true
+                        )
+                )
+            }
+        },
+        scaffoldState = scaffoldState,
+        snackbarHost = { snackbarHostState ->
+            SnackbarHost(
+                hostState = snackbarHostState,
                 modifier = modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .navigationBarsPadding(bottom = false, left = false, right = true)
+                    .widthIn(min = 100.dp, max = 344.dp)
+                    .navigationBarsPadding(bottom = true, left = false, right = true)
+                    .padding(16.dp),
+            ) { data ->
+                Snack(
+                    message = data.message,
+                    isError = viewState.fetchError != null
+                )
+            }
+        },
+        floatingActionButton = if (viewState.bottomSheetInfoObject != null && mapIntent != null) {
+            {
+                FloatingActionButton(
+                    onClick = { startActivity(context, mapIntent, null) },
+                    backgroundColor = MaterialTheme.colors.primary
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_fab_navigate),
+                        contentDescription = "Action button: navigate to"
+                    )
+                }
+            }
+        } else null,
+        floatingActionButtonPosition = FabPosition.Center,
+        sheetPeekHeight = viewState.bottomSheetInfoObject?.let { 125.dp } ?: 0.dp
+    ) {
+        Box {
+            MapViewContainer(
+                map = mapView,
+                locationProviderClient = locationProviderClient,
+                viewModel = viewModel,
+                chargingStationList = viewState.chargingStations,
+                cameraPosition = viewState.cameraPosition,
+                cameraZoom = viewState.cameraZoom,
+                bottomSheetInfo = viewState.bottomSheetInfoObject
             )
-        }
-        SnackbarHost(
-            hostState = snackState,
-            modifier = modifier
-                .align(Alignment.BottomCenter)
-                .widthIn(min = 100.dp, max = 344.dp)
-                .navigationBarsPadding(bottom = true, left = false, right = true)
-                .padding(16.dp),
-        ) { data ->
-            Snack(
-                message = data.message,
-                isError = viewState.fetchError != null
-            )
+            if (viewState.isLoading) {
+                LinearProgressIndicator(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .navigationBarsPadding(bottom = false, left = false, right = true)
+                )
+            }
         }
     }
 }
@@ -91,7 +138,8 @@ fun MapViewContainer(
     viewModel: MapScreenViewModel = viewModel(),
     chargingStationList: List<ChargingStation>,
     cameraPosition: LatLng,
-    cameraZoom: Float
+    cameraZoom: Float,
+    bottomSheetInfo: ChargingStation?
 ) {
     val context = LocalContext.current
     var mapInitialized by remember(map) { mutableStateOf(false) }
@@ -115,7 +163,15 @@ fun MapViewContainer(
     LaunchedEffect(map, mapInitialized) {
         if (!mapInitialized) {
             val googleMap = map.awaitMap()
-            clusterManager = PlugEvClusterManager(context, googleMap) {
+            clusterManager = PlugEvClusterManager(
+                context = context,
+                googleMap = googleMap,
+                onMarkerClick = { id ->
+                    viewModel.submitIntent(
+                        MapScreenIntent.ShowBottomSheetWithInfo(id)
+                    )
+                }
+            ) {
                 viewModel.submitIntent(
                     MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
                         zoom = googleMap.cameraPosition.zoom,
@@ -161,6 +217,12 @@ fun MapViewContainer(
     AndroidView({ map }) { mapView ->
         coroutineScope.launch {
             val googleMap = mapView.awaitMap()
+
+            googleMap.setOnCameraMoveStartedListener { reason ->
+                if (reason == REASON_GESTURE && bottomSheetInfo != null) {
+                    viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
+                }
+            }
 
             clusterManager?.let { evClusterManager ->
                 googleMap.setOnCameraIdleListener(evClusterManager)
@@ -270,4 +332,15 @@ fun Snack(message: String, isError: Boolean) {
             )
         }
     }
+}
+
+private fun getMapIntentForChargingStation(
+    chargingStation: ChargingStation,
+    context: Context
+): Intent? {
+    return getMapIntent(
+        latitude = chargingStation.latitude,
+        longitude = chargingStation.longitude,
+        packageManager = context.packageManager
+    )
 }

@@ -47,6 +47,7 @@ data class Connection(
     val statusTitle: String,
     val isOperationalStatus: Boolean?,
     val powerLevel: Int,
+    val powerLevelTitle: String?,
     val power: String,
     val quantity: Int,
 )

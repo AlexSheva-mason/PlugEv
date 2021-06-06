@@ -84,6 +84,8 @@ object DataFactory {
         ConnectionNetworkDto(
             connectionType = getConnectionType(typeNum),
             statusType = getStatusType(),
+            powerLevelId = 3,
+            powerLevel = PowerLevel("test power level"),
             power = power,
             quantity = quantity
         )

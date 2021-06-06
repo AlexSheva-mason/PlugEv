@@ -5,6 +5,7 @@ import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.CoroutinesTestRule
 import com.shevaalex.android.plugev.data.DataFactory
 import com.shevaalex.android.plugev.data.DataFactory.getMapScreenIntentShowChargingStationsForCurrentMapPosition
+import com.shevaalex.android.plugev.data.network.model.toDomainModel
 import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
 import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.domain.model.DataResult
@@ -14,7 +15,6 @@ import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.coVerifyAll
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
@@ -37,7 +37,8 @@ class MapScreenViewModelTest {
     fun setUp() {
         MockKAnnotations.init(this)
         cut = MapScreenViewModel(
-            getChargeStationListUseCase = getChargeStationListUseCase
+            getChargeStationListUseCase = getChargeStationListUseCase,
+            requestValidator = MapScreenRequestValidator()
         )
     }
 
@@ -49,13 +50,19 @@ class MapScreenViewModelTest {
             chargingStations = listOf(),
             isLoading = true,
             uiMessage = null,
-            fetchError = null
+            fetchError = null,
+            bottomSheetInfoObject = null
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)
     }
 
     @Test
     fun `submitting ShowChargingStationsForCurrentMapPosition intent calls getChargeStationListUseCase`() {
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
 
         cut.submitIntent(intent)
@@ -82,7 +89,8 @@ class MapScreenViewModelTest {
                 chargingStations = list,
                 isLoading = false,
                 uiMessage = null,
-                fetchError = null
+                fetchError = null,
+                bottomSheetInfoObject = null
             )
         )
     }
@@ -107,7 +115,8 @@ class MapScreenViewModelTest {
                 chargingStations = list,
                 isLoading = false,
                 uiMessage = expectedInfoMessage,
-                fetchError = null
+                fetchError = null,
+                bottomSheetInfoObject = null
             )
         )
     }
@@ -130,7 +139,8 @@ class MapScreenViewModelTest {
                 chargingStations = listOf(),
                 isLoading = false,
                 uiMessage = null,
-                fetchError = null
+                fetchError = null,
+                bottomSheetInfoObject = null
             )
         )
     }
@@ -153,174 +163,94 @@ class MapScreenViewModelTest {
                 chargingStations = listOf(),
                 isLoading = false,
                 uiMessage = null,
-                fetchError = expectedErrorMessage
+                fetchError = expectedErrorMessage,
+                bottomSheetInfoObject = null
             )
         )
     }
 
     @Test
-    fun `validateNewPositionForRequest returns false with distance less 25m`() {
+    fun `should verify viewState when submitting ShowBottomSheetWithInfo intent`() {
+        //GIVEN
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
         } returns DataResult.Success(
             data = list
         )
+        val intentShowChargingPoints = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intentShowChargingPoints)
+        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("id51.72215137119824")
 
-        //submit 2 intents (second one with latitude at a distance ¬9.26m)
-        val firstIntent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
-        cut.submitIntent(firstIntent)
-        val secondIntent =
-            getMapScreenIntentShowChargingStationsForCurrentMapPosition(latitude = 0.00005)
-        cut.submitIntent(secondIntent)
+        //WHEN
+        cut.submitIntent(intentShowBottomSheet)
 
-        //verify that only one call has been made (with the first intent)
-        coVerifyAll {
-            getChargeStationListUseCase(
-                latitude = firstIntent.latitude,
-                longitude = firstIntent.longitude,
-                distance = firstIntent.distance
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            MapScreenViewState(
+                cameraPosition = LatLng(0.0, 0.0),
+                cameraZoom = 10f,
+                chargingStations = list,
+                isLoading = false,
+                uiMessage = null,
+                fetchError = null,
+                bottomSheetInfoObject = ChargingStation(
+                    id = "id51.72215137119824",
+                    usageCost = "usageCost",
+                    addressTitle = "addressInfoTitle",
+                    addressLine1 = "addressLine1",
+                    addressLine2 = "addressLine2",
+                    town = "town",
+                    province = "province",
+                    postCode = "postCode",
+                    distanceMiles = "1.23",
+                    latitude = 51.72215137119824,
+                    longitude = 0.047445889881063685,
+                    usageTypeTitle = "usageTypeTitle",
+                    isPayAtLocation = true,
+                    isMembershipRequired = true,
+                    statusTypeTitle = "statusTypeTitle",
+                    isOperationalStatus = true,
+                    connections = listOf(
+                        DataFactory.getConnectionNetworkDto("1", 3.0, 1),
+                        DataFactory.getConnectionNetworkDto("2", 7.0, 1)
+                    ).map { it.toDomainModel() },
+                    totalNumberOfPoints = 2
+                )
             )
-        }
+        )
     }
 
     @Test
-    fun `validateNewPositionForRequest returns true with distance more 25m`() {
+    fun `should set bottomSheetInfoObject to null when receiving HideBottomSheet intent`() {
+        //GIVEN
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
         } returns DataResult.Success(
             data = list
         )
+        val intentShowChargingPoints = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intentShowChargingPoints)
+        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("id51.72215137119824")
+        cut.submitIntent(intentShowBottomSheet)
 
-        //submit 2 intents (second one with latitude at a distance ¬185.2m)
-        val firstIntent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
-        cut.submitIntent(firstIntent)
-        val secondIntent =
-            getMapScreenIntentShowChargingStationsForCurrentMapPosition(latitude = 0.001)
-        cut.submitIntent(secondIntent)
+        //WHEN
+        val intentHide = MapScreenIntent.HideBottomSheet
+        cut.submitIntent(intentHide)
 
-        //verify both calls happened
-        coVerifyAll {
-            getChargeStationListUseCase(
-                latitude = firstIntent.latitude,
-                longitude = firstIntent.longitude,
-                distance = firstIntent.distance
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            MapScreenViewState(
+                cameraPosition = LatLng(0.0, 0.0),
+                cameraZoom = 10f,
+                chargingStations = list,
+                isLoading = false,
+                uiMessage = null,
+                fetchError = null,
+                bottomSheetInfoObject = null
             )
-            getChargeStationListUseCase(
-                latitude = secondIntent.latitude,
-                longitude = secondIntent.longitude,
-                distance = secondIntent.distance
-            )
-        }
-    }
-
-    @Test
-    fun `validateNewPositionForRequest returns false if list of data was not empty`() {
-        val list = listOf(DataFactory.getChargingStationDomainModel())
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
-        } returns DataResult.Success(
-            data = list
         )
-
-        //submit 2 equal intents
-        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
-        cut.submitIntent(intent)
-        cut.submitIntent(intent)
-
-        //verify that only one call has been made
-        coVerifyAll {
-            getChargeStationListUseCase(
-                latitude = intent.latitude,
-                longitude = intent.longitude,
-                distance = intent.distance
-            )
-        }
-    }
-
-    @Test
-    fun `validateNewPositionForRequest returns true if list of data was empty`() {
-        val list = listOf<ChargingStation>()
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
-        } returns DataResult.Success(
-            data = list
-        )
-
-        //submit 2 equal intents
-        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
-        cut.submitIntent(intent)
-        cut.submitIntent(intent)
-
-        //verify that both calls happened
-        coVerifyAll {
-            getChargeStationListUseCase(
-                latitude = intent.latitude,
-                longitude = intent.longitude,
-                distance = intent.distance
-            )
-            getChargeStationListUseCase(
-                latitude = intent.latitude,
-                longitude = intent.longitude,
-                distance = intent.distance
-            )
-        }
-    }
-
-    @Test
-    fun `validateNewPositionForRequest returns false when zoomed increased`() {
-        val list = listOf(DataFactory.getChargingStationDomainModel())
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
-        } returns DataResult.Success(
-            data = list
-        )
-
-        //submit 2 intents (second one with increased zoom level)
-        val firstIntent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
-        cut.submitIntent(firstIntent)
-        val secondIntent = getMapScreenIntentShowChargingStationsForCurrentMapPosition(zoom = 20f)
-        cut.submitIntent(secondIntent)
-
-        //verify that only one call has been made
-        coVerifyAll {
-            getChargeStationListUseCase(
-                latitude = firstIntent.latitude,
-                longitude = firstIntent.longitude,
-                distance = firstIntent.distance
-            )
-        }
-    }
-
-    @Test
-    fun `validateNewPositionForRequest returns true when zoomed decreased`() {
-        val list = listOf(DataFactory.getChargingStationDomainModel())
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
-        } returns DataResult.Success(
-            data = list
-        )
-
-        //submit 2 intents (second one with decreased zoom level)
-        val firstIntent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
-        cut.submitIntent(firstIntent)
-        val secondIntent = getMapScreenIntentShowChargingStationsForCurrentMapPosition(zoom = 9f)
-        cut.submitIntent(secondIntent)
-
-        //verify that both calls happened
-        coVerifyAll {
-            getChargeStationListUseCase(
-                latitude = firstIntent.latitude,
-                longitude = firstIntent.longitude,
-                distance = firstIntent.distance
-            )
-            getChargeStationListUseCase(
-                latitude = secondIntent.latitude,
-                longitude = secondIntent.longitude,
-                distance = secondIntent.distance
-            )
-        }
     }
 
 }
