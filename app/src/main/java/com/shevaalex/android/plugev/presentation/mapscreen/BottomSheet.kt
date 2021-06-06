@@ -42,7 +42,7 @@ private fun BottomSheetContent(
     title: String,
     address: String,
     accessType: String?,
-    usageCost: String?,
+    usageCost: String,
     connections: List<Connection>,
     modifier: Modifier = Modifier
 ) {
@@ -86,7 +86,7 @@ private fun BottomSheetContent(
         }
         Spacer(Modifier.height(5.dp))
         Text(
-            text = usageCost ?: "£ Usage cost unknown",
+            text = if (usageCost.isNotBlank()) usageCost else "£ Usage cost unknown",
             style = MaterialTheme.typography.body2
         )
         Spacer(Modifier.height(5.dp))
@@ -97,7 +97,7 @@ private fun BottomSheetContent(
             items(connections.size) { index ->
                 val connection = connections[index]
                 ConnectionListItem(
-                    quantity = connection.quantity.toString(),
+                    quantity = connection.quantity,
                     connectionTitle = connection.connectionTitle,
                     powerLevelTitle = connection.powerLevelTitle,
                     isOperational = connection.isOperationalStatus,
@@ -152,7 +152,7 @@ private fun ChipStatus(backgroundColor: Color, contentColor: Color, text: String
 
 @Composable
 private fun ConnectionListItem(
-    quantity: String,
+    quantity: Int,
     connectionTitle: String,
     powerLevelTitle: String?,
     isOperational: Boolean?,
@@ -166,6 +166,7 @@ private fun ConnectionListItem(
         if (isOperationalBoolean) "Operational"
         else "Not Operational"
     } ?: "Unknown"
+    val quantityText = if (quantity == 0) "N/A" else quantity.toString().plus("x")
     val operationalColour = isOperational?.let { isOperationalBoolean ->
         if (isOperationalBoolean) Teal800
         else Red900
@@ -184,7 +185,7 @@ private fun ConnectionListItem(
                 modifier = Modifier.weight(0.10f)
             ) {
                 Text(
-                    text = quantity.plus("x"),
+                    text = quantityText,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier
                         .padding(3.dp)
@@ -254,7 +255,7 @@ private fun BottomSheetPreview() {
             title = "Park Plaza Westminster Bridge Hotel",
             address = "200 Westminster Bridge Rd, London SE1 7UT",
             accessType = "Public - Membership Required",
-            usageCost = null,
+            usageCost = "",
             connections = connectionListForPreview(),
         )
     }
@@ -265,7 +266,7 @@ private fun BottomSheetPreview() {
 private fun ConnectionListItemPreview() {
     PlugEvTheme {
         ConnectionListItem(
-            quantity = "1",
+            quantity = 1,
             connectionTitle = "Type 2 (Tethered Connector)",
             powerLevelTitle = "Level 3:  High (Over 40kW)",
             isOperational = true,
@@ -294,7 +295,7 @@ private fun connectionListForPreview(): List<Connection> {
             powerLevel = 2,
             powerLevelTitle = "Level 2 : Medium (Over 2kW)",
             power = "4.0",
-            quantity = 1
+            quantity = 0
         ),
         Connection(
             connectionFormalName = "IEC 62196-2 Type 2",
