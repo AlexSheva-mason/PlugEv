@@ -11,7 +11,6 @@ data class MapScreenViewState(
     val isLoading: Boolean = true,
     val uiMessage: UiState.UiInfo? = null,
     val fetchError: UiState.UiError? = null,
-    val shouldShowBottomSheet: Boolean = false,
     val bottomSheetInfoObject: ChargingStation? = null
 ) {
 
@@ -21,7 +20,8 @@ data class MapScreenViewState(
                 " \n chargingStations=${chargingStations.size}," +
                 " \n isLoading=$isLoading," +
                 " \n uiMessage=$uiMessage," +
-                " \n fetchError=$fetchError)"
+                " \n fetchError=$fetchError," +
+                " \n bottomSheetInfoObject=$bottomSheetInfoObject)"
     }
 
 }
