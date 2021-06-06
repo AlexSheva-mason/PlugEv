@@ -53,10 +53,13 @@ fun MapScreen(
         getMapIntentForChargingStation(it, context)
     }
 
-    LaunchedEffect(viewState.chargingStations, viewState.fetchError, viewState.uiMessage) {
+    LaunchedEffect(viewState.fetchError, viewState.uiMessage) {
         val message = viewState.fetchError?.message ?: viewState.uiMessage?.message
+        val duration = if (viewState.uiMessage != null) {
+            SnackbarDuration.Indefinite
+        } else SnackbarDuration.Short
         message?.let { messageText ->
-            scaffoldState.snackbarHostState.showSnackbar(message = messageText)
+            scaffoldState.snackbarHostState.showSnackbar(message = messageText, duration = duration)
         }
     }
 
