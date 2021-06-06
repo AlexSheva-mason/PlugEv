@@ -96,7 +96,7 @@ fun MapScreen(
             }
         } else null,
         floatingActionButtonPosition = FabPosition.Center,
-        sheetPeekHeight = viewState.bottomSheetInfoObject?.let { 120.dp } ?: 0.dp
+        sheetPeekHeight = viewState.bottomSheetInfoObject?.let { 125.dp } ?: 0.dp
     ) {
         Box {
             MapViewContainer(
