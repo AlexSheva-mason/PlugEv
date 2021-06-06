@@ -15,4 +15,4 @@ val Red900 = Color(0xFFB00020)
 
 val Grey200 = Color(0xFFEEEEEE)
 
-val WhiteTranslucent70 = Color(0xB3FFFFFF)
+val WhiteTrans85 = Color(0xD9FFFFFF)

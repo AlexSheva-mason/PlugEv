@@ -15,7 +15,7 @@ import com.shevaalex.android.plugev.presentation.mapscreen.MapScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.shevaalex.android.plugev.presentation.common.compose.WhiteTranslucent70
+import com.shevaalex.android.plugev.presentation.common.compose.WhiteTrans85
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -41,7 +41,7 @@ fun MainScreen(modifier: Modifier = Modifier, locationProviderClient: FusedLocat
     val systemUiController = rememberSystemUiController()
     val useDarkIcons = MaterialTheme.colors.isLight
     SideEffect {
-        systemUiController.setSystemBarsColor(WhiteTranslucent70, darkIcons = useDarkIcons)
+        systemUiController.setSystemBarsColor(WhiteTrans85, darkIcons = useDarkIcons)
     }
     MapScreen(modifier, locationProviderClient)
 }
