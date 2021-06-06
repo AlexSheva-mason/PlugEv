@@ -73,14 +73,14 @@ private fun BottomSheetContent(
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
             Text(
                 text = address,
-                style = MaterialTheme.typography.caption
+                style = MaterialTheme.typography.body2
             )
         }
         accessType?.let { access ->
             Spacer(Modifier.height(3.dp))
             Text(
                 text = access,
-                style = MaterialTheme.typography.overline,
+                style = MaterialTheme.typography.caption,
                 color = if (isPublic) Teal800 else Red900
             )
         }
@@ -214,7 +214,7 @@ private fun ConnectionListItem(
                     )
                     Text(
                         text = operationalText,
-                        style = MaterialTheme.typography.overline,
+                        style = MaterialTheme.typography.caption,
                         color = operationalColour ?: Color.Unspecified,
                         modifier = Modifier.padding(end = 3.dp)
                     )
@@ -229,13 +229,13 @@ private fun ConnectionListItem(
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                         Text(
                             text = powerLevelTitle ?: "Power level unknown",
-                            style = MaterialTheme.typography.caption,
+                            style = MaterialTheme.typography.body2,
                         )
                     }
                     val power = if (powerKw.isBlank()) "? KW" else powerKw.plus(" KW")
                     Text(
                         text = power,
-                        style = MaterialTheme.typography.caption,
+                        style = MaterialTheme.typography.body2,
                         modifier = Modifier.padding(end = 3.dp)
                     )
                 }
