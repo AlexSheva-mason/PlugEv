@@ -5,7 +5,9 @@ import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.CoroutinesTestRule
 import com.shevaalex.android.plugev.data.DataFactory
 import com.shevaalex.android.plugev.data.DataFactory.getMapScreenIntentShowChargingStationsForCurrentMapPosition
+import com.shevaalex.android.plugev.data.network.model.toDomainModel
 import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
+import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.domain.model.DataResult
 import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
@@ -49,7 +51,6 @@ class MapScreenViewModelTest {
             isLoading = true,
             uiMessage = null,
             fetchError = null,
-            shouldShowBottomSheet = false,
             bottomSheetInfoObject = null
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)
@@ -89,7 +90,6 @@ class MapScreenViewModelTest {
                 isLoading = false,
                 uiMessage = null,
                 fetchError = null,
-                shouldShowBottomSheet = false,
                 bottomSheetInfoObject = null
             )
         )
@@ -116,7 +116,6 @@ class MapScreenViewModelTest {
                 isLoading = false,
                 uiMessage = expectedInfoMessage,
                 fetchError = null,
-                shouldShowBottomSheet = false,
                 bottomSheetInfoObject = null
             )
         )
@@ -141,7 +140,6 @@ class MapScreenViewModelTest {
                 isLoading = false,
                 uiMessage = null,
                 fetchError = null,
-                shouldShowBottomSheet = false,
                 bottomSheetInfoObject = null
             )
         )
@@ -166,7 +164,6 @@ class MapScreenViewModelTest {
                 isLoading = false,
                 uiMessage = null,
                 fetchError = expectedErrorMessage,
-                shouldShowBottomSheet = false,
                 bottomSheetInfoObject = null
             )
         )
@@ -175,21 +172,82 @@ class MapScreenViewModelTest {
     @Test
     fun `should verify viewState when submitting ShowBottomSheetWithInfo intent`() {
         //GIVEN
-        val intent = MapScreenIntent.ShowBottomSheetWithInfo("testId")
+        val list = listOf(DataFactory.getChargingStationDomainModel())
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intentShowChargingPoints = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intentShowChargingPoints)
+        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("id51.72215137119824")
 
         //WHEN
-        cut.submitIntent(intent)
+        cut.submitIntent(intentShowBottomSheet)
 
         //THEN
         assertThat(cut.state.value).isEqualTo(
             MapScreenViewState(
-                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
-                cameraZoom = MAP_DEFAULT_ZOOM,
-                chargingStations = listOf(),
-                isLoading = true,
+                cameraPosition = LatLng(0.0, 0.0),
+                cameraZoom = 10f,
+                chargingStations = list,
+                isLoading = false,
                 uiMessage = null,
                 fetchError = null,
-                shouldShowBottomSheet = true,
+                bottomSheetInfoObject = ChargingStation(
+                    id = "id51.72215137119824",
+                    usageCost = "usageCost",
+                    addressTitle = "addressInfoTitle",
+                    addressLine1 = "addressLine1",
+                    addressLine2 = "addressLine2",
+                    town = "town",
+                    province = "province",
+                    postCode = "postCode",
+                    distanceMiles = "1.23",
+                    latitude = 51.72215137119824,
+                    longitude = 0.047445889881063685,
+                    usageTypeTitle = "usageTypeTitle",
+                    isPayAtLocation = true,
+                    isMembershipRequired = true,
+                    statusTypeTitle = "statusTypeTitle",
+                    isOperationalStatus = true,
+                    connections = listOf(
+                        DataFactory.getConnectionNetworkDto("1", 3.0, 1),
+                        DataFactory.getConnectionNetworkDto("2", 7.0, 1)
+                    ).map { it.toDomainModel() },
+                    totalNumberOfPoints = 2
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `should set bottomSheetInfoObject to null when receiving HideBottomSheet intent`() {
+        //GIVEN
+        val list = listOf(DataFactory.getChargingStationDomainModel())
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intentShowChargingPoints = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intentShowChargingPoints)
+        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("id51.72215137119824")
+        cut.submitIntent(intentShowBottomSheet)
+
+        //WHEN
+        val intentHide = MapScreenIntent.HideBottomSheet
+        cut.submitIntent(intentHide)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            MapScreenViewState(
+                cameraPosition = LatLng(0.0, 0.0),
+                cameraZoom = 10f,
+                chargingStations = list,
+                isLoading = false,
+                uiMessage = null,
+                fetchError = null,
                 bottomSheetInfoObject = null
             )
         )

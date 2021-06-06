@@ -36,6 +36,7 @@ class MapScreenViewModel
                         distance = intent.distance
                     )
                     is MapScreenIntent.ShowBottomSheetWithInfo -> onShowBottomSheet(id = intent.id)
+                    is MapScreenIntent.HideBottomSheet -> onHideBottomSheet()
                 }
             }
         }
@@ -77,9 +78,7 @@ class MapScreenViewModel
                                         isResultLimitReached = result.data.size == API_RESULT_LIMIT,
                                         limit = API_RESULT_LIMIT
                                     ),
-                                    fetchError = null,
-                                    shouldShowBottomSheet = false,
-                                    bottomSheetInfoObject = null
+                                    fetchError = null
                                 )
                             )
                         }
@@ -90,9 +89,7 @@ class MapScreenViewModel
                                     cameraPosition = LatLng(latitude, longitude),
                                     isLoading = false,
                                     uiMessage = null,
-                                    fetchError = uiErrorRetrofitException(result.e),
-                                    shouldShowBottomSheet = false,
-                                    bottomSheetInfoObject = null
+                                    fetchError = uiErrorRetrofitException(result.e)
                                 )
                             )
                         }
@@ -105,8 +102,16 @@ class MapScreenViewModel
     private fun onShowBottomSheet(id: String) {
         setState(
             state.value.copy(
-                shouldShowBottomSheet = true,
+                isLoading = false,
                 bottomSheetInfoObject = state.value.chargingStations.find { it.id == id }
+            )
+        )
+    }
+
+    private fun onHideBottomSheet() {
+        setState(
+            state.value.copy(
+                bottomSheetInfoObject = null
             )
         )
     }
