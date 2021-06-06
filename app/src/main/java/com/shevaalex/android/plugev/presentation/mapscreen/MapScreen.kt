@@ -3,6 +3,7 @@ package com.shevaalex.android.plugev.presentation.mapscreen
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -19,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.navigationBarsPadding
@@ -44,7 +46,12 @@ fun MapScreen(
     val scaffoldState = rememberBottomSheetScaffoldState()
     val viewModel: MapScreenViewModel = viewModel()
     val viewState by viewModel.state.collectAsState()
+    val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
+
+    val mapIntent = viewState.bottomSheetInfoObject?.let {
+        getMapIntentForChargingStation(it, context)
+    }
 
     LaunchedEffect(viewState.chargingStations, viewState.fetchError, viewState.uiMessage) {
         val message = viewState.fetchError?.message ?: viewState.uiMessage?.message
@@ -82,10 +89,10 @@ fun MapScreen(
                 )
             }
         },
-        floatingActionButton = if (viewState.bottomSheetInfoObject != null) {
+        floatingActionButton = if (viewState.bottomSheetInfoObject != null && mapIntent != null) {
             {
                 FloatingActionButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { startActivity(context, mapIntent, null) },
                     backgroundColor = MaterialTheme.colors.primary
                 ) {
                     Icon(
@@ -322,4 +329,15 @@ fun Snack(message: String, isError: Boolean) {
             )
         }
     }
+}
+
+private fun getMapIntentForChargingStation(
+    chargingStation: ChargingStation,
+    context: Context
+): Intent? {
+    return getMapIntent(
+        latitude = chargingStation.latitude,
+        longitude = chargingStation.longitude,
+        packageManager = context.packageManager
+    )
 }
