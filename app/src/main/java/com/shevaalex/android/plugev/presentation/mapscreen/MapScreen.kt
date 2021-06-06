@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -24,6 +25,7 @@ import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -39,7 +41,6 @@ fun MapScreen(
     modifier: Modifier,
     locationProviderClient: FusedLocationProviderClient,
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberBottomSheetScaffoldState()
     val viewModel: MapScreenViewModel = viewModel()
     val viewState by viewModel.state.collectAsState()
@@ -52,37 +53,18 @@ fun MapScreen(
         }
     }
 
-    LaunchedEffect(viewState.shouldShowBottomSheet) {
-        if (viewState.shouldShowBottomSheet) scaffoldState.bottomSheetState.expand()
-    }
-
     BottomSheetScaffold(
         sheetContent = {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(128.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Swipe up to expand sheet")
-            }
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(64.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Sheet content")
-                Spacer(Modifier.height(20.dp))
-                Button(
-                    onClick = {
-                        coroutineScope.launch {
-                            scaffoldState.bottomSheetState.collapse()
-                        }
-                    }
-                ) {
-                    Text("Click to collapse sheet")
-                }
+            viewState.bottomSheetInfoObject?.let {
+                BottomSheet(
+                    chargingStation = it,
+                    modifier = Modifier
+                        .navigationBarsPadding(
+                            bottom = true,
+                            left = false,
+                            right = true
+                        )
+                )
             }
         },
         scaffoldState = scaffoldState,
@@ -100,7 +82,21 @@ fun MapScreen(
                 )
             }
         },
-        sheetPeekHeight = 0.dp,
+        floatingActionButton = if (viewState.bottomSheetInfoObject != null) {
+            {
+                FloatingActionButton(
+                    onClick = { /*TODO*/ },
+                    backgroundColor = MaterialTheme.colors.primary
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_fab_navigate),
+                        contentDescription = "Action button: navigate to"
+                    )
+                }
+            }
+        } else null,
+        floatingActionButtonPosition = FabPosition.Center,
+        sheetPeekHeight = viewState.bottomSheetInfoObject?.let { 120.dp } ?: 0.dp
     ) {
         Box {
             MapViewContainer(
@@ -109,7 +105,8 @@ fun MapScreen(
                 viewModel = viewModel,
                 chargingStationList = viewState.chargingStations,
                 cameraPosition = viewState.cameraPosition,
-                cameraZoom = viewState.cameraZoom
+                cameraZoom = viewState.cameraZoom,
+                bottomSheetInfo = viewState.bottomSheetInfoObject
             )
             if (viewState.isLoading) {
                 LinearProgressIndicator(
@@ -131,7 +128,8 @@ fun MapViewContainer(
     viewModel: MapScreenViewModel = viewModel(),
     chargingStationList: List<ChargingStation>,
     cameraPosition: LatLng,
-    cameraZoom: Float
+    cameraZoom: Float,
+    bottomSheetInfo: ChargingStation?
 ) {
     val context = LocalContext.current
     var mapInitialized by remember(map) { mutableStateOf(false) }
@@ -209,6 +207,12 @@ fun MapViewContainer(
     AndroidView({ map }) { mapView ->
         coroutineScope.launch {
             val googleMap = mapView.awaitMap()
+
+            googleMap.setOnCameraMoveStartedListener { reason ->
+                if (reason == REASON_GESTURE && bottomSheetInfo != null) {
+                    viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
+                }
+            }
 
             clusterManager?.let { evClusterManager ->
                 googleMap.setOnCameraIdleListener(evClusterManager)
