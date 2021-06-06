@@ -92,7 +92,7 @@ class MapScreenRequestValidatorTest {
     }
 
     @Test
-    fun `should return false if zoom level increased`() {
+    fun `should return true if zoom level increased`() {
         //GIVEN
         val list = listOf(DataFactory.getChargingStationDomainModel())
         val state = MapScreenViewState(chargingStations = list)
@@ -109,7 +109,7 @@ class MapScreenRequestValidatorTest {
         )
 
         //THEN
-        assertThat(result).isFalse()
+        assertThat(result).isTrue()
     }
 
     @Test

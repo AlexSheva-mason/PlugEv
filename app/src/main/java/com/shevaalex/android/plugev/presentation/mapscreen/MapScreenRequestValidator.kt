@@ -15,7 +15,7 @@ constructor() {
      * @returns true if a new request should be made, based on:
      * MapScreenViewState.cameraPosition distance to a new camera position -> should be more than 25m OR
      * MapScreenViewState.chargingStations -> list is empty OR
-     * MapScreenViewState.cameraZoom -> has been zoomed out
+     * MapScreenViewState.cameraZoom -> zoom level has been changed
      */
     fun validateNewPositionForRequest(
         state: MapScreenViewState,
@@ -29,8 +29,8 @@ constructor() {
                 LatLng(latitude, longitude)
             )
             .toInt()
-        val zoomedOut = state.cameraZoom > zoom
-        return state.chargingStations.isEmpty() || distanceM > 25 || zoomedOut
+        val zoomChanged = state.cameraZoom != zoom
+        return state.chargingStations.isEmpty() || distanceM > 25 || zoomChanged
     }
 
 }
