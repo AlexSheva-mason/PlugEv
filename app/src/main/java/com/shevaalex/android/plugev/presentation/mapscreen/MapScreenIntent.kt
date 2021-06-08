@@ -15,7 +15,7 @@ sealed class MapScreenIntent {
 
     object HideBottomSheet : MapScreenIntent()
 
-    data class FilterChargingStations(
+    data class ShowFilteredChargingStationsForLocation(
         val levelIds: List<String>?,
         val usageTypeIds: List<String>?
     ) : MapScreenIntent()
