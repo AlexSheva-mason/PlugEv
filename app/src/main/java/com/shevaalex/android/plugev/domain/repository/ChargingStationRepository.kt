@@ -11,4 +11,12 @@ interface ChargingStationRepository {
         distance: Float
     ): DataResult<List<ChargingStation>>
 
+    suspend fun getChargingStationsForLocationFiltered(
+        latitude: Double,
+        longitude: Double,
+        distance: Float,
+        levelIds: List<String>?,
+        usageTypeIds: List<String>?
+    ): DataResult<List<ChargingStation>>
+
 }

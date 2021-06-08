@@ -38,4 +38,30 @@ class ChargingStationRepositoryImpl
         }
     }
 
+    override suspend fun getChargingStationsForLocationFiltered(
+        latitude: Double,
+        longitude: Double,
+        distance: Float,
+        levelIds: List<String>?,
+        usageTypeIds: List<String>?
+    ): DataResult<List<ChargingStation>> {
+        return retrofitCall {
+            apiService
+                .getChargingStationsForLocationFiltered(
+                    latitude = latitude,
+                    longitude = longitude,
+                    distance = distance,
+                    levelIds = levelIds,
+                    usageTypeIds = usageTypeIds
+                )
+                .mapNotNull {
+                    try {
+                        it.toDomainModel()
+                    } catch (ex: Exception) {
+                        null
+                    }
+                }
+        }
+    }
+
 }
