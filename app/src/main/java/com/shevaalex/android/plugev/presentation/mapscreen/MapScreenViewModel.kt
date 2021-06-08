@@ -5,6 +5,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
 import com.shevaalex.android.plugev.domain.model.DataResult
 import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
+import com.shevaalex.android.plugev.domain.usecase.GetFilteredChargingStationsUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.BaseViewModel
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class MapScreenViewModel
 @Inject constructor(
     private val getChargeStationListUseCase: GetChargeStationListUseCase,
+    private val getFilteredChargingStations: GetFilteredChargingStationsUseCase,
     private val requestValidator: MapScreenRequestValidator
 ) : BaseViewModel<MapScreenViewState>(
     initialState = MapScreenViewState()
