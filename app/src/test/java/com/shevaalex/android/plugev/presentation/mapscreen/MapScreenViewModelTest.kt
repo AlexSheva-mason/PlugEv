@@ -52,6 +52,7 @@ class MapScreenViewModelTest {
         val expectedViewState = MapScreenViewState(
             cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
             cameraZoom = MAP_DEFAULT_ZOOM,
+            fetchRadiusMiles = null,
             chargingStations = listOf(),
             isLoading = true,
             uiMessage = null,
@@ -76,7 +77,106 @@ class MapScreenViewModelTest {
     }
 
     @Test
-    fun `verify state when getChargeStationListUseCase returns DataResultSuccess with a list`() {
+    fun `should set ViewState's cameraPosition from ShowChargingStationsForCurrentMapPosition intent`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+
+        //WHEN
+        val intent = MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
+            zoom = 0f,
+            latitude = 1.234,
+            longitude = 3.456,
+            distance = 0f
+        )
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            cut.state.value.copy(
+                cameraPosition = LatLng(intent.latitude, intent.longitude)
+            )
+        )
+    }
+
+    @Test
+    fun `should set ViewState's cameraZoom from ShowChargingStationsForCurrentMapPosition intent`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+
+        //WHEN
+        val intent = MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
+            zoom = 1234567f,
+            latitude = 0.0,
+            longitude = 0.0,
+            distance = 0f
+        )
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            cut.state.value.copy(
+                cameraZoom = 1234567f
+            )
+        )
+    }
+
+    @Test
+    fun `should set ViewState's fetchRadiusMiles from ShowChargingStationsForCurrentMapPosition intent`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+
+        //WHEN
+        val intent = MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
+            zoom = 0f,
+            latitude = 0.0,
+            longitude = 0.0,
+            distance = 123456f
+        )
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            cut.state.value.copy(
+                fetchRadiusMiles = 123456f
+            )
+        )
+    }
+
+    @Test
+    fun `should set ViewState's isLoading false after calling getChargeStationListUseCase`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+
+        //WHEN
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            cut.state.value.copy(
+                isLoading = false
+            )
+        )
+    }
+
+    @Test
+    fun `viewState should contain appropriate list from getChargeStationListUseCase DataResultSuccess`() {
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
@@ -88,20 +188,14 @@ class MapScreenViewModelTest {
         cut.submitIntent(intent)
 
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(intent.latitude, intent.longitude),
-                cameraZoom = intent.zoom,
-                chargingStations = list,
-                isLoading = false,
-                uiMessage = null,
-                fetchError = null,
-                bottomSheetInfoObject = null
+            cut.state.value.copy(
+                chargingStations = list
             )
         )
     }
 
     @Test
-    fun `verify state message when getChargeStationListUseCase returns DataResultSuccess with limited list`() {
+    fun `viewState should contain UiInfo when getChargeStationListUseCase DataResultSuccess has limited list`() {
         val list = List(API_RESULT_LIMIT) { DataFactory.getChargingStationDomainModel() }
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
@@ -114,20 +208,14 @@ class MapScreenViewModelTest {
 
         val expectedInfoMessage = uiInfoResultsLimited(true, API_RESULT_LIMIT)
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(intent.latitude, intent.longitude),
-                cameraZoom = intent.zoom,
-                chargingStations = list,
-                isLoading = false,
-                uiMessage = expectedInfoMessage,
-                fetchError = null,
-                bottomSheetInfoObject = null
+            cut.state.value.copy(
+                uiMessage = expectedInfoMessage
             )
         )
     }
 
     @Test
-    fun `verify state when getChargeStationListUseCase returns DataResultSuccess empty list`() {
+    fun `viewState should contain empty list when getChargeStationListUseCase DataResultSuccess has empty list`() {
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
         } returns DataResult.Success(
@@ -138,20 +226,14 @@ class MapScreenViewModelTest {
         cut.submitIntent(intent)
 
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(intent.latitude, intent.longitude),
-                cameraZoom = intent.zoom,
-                chargingStations = listOf(),
-                isLoading = false,
-                uiMessage = null,
-                fetchError = null,
-                bottomSheetInfoObject = null
+            cut.state.value.copy(
+                chargingStations = listOf()
             )
         )
     }
 
     @Test
-    fun `verify state message when getChargeStationListUseCase returns error`() {
+    fun `viewState should contain UiError when getChargeStationListUseCase returns error`() {
         val exception = Exception("Test exception")
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
@@ -162,20 +244,35 @@ class MapScreenViewModelTest {
 
         val expectedErrorMessage = uiErrorRetrofitException(exception)
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(intent.latitude, intent.longitude),
-                cameraZoom = intent.zoom,
-                chargingStations = listOf(),
-                isLoading = false,
-                uiMessage = null,
-                fetchError = expectedErrorMessage,
-                bottomSheetInfoObject = null
+            cut.state.value.copy(
+                fetchError = expectedErrorMessage
             )
         )
     }
 
     @Test
-    fun `should verify viewState when submitting ShowBottomSheetWithInfo intent`() {
+    fun `viewState should have isLoading false after submitting ShowBottomSheetWithInfo intent`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+
+        //WHEN
+        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("testID")
+        cut.submitIntent(intentShowBottomSheet)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            cut.state.value.copy(
+                isLoading = false
+            )
+        )
+    }
+
+    @Test
+    fun `should set bottomSheetInfoObject in viewState when submitting ShowBottomSheetWithInfo intent`() {
         //GIVEN
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
@@ -192,13 +289,7 @@ class MapScreenViewModelTest {
 
         //THEN
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(0.0, 0.0),
-                cameraZoom = 10f,
-                chargingStations = list,
-                isLoading = false,
-                uiMessage = null,
-                fetchError = null,
+            cut.state.value.copy(
                 bottomSheetInfoObject = ChargingStation(
                     id = "id51.72215137119824",
                     usageCost = "usageCost",
@@ -246,13 +337,7 @@ class MapScreenViewModelTest {
 
         //THEN
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(0.0, 0.0),
-                cameraZoom = 10f,
-                chargingStations = list,
-                isLoading = false,
-                uiMessage = null,
-                fetchError = null,
+            cut.state.value.copy(
                 bottomSheetInfoObject = null
             )
         )
@@ -279,7 +364,7 @@ class MapScreenViewModelTest {
     }
 
     @Test
-    fun `should verify state when getFilteredChargingStations returns DataResultSuccess with a list`() {
+    fun `should set viewState isLoading false after calling getFilteredChargingStations`() {
         //GIVEN
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
@@ -295,20 +380,37 @@ class MapScreenViewModelTest {
 
         //THEN
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
-                cameraZoom = MAP_DEFAULT_ZOOM,
-                chargingStations = list,
-                isLoading = false,
-                uiMessage = null,
-                fetchError = null,
-                bottomSheetInfoObject = null
+            cut.state.value.copy(
+                isLoading = false
             )
         )
     }
 
     @Test
-    fun `should verify state message when getFilteredChargingStations returns DataResultSuccess with limited list`() {
+    fun `viewState should contain list after getFilteredChargingStations returns DataResultSuccess with a list`() {
+        //GIVEN
+        val list = listOf(DataFactory.getChargingStationDomainModel())
+        coEvery {
+            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intent = MapScreenIntent
+            .ShowFilteredChargingStationsForLocation(null, null)
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            cut.state.value.copy(
+                chargingStations = list
+            )
+        )
+    }
+
+    @Test
+    fun `viewState should contain UiInfo when getFilteredChargingStations DataResultSuccess has limited list`() {
         //GIVEN
         val list = List(API_RESULT_LIMIT) { DataFactory.getChargingStationDomainModel() }
         coEvery {
@@ -325,20 +427,14 @@ class MapScreenViewModelTest {
         //THEN
         val expectedInfoMessage = uiInfoResultsLimited(true, API_RESULT_LIMIT)
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
-                cameraZoom = MAP_DEFAULT_ZOOM,
-                chargingStations = list,
-                isLoading = false,
-                uiMessage = expectedInfoMessage,
-                fetchError = null,
-                bottomSheetInfoObject = null
+            cut.state.value.copy(
+                uiMessage = expectedInfoMessage
             )
         )
     }
 
     @Test
-    fun `should verify state when getFilteredChargingStations returns DataResultSuccess empty list`() {
+    fun `viewState should contain empty list when getFilteredChargingStations returns DataResultSuccess empty list`() {
         //GIVEN
         val list = listOf<ChargingStation>()
         coEvery {
@@ -354,20 +450,14 @@ class MapScreenViewModelTest {
 
         //THEN
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
-                cameraZoom = MAP_DEFAULT_ZOOM,
-                chargingStations = listOf(),
-                isLoading = false,
-                uiMessage = null,
-                fetchError = null,
-                bottomSheetInfoObject = null
+            cut.state.value.copy(
+                chargingStations = listOf()
             )
         )
     }
 
     @Test
-    fun `should verify state message when getFilteredChargingStations returns error`() {
+    fun `viewState should contain UiError when getFilteredChargingStations returns error`() {
         //GIVEN
         val exception = Exception("Test exception")
         coEvery {
@@ -384,14 +474,8 @@ class MapScreenViewModelTest {
         //THEN
         val expectedError = uiErrorRetrofitException(exception)
         assertThat(cut.state.value).isEqualTo(
-            MapScreenViewState(
-                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
-                cameraZoom = MAP_DEFAULT_ZOOM,
-                chargingStations = listOf(),
-                isLoading = false,
-                uiMessage = null,
-                fetchError = expectedError,
-                bottomSheetInfoObject = null
+            cut.state.value.copy(
+                fetchError = expectedError
             )
         )
     }

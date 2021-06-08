@@ -68,6 +68,9 @@ class MapScreenViewModel
             viewModelScope.launch {
                 setState(
                     state.value.copy(
+                        cameraZoom = zoom,
+                        cameraPosition = LatLng(latitude, longitude),
+                        fetchRadiusMiles = distance,
                         isLoading = true
                     )
                 )
@@ -80,8 +83,6 @@ class MapScreenViewModel
                         is DataResult.Success -> {
                             setState(
                                 state.value.copy(
-                                    cameraZoom = zoom,
-                                    cameraPosition = LatLng(latitude, longitude),
                                     chargingStations = result.data,
                                     isLoading = false,
                                     uiMessage = uiInfoResultsLimited(
@@ -95,8 +96,6 @@ class MapScreenViewModel
                         is DataResult.Error -> {
                             setState(
                                 state.value.copy(
-                                    cameraZoom = zoom,
-                                    cameraPosition = LatLng(latitude, longitude),
                                     isLoading = false,
                                     uiMessage = null,
                                     fetchError = uiErrorRetrofitException(result.e)
@@ -139,7 +138,7 @@ class MapScreenViewModel
             getFilteredChargingStations(
                 latitude = state.value.cameraPosition.latitude,
                 longitude = state.value.cameraPosition.longitude,
-                distance = state.value.fetchRadiusMiles,
+                distance = state.value.fetchRadiusMiles ?: 2f,
                 levelIds = levelIds,
                 usageTypeIds = usageTypeIds
             ).also { result ->
