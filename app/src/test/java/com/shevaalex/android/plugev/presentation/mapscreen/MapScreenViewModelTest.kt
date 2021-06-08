@@ -10,6 +10,7 @@ import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
 import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.domain.model.DataResult
 import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
+import com.shevaalex.android.plugev.domain.usecase.GetFilteredChargingStationsUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
 import io.mockk.MockKAnnotations
@@ -31,6 +32,9 @@ class MapScreenViewModelTest {
     @MockK
     private lateinit var getChargeStationListUseCase: GetChargeStationListUseCase
 
+    @MockK
+    private lateinit var getFilteredChargingStations: GetFilteredChargingStationsUseCase
+
     private lateinit var cut: MapScreenViewModel
 
     @Before
@@ -38,6 +42,7 @@ class MapScreenViewModelTest {
         MockKAnnotations.init(this)
         cut = MapScreenViewModel(
             getChargeStationListUseCase = getChargeStationListUseCase,
+            getFilteredChargingStations = getFilteredChargingStations,
             requestValidator = MapScreenRequestValidator()
         )
     }
@@ -71,7 +76,7 @@ class MapScreenViewModelTest {
     }
 
     @Test
-    fun `verify state when getChargeStationListUseCase return DataResultSuccess with a list`() {
+    fun `verify state when getChargeStationListUseCase returns DataResultSuccess with a list`() {
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
@@ -96,7 +101,7 @@ class MapScreenViewModelTest {
     }
 
     @Test
-    fun `verify state message when getChargeStationListUseCase return DataResultSuccess with limited list`() {
+    fun `verify state message when getChargeStationListUseCase returns DataResultSuccess with limited list`() {
         val list = List(API_RESULT_LIMIT) { DataFactory.getChargingStationDomainModel() }
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
@@ -122,7 +127,7 @@ class MapScreenViewModelTest {
     }
 
     @Test
-    fun `verify state when getChargeStationListUseCase return DataResultSuccess empty list`() {
+    fun `verify state when getChargeStationListUseCase returns DataResultSuccess empty list`() {
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any())
         } returns DataResult.Success(
@@ -248,6 +253,144 @@ class MapScreenViewModelTest {
                 isLoading = false,
                 uiMessage = null,
                 fetchError = null,
+                bottomSheetInfoObject = null
+            )
+        )
+    }
+
+    @Test
+    fun `submitting ShowFilteredChargingStationsForLocation intent calls GetFilteredChargingStationsUseCase`() {
+        //GIVEN
+        coEvery {
+            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+        val intent = MapScreenIntent
+            .ShowFilteredChargingStationsForLocation(listOf("1"), listOf("2"))
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        coVerify {
+            getFilteredChargingStations.invoke(any(), any(), any(), listOf("1"), listOf("2"))
+        }
+    }
+
+    @Test
+    fun `should verify state when getFilteredChargingStations returns DataResultSuccess with a list`() {
+        //GIVEN
+        val list = listOf(DataFactory.getChargingStationDomainModel())
+        coEvery {
+            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intent = MapScreenIntent
+            .ShowFilteredChargingStationsForLocation(null, null)
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            MapScreenViewState(
+                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
+                cameraZoom = MAP_DEFAULT_ZOOM,
+                chargingStations = list,
+                isLoading = false,
+                uiMessage = null,
+                fetchError = null,
+                bottomSheetInfoObject = null
+            )
+        )
+    }
+
+    @Test
+    fun `should verify state message when getFilteredChargingStations returns DataResultSuccess with limited list`() {
+        //GIVEN
+        val list = List(API_RESULT_LIMIT) { DataFactory.getChargingStationDomainModel() }
+        coEvery {
+            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intent = MapScreenIntent
+            .ShowFilteredChargingStationsForLocation(null, null)
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        val expectedInfoMessage = uiInfoResultsLimited(true, API_RESULT_LIMIT)
+        assertThat(cut.state.value).isEqualTo(
+            MapScreenViewState(
+                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
+                cameraZoom = MAP_DEFAULT_ZOOM,
+                chargingStations = list,
+                isLoading = false,
+                uiMessage = expectedInfoMessage,
+                fetchError = null,
+                bottomSheetInfoObject = null
+            )
+        )
+    }
+
+    @Test
+    fun `should verify state when getFilteredChargingStations returns DataResultSuccess empty list`() {
+        //GIVEN
+        val list = listOf<ChargingStation>()
+        coEvery {
+            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intent = MapScreenIntent
+            .ShowFilteredChargingStationsForLocation(null, null)
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value).isEqualTo(
+            MapScreenViewState(
+                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
+                cameraZoom = MAP_DEFAULT_ZOOM,
+                chargingStations = listOf(),
+                isLoading = false,
+                uiMessage = null,
+                fetchError = null,
+                bottomSheetInfoObject = null
+            )
+        )
+    }
+
+    @Test
+    fun `should verify state message when getFilteredChargingStations returns error`() {
+        //GIVEN
+        val exception = Exception("Test exception")
+        coEvery {
+            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Error(
+            e = exception
+        )
+        val intent = MapScreenIntent
+            .ShowFilteredChargingStationsForLocation(null, null)
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        val expectedError = uiErrorRetrofitException(exception)
+        assertThat(cut.state.value).isEqualTo(
+            MapScreenViewState(
+                cameraPosition = LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE),
+                cameraZoom = MAP_DEFAULT_ZOOM,
+                chargingStations = listOf(),
+                isLoading = false,
+                uiMessage = null,
+                fetchError = expectedError,
                 bottomSheetInfoObject = null
             )
         )

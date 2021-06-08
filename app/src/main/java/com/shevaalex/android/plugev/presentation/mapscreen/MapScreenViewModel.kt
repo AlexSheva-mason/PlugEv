@@ -31,14 +31,22 @@ class MapScreenViewModel
         viewModelScope.launch {
             pendingIntent.collect { intent ->
                 when (intent) {
-                    is MapScreenIntent.ShowChargingStationsForCurrentMapPosition -> onShowChargersForMapPosition(
-                        zoom = intent.zoom,
-                        latitude = intent.latitude,
-                        longitude = intent.longitude,
-                        distance = intent.distance
-                    )
+                    is MapScreenIntent.ShowChargingStationsForCurrentMapPosition -> {
+                        onShowChargersForMapPosition(
+                            zoom = intent.zoom,
+                            latitude = intent.latitude,
+                            longitude = intent.longitude,
+                            distance = intent.distance
+                        )
+                    }
                     is MapScreenIntent.ShowBottomSheetWithInfo -> onShowBottomSheet(id = intent.id)
                     is MapScreenIntent.HideBottomSheet -> onHideBottomSheet()
+                    is MapScreenIntent.ShowFilteredChargingStationsForLocation -> {
+                        onShowFilteredChargingStations(
+                            levelIds = intent.levelIds,
+                            usageTypeIds = intent.usageTypeIds
+                        )
+                    }
                 }
             }
         }
@@ -116,6 +124,51 @@ class MapScreenViewModel
                 bottomSheetInfoObject = null
             )
         )
+    }
+
+    private fun onShowFilteredChargingStations(
+        levelIds: List<String>?,
+        usageTypeIds: List<String>?
+    ) {
+        viewModelScope.launch {
+            setState(
+                state.value.copy(
+                    isLoading = true
+                )
+            )
+            getFilteredChargingStations(
+                latitude = state.value.cameraPosition.latitude,
+                longitude = state.value.cameraPosition.longitude,
+                distance = state.value.fetchRadiusMiles,
+                levelIds = levelIds,
+                usageTypeIds = usageTypeIds
+            ).also { result ->
+                when (result) {
+                    is DataResult.Success -> {
+                        setState(
+                            state.value.copy(
+                                chargingStations = result.data,
+                                isLoading = false,
+                                uiMessage = uiInfoResultsLimited(
+                                    isResultLimitReached = result.data.size == API_RESULT_LIMIT,
+                                    limit = API_RESULT_LIMIT
+                                ),
+                                fetchError = null
+                            )
+                        )
+                    }
+                    is DataResult.Error -> {
+                        setState(
+                            state.value.copy(
+                                isLoading = false,
+                                uiMessage = null,
+                                fetchError = uiErrorRetrofitException(result.e)
+                            )
+                        )
+                    }
+                }
+            }
+        }
     }
 
     fun submitIntent(intent: MapScreenIntent) {
