@@ -13,6 +13,11 @@ sealed class MapScreenIntent {
         val id: String
     ) : MapScreenIntent()
 
-    object HideBottomSheet: MapScreenIntent()
+    object HideBottomSheet : MapScreenIntent()
+
+    data class FilterChargingStations(
+        val levelIds: List<String>?,
+        val usageTypeIds: List<String>?
+    ) : MapScreenIntent()
 
 }
