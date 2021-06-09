@@ -140,12 +140,17 @@ private fun ChipStatus(backgroundColor: Color, contentColor: Color, text: String
         shape = MaterialTheme.shapes.small,
         color = backgroundColor,
         contentColor = contentColor,
+        modifier = Modifier.height(32.dp)
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.body2,
-            modifier = Modifier.padding(5.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp)
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.body2
+            )
+        }
     }
 }
 
