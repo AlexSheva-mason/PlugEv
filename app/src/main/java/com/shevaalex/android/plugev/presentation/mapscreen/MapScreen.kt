@@ -308,7 +308,6 @@ private fun getLastKnownPosition(
 @Composable
 fun Snack(message: String, isError: Boolean) {
     Card(
-        shape = MaterialTheme.shapes.small,
         backgroundColor = MaterialTheme.colors.background,
         elevation = 6.dp
     ) {
