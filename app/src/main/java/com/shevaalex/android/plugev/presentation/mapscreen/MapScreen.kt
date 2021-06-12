@@ -117,12 +117,8 @@ fun MapScreen(
             MapViewContainer(
                 map = mapView,
                 locationProviderClient = locationProviderClient,
-                viewModel = viewModel,
-                chargingStationList = viewState.chargingStations,
-                cameraPosition = viewState.cameraPosition,
-                cameraZoom = viewState.cameraZoom,
-                bottomSheetInfo = viewState.bottomSheetInfoObject
-            )
+                viewState = viewState
+            ) { viewModel.submitIntent(it) }
             if (viewState.isLoading) {
                 LinearProgressIndicator(
                     modifier = modifier
@@ -147,11 +143,8 @@ fun MapScreen(
 fun MapViewContainer(
     map: MapView,
     locationProviderClient: FusedLocationProviderClient,
-    viewModel: MapScreenViewModel = viewModel(),
-    chargingStationList: List<ChargingStation>,
-    cameraPosition: LatLng,
-    cameraZoom: Float,
-    bottomSheetInfo: ChargingStation?
+    viewState: MapScreenViewState,
+    submitIntent: (MapScreenIntent) -> Unit
 ) {
     val context = LocalContext.current
     val insets = LocalWindowInsets.current
@@ -171,7 +164,7 @@ fun MapViewContainer(
             val googleMap = map.awaitMap()
             googleMap.isMyLocationEnabled = true
             googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(it, cameraZoom)
+                CameraUpdateFactory.newLatLngZoom(it, viewState.cameraZoom)
             )
         }
     }
@@ -183,12 +176,10 @@ fun MapViewContainer(
                 context = context,
                 googleMap = googleMap,
                 onMarkerClick = { id ->
-                    viewModel.submitIntent(
-                        MapScreenIntent.ShowBottomSheetWithInfo(id)
-                    )
+                    submitIntent(MapScreenIntent.ShowBottomSheetWithInfo(id))
                 }
             ) {
-                viewModel.submitIntent(
+                submitIntent(
                     MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
                         zoom = googleMap.cameraPosition.zoom,
                         latitude = googleMap.cameraPosition.target.latitude,
@@ -201,7 +192,7 @@ fun MapViewContainer(
                 )
             }
             googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(cameraPosition, cameraZoom)
+                CameraUpdateFactory.newLatLngZoom(viewState.cameraPosition, viewState.cameraZoom)
             )
             googleMap.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(context, R.raw.google_map_style)
@@ -219,9 +210,16 @@ fun MapViewContainer(
                 googleMap.isMyLocationEnabled = true
                 getLastKnownPosition(locationProviderClient) { lastKnownPosition ->
                     //if viewState has camera position at defaults -> move camera to lastKnownPosition
-                    if (cameraPosition == LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE)) {
+                    if (viewState.cameraPosition == LatLng(
+                            MAP_DEFAULT_LATITUDE,
+                            MAP_DEFAULT_LONGITUDE
+                        )
+                    ) {
                         googleMap.moveCamera(
-                            CameraUpdateFactory.newLatLngZoom(lastKnownPosition, cameraZoom)
+                            CameraUpdateFactory.newLatLngZoom(
+                                lastKnownPosition,
+                                viewState.cameraZoom
+                            )
                         )
                     }
                 }
@@ -235,8 +233,8 @@ fun MapViewContainer(
             val googleMap = mapView.awaitMap()
 
             googleMap.setOnCameraMoveStartedListener { reason ->
-                if (reason == REASON_GESTURE && bottomSheetInfo != null) {
-                    viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
+                if (reason == REASON_GESTURE && viewState.bottomSheetInfoObject != null) {
+                    submitIntent(MapScreenIntent.HideBottomSheet)
                 }
             }
 
@@ -246,7 +244,7 @@ fun MapViewContainer(
                 val latLngBounds = googleMap.projection.visibleRegion.latLngBounds
 
                 addItemsToCollection(
-                    chargingStationList = chargingStationList,
+                    chargingStationList = viewState.chargingStations,
                     latLngBounds = latLngBounds,
                     evClusterManager = evClusterManager
                 )
