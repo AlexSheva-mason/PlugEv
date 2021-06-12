@@ -1,6 +1,6 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
-enum class FilterOption(
+enum class FilterRowState(
     val filterType: FilterType,
     val text: String,
     var chipState: ChipState
