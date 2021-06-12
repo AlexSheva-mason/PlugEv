@@ -12,12 +12,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shevaalex.android.plugev.R
 import com.shevaalex.android.plugev.presentation.common.compose.PlugEvTheme
-import com.shevaalex.android.plugev.presentation.common.compose.Teal100trans70
+import com.shevaalex.android.plugev.presentation.common.compose.Teal100
 import com.shevaalex.android.plugev.presentation.common.compose.Teal800
 
 @Composable
@@ -27,15 +28,15 @@ fun FilteringRow(
 ) {
     Row(
         modifier = modifier
-            .padding(top = 8.dp, bottom = 8.dp)
+            .padding(top = 4.dp, bottom = 4.dp)
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
+        Spacer(modifier = Modifier.width(4.dp))
         state.optionsList.forEach {
-            Spacer(modifier = Modifier.width(8.dp))
             ChipFilter(it)
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(4.dp))
     }
 }
 
@@ -43,10 +44,11 @@ fun FilteringRow(
 private fun ChipFilter(option: FilterOption) {
     Surface(
         shape = MaterialTheme.shapes.small,
-        //TODO remove colour transparency
-        color = Teal100trans70,
+        color = Teal100,
         contentColor = Teal800,
         modifier = Modifier
+            .padding(4.dp)
+            .shadow(2.dp, MaterialTheme.shapes.small)
             .height(32.dp)
             .animateContentSize()
             .clickable(true) {
