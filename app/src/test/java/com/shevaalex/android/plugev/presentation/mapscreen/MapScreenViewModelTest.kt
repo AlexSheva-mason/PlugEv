@@ -57,7 +57,8 @@ class MapScreenViewModelTest {
             isLoading = true,
             uiMessage = null,
             fetchError = null,
-            bottomSheetInfoObject = null
+            bottomSheetInfoObject = null,
+            filteringRowState = FilterRowState()
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)
     }
