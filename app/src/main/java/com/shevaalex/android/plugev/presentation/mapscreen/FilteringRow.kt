@@ -28,7 +28,10 @@ fun FilteringRow(
 ) {
     Row(
         modifier = modifier
-            .padding(top = 4.dp, bottom = 4.dp)
+            .padding(
+                top = FILTER_ROW_PADDING_VERTICAL.dp,
+                bottom = FILTER_ROW_PADDING_VERTICAL.dp
+            )
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
@@ -47,9 +50,9 @@ private fun ChipFilter(option: FilterOption) {
         color = Teal100,
         contentColor = Teal800,
         modifier = Modifier
-            .padding(4.dp)
+            .padding(FILTER_CHIP_PADDING.dp)
             .shadow(2.dp, MaterialTheme.shapes.small)
-            .height(32.dp)
+            .height(FILTER_CHIP_HEIGHT.dp)
             .animateContentSize()
             .clickable(true) {
                 //TODO
