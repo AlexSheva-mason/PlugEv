@@ -21,22 +21,21 @@ import com.shevaalex.android.plugev.presentation.common.compose.Teal100trans70
 import com.shevaalex.android.plugev.presentation.common.compose.Teal800
 
 @Composable
-fun FilteringRow() {
+fun FilteringRow(
+    state: FilterRowState,
+    modifier: Modifier
+) {
     Row(
-        modifier = Modifier
-            .padding(start = 8.dp, top = 8.dp)
+        modifier = modifier
+            .padding(top = 8.dp, bottom = 8.dp)
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
-        ChipFilter(FilterOption.Level1)
+        state.optionsList.forEach {
+            Spacer(modifier = Modifier.width(8.dp))
+            ChipFilter(it)
+        }
         Spacer(modifier = Modifier.width(8.dp))
-        ChipFilter(FilterOption.Level2)
-        Spacer(modifier = Modifier.width(8.dp))
-        ChipFilter(FilterOption.Level3)
-        Spacer(modifier = Modifier.width(8.dp))
-        ChipFilter(FilterOption.Private)
-        Spacer(modifier = Modifier.width(8.dp))
-        ChipFilter(FilterOption.Public)
     }
 }
 
@@ -44,6 +43,7 @@ fun FilteringRow() {
 private fun ChipFilter(option: FilterOption) {
     Surface(
         shape = MaterialTheme.shapes.small,
+        //TODO remove colour transparency
         color = Teal100trans70,
         contentColor = Teal800,
         modifier = Modifier
@@ -74,7 +74,10 @@ private fun ChipFilter(option: FilterOption) {
 @Composable
 private fun FilteringRowPreview() {
     PlugEvTheme {
-        FilteringRow()
+        FilteringRow(
+            state = FilterRowState(),
+            modifier = Modifier
+        )
     }
 }
 
