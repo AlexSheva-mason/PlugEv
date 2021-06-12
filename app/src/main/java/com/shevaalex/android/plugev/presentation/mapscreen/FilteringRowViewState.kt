@@ -1,6 +1,16 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
-enum class FilterRowState(
+data class FilterRowState(
+    val optionsList: Set<FilterOption> = setOf(
+        FilterOption.Level1,
+        FilterOption.Level2,
+        FilterOption.Level3,
+        FilterOption.Public,
+        FilterOption.Private
+    )
+)
+
+enum class FilterOption(
     val filterType: FilterType,
     val text: String,
     var chipState: ChipState
