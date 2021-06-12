@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -82,7 +83,7 @@ fun MapScreen(
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = modifier
-                    .widthIn(min = 100.dp, max = 344.dp)
+                    .widthIn(min = SNACK_WIDTH_MIN.dp, max = SNACK_WIDTH_MAX.dp)
                     .navigationBarsPadding(bottom = true, left = false, right = true)
                     .padding(16.dp),
             ) { data ->
@@ -126,6 +127,13 @@ fun MapScreen(
                         .navigationBarsPadding(bottom = false, left = false, right = true)
                 )
             }
+            FilteringRow(
+                state = viewState.filteringRowState,
+                modifier = modifier
+                    .statusBarsPadding()
+                    .navigationBarsPadding(bottom = false, left = false, right = true)
+                    .padding(top = progressBarHeight.dp)
+            )
         }
     }
 }
@@ -142,10 +150,14 @@ fun MapViewContainer(
     bottomSheetInfo: ChargingStation?
 ) {
     val context = LocalContext.current
-    var mapInitialized by remember(map) { mutableStateOf(false) }
     val insets = LocalWindowInsets.current
-    val progressIndicatorStrokePx =
-        with(LocalDensity.current) { ProgressIndicatorDefaults.StrokeWidth.toPx().toInt() }
+    var mapInitialized by remember(map) { mutableStateOf(false) }
+
+    val mapPaddingTopContent = remember {
+        getMapPaddingTop()
+    }
+    val mapPaddingTopContentPx = with(LocalDensity.current) { mapPaddingTopContent.toPx().toInt() }
+
     val coroutineScope = rememberCoroutineScope()
     var clusterManager: PlugEvClusterManager? by remember(map) { mutableStateOf(null) }
     val requestLauncher = rememberLauncher(
@@ -192,7 +204,7 @@ fun MapViewContainer(
             )
             googleMap.setPadding(
                 0,
-                (insets.statusBars.top).plus(progressIndicatorStrokePx),
+                (insets.statusBars.top).plus(mapPaddingTopContentPx),
                 insets.navigationBars.right,
                 insets.navigationBars.bottom
             )
@@ -342,4 +354,11 @@ private fun getMapIntentForChargingStation(
         longitude = chargingStation.longitude,
         packageManager = context.packageManager
     )
+}
+
+private fun getMapPaddingTop(): Dp {
+    val filterRowHeight = (
+            FILTER_CHIP_HEIGHT + FILTER_CHIP_PADDING * 2 + FILTER_ROW_PADDING_VERTICAL * 2
+            ).dp
+    return progressBarHeight.dp + filterRowHeight
 }
