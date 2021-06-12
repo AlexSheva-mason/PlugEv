@@ -50,8 +50,10 @@ fun MapScreen(
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
 
-    val mapIntent = viewState.bottomSheetInfoObject?.let {
-        getMapIntentForChargingStation(it, context)
+    val mapIntent = remember(viewState.bottomSheetInfoObject) {
+        viewState.bottomSheetInfoObject?.let {
+            getMapIntentForChargingStation(it, context)
+        }
     }
 
     LaunchedEffect(viewState.fetchError, viewState.uiMessage) {
