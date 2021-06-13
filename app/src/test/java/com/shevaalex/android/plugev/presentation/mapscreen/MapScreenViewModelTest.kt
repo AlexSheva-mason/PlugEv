@@ -10,7 +10,6 @@ import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
 import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.domain.model.DataResult
 import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
-import com.shevaalex.android.plugev.domain.usecase.GetFilteredChargingStationsUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
 import io.mockk.MockKAnnotations
@@ -32,9 +31,6 @@ class MapScreenViewModelTest {
     @MockK
     private lateinit var getChargeStationListUseCase: GetChargeStationListUseCase
 
-    @MockK
-    private lateinit var getFilteredChargingStations: GetFilteredChargingStationsUseCase
-
     private lateinit var cut: MapScreenViewModel
 
     @Before
@@ -42,7 +38,6 @@ class MapScreenViewModelTest {
         MockKAnnotations.init(this)
         cut = MapScreenViewModel(
             getChargeStationListUseCase = getChargeStationListUseCase,
-            getFilteredChargingStations = getFilteredChargingStations,
             requestValidator = MapScreenRequestValidator()
         )
     }
@@ -66,7 +61,7 @@ class MapScreenViewModelTest {
     @Test
     fun `submitting ShowChargingStationsForCurrentMapPosition intent calls getChargeStationListUseCase`() {
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = listOf()
         )
@@ -74,24 +69,43 @@ class MapScreenViewModelTest {
 
         cut.submitIntent(intent)
 
-        coVerify { getChargeStationListUseCase(any(), any(), intent.distance) }
+        coVerify { getChargeStationListUseCase(any(), any(), intent.distance, any(), any()) }
+    }
+
+    @Test
+    fun `should call getChargeStationListUseCase with filtering options`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+
+        //WHEN
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intent)
+
+        //THEN
+        coVerify {
+            getChargeStationListUseCase(
+                any(), any(), any(), listOf("levelId1", "levelId2"), listOf("usage1", "usage2")
+            )
+        }
     }
 
     @Test
     fun `should set ViewState's cameraPosition from ShowChargingStationsForCurrentMapPosition intent`() {
         //GIVEN
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = listOf()
         )
 
         //WHEN
-        val intent = MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
-            zoom = 0f,
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition(
             latitude = 1.234,
-            longitude = 3.456,
-            distance = 0f
+            longitude = 3.456
         )
         cut.submitIntent(intent)
 
@@ -107,18 +121,13 @@ class MapScreenViewModelTest {
     fun `should set ViewState's cameraZoom from ShowChargingStationsForCurrentMapPosition intent`() {
         //GIVEN
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = listOf()
         )
 
         //WHEN
-        val intent = MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
-            zoom = 1234567f,
-            latitude = 0.0,
-            longitude = 0.0,
-            distance = 0f
-        )
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition(zoom = 1234567f)
         cut.submitIntent(intent)
 
         //THEN
@@ -133,18 +142,13 @@ class MapScreenViewModelTest {
     fun `should set ViewState's fetchRadiusMiles from ShowChargingStationsForCurrentMapPosition intent`() {
         //GIVEN
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = listOf()
         )
 
         //WHEN
-        val intent = MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
-            zoom = 0f,
-            latitude = 0.0,
-            longitude = 0.0,
-            distance = 123456f
-        )
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition(distance = 123456f)
         cut.submitIntent(intent)
 
         //THEN
@@ -159,7 +163,7 @@ class MapScreenViewModelTest {
     fun `should set ViewState's isLoading false after calling getChargeStationListUseCase`() {
         //GIVEN
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = listOf()
         )
@@ -180,7 +184,7 @@ class MapScreenViewModelTest {
     fun `viewState should contain appropriate list from getChargeStationListUseCase DataResultSuccess`() {
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = list
         )
@@ -199,7 +203,7 @@ class MapScreenViewModelTest {
     fun `viewState should contain UiInfo when getChargeStationListUseCase DataResultSuccess has limited list`() {
         val list = List(API_RESULT_LIMIT) { DataFactory.getChargingStationDomainModel() }
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = list
         )
@@ -218,7 +222,7 @@ class MapScreenViewModelTest {
     @Test
     fun `viewState should contain empty list when getChargeStationListUseCase DataResultSuccess has empty list`() {
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = listOf()
         )
@@ -237,7 +241,7 @@ class MapScreenViewModelTest {
     fun `viewState should contain UiError when getChargeStationListUseCase returns error`() {
         val exception = Exception("Test exception")
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Error(exception)
 
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
@@ -255,7 +259,7 @@ class MapScreenViewModelTest {
     fun `viewState should have isLoading false after submitting ShowBottomSheetWithInfo intent`() {
         //GIVEN
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = listOf()
         )
@@ -277,7 +281,7 @@ class MapScreenViewModelTest {
         //GIVEN
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = list
         )
@@ -323,7 +327,7 @@ class MapScreenViewModelTest {
         //GIVEN
         val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any())
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
             data = list
         )
@@ -340,143 +344,6 @@ class MapScreenViewModelTest {
         assertThat(cut.state.value).isEqualTo(
             cut.state.value.copy(
                 bottomSheetInfoObject = null
-            )
-        )
-    }
-
-    @Test
-    fun `submitting ShowFilteredChargingStationsForLocation intent calls GetFilteredChargingStationsUseCase`() {
-        //GIVEN
-        coEvery {
-            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
-        val intent = MapScreenIntent
-            .ShowFilteredChargingStationsForLocation(listOf("1"), listOf("2"))
-
-        //WHEN
-        cut.submitIntent(intent)
-
-        //THEN
-        coVerify {
-            getFilteredChargingStations.invoke(any(), any(), any(), listOf("1"), listOf("2"))
-        }
-    }
-
-    @Test
-    fun `should set viewState isLoading false after calling getFilteredChargingStations`() {
-        //GIVEN
-        val list = listOf(DataFactory.getChargingStationDomainModel())
-        coEvery {
-            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = list
-        )
-        val intent = MapScreenIntent
-            .ShowFilteredChargingStationsForLocation(null, null)
-
-        //WHEN
-        cut.submitIntent(intent)
-
-        //THEN
-        assertThat(cut.state.value).isEqualTo(
-            cut.state.value.copy(
-                isLoading = false
-            )
-        )
-    }
-
-    @Test
-    fun `viewState should contain list after getFilteredChargingStations returns DataResultSuccess with a list`() {
-        //GIVEN
-        val list = listOf(DataFactory.getChargingStationDomainModel())
-        coEvery {
-            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = list
-        )
-        val intent = MapScreenIntent
-            .ShowFilteredChargingStationsForLocation(null, null)
-
-        //WHEN
-        cut.submitIntent(intent)
-
-        //THEN
-        assertThat(cut.state.value).isEqualTo(
-            cut.state.value.copy(
-                chargingStations = list
-            )
-        )
-    }
-
-    @Test
-    fun `viewState should contain UiInfo when getFilteredChargingStations DataResultSuccess has limited list`() {
-        //GIVEN
-        val list = List(API_RESULT_LIMIT) { DataFactory.getChargingStationDomainModel() }
-        coEvery {
-            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = list
-        )
-        val intent = MapScreenIntent
-            .ShowFilteredChargingStationsForLocation(null, null)
-
-        //WHEN
-        cut.submitIntent(intent)
-
-        //THEN
-        val expectedInfoMessage = uiInfoResultsLimited(true, API_RESULT_LIMIT)
-        assertThat(cut.state.value).isEqualTo(
-            cut.state.value.copy(
-                uiMessage = expectedInfoMessage
-            )
-        )
-    }
-
-    @Test
-    fun `viewState should contain empty list when getFilteredChargingStations returns DataResultSuccess empty list`() {
-        //GIVEN
-        val list = listOf<ChargingStation>()
-        coEvery {
-            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = list
-        )
-        val intent = MapScreenIntent
-            .ShowFilteredChargingStationsForLocation(null, null)
-
-        //WHEN
-        cut.submitIntent(intent)
-
-        //THEN
-        assertThat(cut.state.value).isEqualTo(
-            cut.state.value.copy(
-                chargingStations = listOf()
-            )
-        )
-    }
-
-    @Test
-    fun `viewState should contain UiError when getFilteredChargingStations returns error`() {
-        //GIVEN
-        val exception = Exception("Test exception")
-        coEvery {
-            getFilteredChargingStations.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Error(
-            e = exception
-        )
-        val intent = MapScreenIntent
-            .ShowFilteredChargingStationsForLocation(null, null)
-
-        //WHEN
-        cut.submitIntent(intent)
-
-        //THEN
-        val expectedError = uiErrorRetrofitException(exception)
-        assertThat(cut.state.value).isEqualTo(
-            cut.state.value.copy(
-                fetchError = expectedError
             )
         )
     }
