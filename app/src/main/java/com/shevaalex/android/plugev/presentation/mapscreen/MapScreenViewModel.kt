@@ -123,8 +123,39 @@ class MapScreenViewModel
         viewModelScope.launch { pendingIntent.emit(intent) }
     }
 
-    private fun getFilteringUsageTypeIds() = listOf("usage1", "usage2")
+    private fun getFilteringLevelIds(): List<String>? {
+        val powerLevelOptions = state.value.filteringRowState.optionsList.filter { filterOption ->
+            filterOption.filterType == FilterType.PowerLevel
+        }
 
-    private fun getFilteringLevelIds() = listOf("levelId1", "levelId2")
+        val disabledOption = powerLevelOptions.find { powerOption ->
+            powerOption.chipState == ChipState.Disabled
+        }
+
+        return disabledOption?.let {
+            powerLevelOptions.mapNotNull { powerOption ->
+                if (powerOption.chipState == ChipState.Enabled) powerOption.text
+                else null
+            }
+        }
+    }
+
+    private fun getFilteringUsageTypeIds(): List<String>? {
+        val accessibilityOptions =
+            state.value.filteringRowState.optionsList.filter { filterOption ->
+                filterOption.filterType == FilterType.Accessibility
+            }
+
+        val disabledOption = accessibilityOptions.find { accessibilityOption ->
+            accessibilityOption.chipState == ChipState.Disabled
+        }
+
+        return disabledOption?.let {
+            accessibilityOptions.mapNotNull { accessibilityOption ->
+                if (accessibilityOption.chipState == ChipState.Enabled) accessibilityOption.text
+                else null
+            }
+        }
+    }
 
 }

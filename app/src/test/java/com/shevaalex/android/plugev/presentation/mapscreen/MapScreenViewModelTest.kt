@@ -73,7 +73,7 @@ class MapScreenViewModelTest {
     }
 
     @Test
-    fun `should call getChargeStationListUseCase with filtering options`() {
+    fun `should call getChargeStationListUseCase with filtering options null by default`() {
         //GIVEN
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
@@ -88,7 +88,7 @@ class MapScreenViewModelTest {
         //THEN
         coVerify {
             getChargeStationListUseCase(
-                any(), any(), any(), listOf("levelId1", "levelId2"), listOf("usage1", "usage2")
+                any(), any(), any(), null, null
             )
         }
     }
