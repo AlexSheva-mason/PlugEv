@@ -16,28 +16,6 @@ class ChargingStationRepositoryImpl
     private val apiService: ChargingStationRetrofitService
 ) : ChargingStationRepository {
 
-    override suspend fun getChargingStationsForLocation(
-        latitude: Double,
-        longitude: Double,
-        distance: Float
-    ): DataResult<List<ChargingStation>> {
-        return retrofitCall {
-            apiService
-                .getChargingStationsForLocation(
-                    latitude = latitude,
-                    longitude = longitude,
-                    distance = distance
-                )
-                .mapNotNull {
-                    try {
-                        it.toDomainModel()
-                    } catch (ex: Exception) {
-                        null
-                    }
-                }
-        }
-    }
-
     override suspend fun getChargingStationsForLocationFiltered(
         latitude: Double,
         longitude: Double,
