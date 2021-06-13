@@ -90,6 +90,6 @@ private fun FilteringRowPreview() {
 @Composable
 private fun ChipFilterActivePreview() {
     PlugEvTheme {
-        ChipFilter(FilterOption.Private)
+        ChipFilter(FilterOption.Private())
     }
 }
