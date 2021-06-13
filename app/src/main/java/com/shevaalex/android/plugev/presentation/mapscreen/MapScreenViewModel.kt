@@ -39,6 +39,9 @@ class MapScreenViewModel
                     }
                     is MapScreenIntent.ShowBottomSheetWithInfo -> onShowBottomSheet(id = intent.id)
                     is MapScreenIntent.HideBottomSheet -> onHideBottomSheet()
+                    is MapScreenIntent.FilterOptionStateChange -> {
+                        onFilterRowStateChange(option = intent.filterOption)
+                    }
                 }
             }
         }
@@ -117,6 +120,19 @@ class MapScreenViewModel
                 bottomSheetInfoObject = null
             )
         )
+    }
+
+    private fun onFilterRowStateChange(option: FilterOption) {
+        val filterOption = state.value.filteringRowState.optionsList.find {
+            when (option) {
+                is FilterOption.Level1 -> it is FilterOption.Level1
+                is FilterOption.Level2 -> it is FilterOption.Level2
+                is FilterOption.Level3 -> it is FilterOption.Level3
+                is FilterOption.Public -> it is FilterOption.Public
+                is FilterOption.Private -> it is FilterOption.Private
+            }
+        }
+        filterOption?.chipState = option.chipState
     }
 
     fun submitIntent(intent: MapScreenIntent) {

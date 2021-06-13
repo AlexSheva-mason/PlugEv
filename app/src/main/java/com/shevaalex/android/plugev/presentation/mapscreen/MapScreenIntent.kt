@@ -15,4 +15,8 @@ sealed class MapScreenIntent {
 
     object HideBottomSheet : MapScreenIntent()
 
+    data class FilterOptionStateChange(
+        val filterOption: FilterOption
+    ) : MapScreenIntent()
+
 }

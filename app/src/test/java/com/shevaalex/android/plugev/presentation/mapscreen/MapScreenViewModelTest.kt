@@ -348,4 +348,74 @@ class MapScreenViewModelTest {
         )
     }
 
+    @Test
+    fun `should set view state's Level1 filtering option when calling FilterOptionStateChange`() {
+        //GIVEN
+        val filterOption = FilterOption.Level1()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+    }
+
+    @Test
+    fun `should set view state's Level2 filtering option when calling FilterOptionStateChange`() {
+        //GIVEN
+        val filterOption = FilterOption.Level2()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+    }
+
+    @Test
+    fun `should set view state's Level3 filtering option when calling FilterOptionStateChange`() {
+        //GIVEN
+        val filterOption = FilterOption.Level3()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+    }
+
+    @Test
+    fun `should set view state's Public filtering option when calling FilterOptionStateChange`() {
+        //GIVEN
+        val filterOption = FilterOption.Public()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+    }
+
+    @Test
+    fun `should set view state's Private filtering option when calling FilterOptionStateChange`() {
+        //GIVEN
+        val filterOption = FilterOption.Public()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+    }
+
 }
