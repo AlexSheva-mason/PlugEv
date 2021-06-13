@@ -6,9 +6,7 @@ sealed class MapScreenIntent {
         val zoom: Float,
         val latitude: Double,
         val longitude: Double,
-        val distance: Float,
-        val levelIds: List<String>?,
-        val usageTypeIds: List<String>?
+        val distance: Float
     ) : MapScreenIntent()
 
     data class ShowBottomSheetWithInfo(
