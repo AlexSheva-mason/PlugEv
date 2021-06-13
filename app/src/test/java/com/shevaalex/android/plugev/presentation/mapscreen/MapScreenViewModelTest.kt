@@ -418,4 +418,115 @@ class MapScreenViewModelTest {
         assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
     }
 
+    @Test
+    fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Level1`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+        val filterOption = FilterOption.Level1()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        coVerify {
+            getChargeStationListUseCase.invoke(any(), any(), any(), listOf("2", "3"), any())
+        }
+    }
+
+    @Test
+    fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Level2`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+        val filterOption = FilterOption.Level2()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        coVerify {
+            getChargeStationListUseCase.invoke(any(), any(), any(), listOf("1", "3"), any())
+        }
+    }
+
+    @Test
+    fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Level3`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+        val filterOption = FilterOption.Level3()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        coVerify {
+            getChargeStationListUseCase.invoke(any(), any(), any(), listOf("1", "2"), any())
+        }
+    }
+
+    @Test
+    fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Public`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+        val filterOption = FilterOption.Public()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        coVerify {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), listOf("2", "3", "6"))
+        }
+    }
+
+    @Test
+    fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Private`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+        val filterOption = FilterOption.Private()
+        filterOption.chipState = ChipState.Disabled
+
+        //WHEN
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        cut.submitIntent(intent)
+
+        //THEN
+        coVerify {
+            getChargeStationListUseCase.invoke(
+                any(),
+                any(),
+                any(),
+                any(),
+                listOf("1", "4", "5", "7")
+            )
+        }
+    }
+
 }

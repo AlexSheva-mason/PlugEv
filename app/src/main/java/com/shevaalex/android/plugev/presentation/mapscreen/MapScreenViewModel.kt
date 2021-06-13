@@ -122,7 +122,7 @@ class MapScreenViewModel
         )
     }
 
-    private fun onFilterRowStateChange(option: FilterOption) {
+    private suspend fun onFilterRowStateChange(option: FilterOption) {
         val filterOption = state.value.filteringRowState.optionsList.find {
             when (option) {
                 is FilterOption.Level1 -> it is FilterOption.Level1
@@ -133,6 +133,13 @@ class MapScreenViewModel
             }
         }
         filterOption?.chipState = option.chipState
+
+        onShowChargersForMapPosition(
+            zoom = state.value.cameraZoom,
+            longitude = state.value.cameraPosition.longitude,
+            latitude = state.value.cameraPosition.latitude,
+            distance = state.value.fetchRadiusMiles ?: 2f,
+        )
     }
 
     fun submitIntent(intent: MapScreenIntent) {
@@ -140,23 +147,34 @@ class MapScreenViewModel
     }
 
     private fun getFilteringLevelIds(): List<String>? {
+        val enabledPowerLevelOptions =
+            state.value.filteringRowState.optionsList.filter { filterOption ->
+                filterOption.filterType == FilterType.PowerLevel
+                        && filterOption.chipState == ChipState.Enabled
+            }
+
         val powerLevelOptions = state.value.filteringRowState.optionsList.filter { filterOption ->
             filterOption.filterType == FilterType.PowerLevel
         }
-
         val disabledOption = powerLevelOptions.find { powerOption ->
             powerOption.chipState == ChipState.Disabled
         }
 
         return disabledOption?.let {
-            powerLevelOptions.mapNotNull { powerOption ->
-                if (powerOption.chipState == ChipState.Enabled) powerOption.text
-                else null
+            val list = enabledPowerLevelOptions.flatMap { powerOption ->
+                powerOption.optionIds
             }
+            if (list.isNotEmpty()) list
+            else null
         }
     }
 
     private fun getFilteringUsageTypeIds(): List<String>? {
+        val enabledUsageOptions = state.value.filteringRowState.optionsList.filter { filterOption ->
+            filterOption.filterType == FilterType.Accessibility
+                    && filterOption.chipState == ChipState.Enabled
+        }
+
         val accessibilityOptions =
             state.value.filteringRowState.optionsList.filter { filterOption ->
                 filterOption.filterType == FilterType.Accessibility
@@ -167,10 +185,11 @@ class MapScreenViewModel
         }
 
         return disabledOption?.let {
-            accessibilityOptions.mapNotNull { accessibilityOption ->
-                if (accessibilityOption.chipState == ChipState.Enabled) accessibilityOption.text
-                else null
+            val list = enabledUsageOptions.flatMap { accessibilityOption ->
+                accessibilityOption.optionIds
             }
+            if (list.isNotEmpty()) list
+            else null
         }
     }
 
