@@ -24,7 +24,8 @@ import com.shevaalex.android.plugev.presentation.common.compose.Teal800
 @Composable
 fun FilteringRow(
     state: FilterRowState,
-    modifier: Modifier
+    modifier: Modifier,
+    onFilterOptionStateChange: (FilterOption) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -37,14 +38,17 @@ fun FilteringRow(
     ) {
         Spacer(modifier = Modifier.width(4.dp))
         state.optionsList.forEach {
-            ChipFilter(it)
+            ChipFilter(it, onFilterOptionStateChange)
         }
         Spacer(modifier = Modifier.width(4.dp))
     }
 }
 
 @Composable
-private fun ChipFilter(option: FilterOption) {
+private fun ChipFilter(
+    option: FilterOption,
+    onFilterOptionStateChange: (FilterOption) -> Unit
+) {
     Surface(
         shape = MaterialTheme.shapes.small,
         color = Teal100,
@@ -55,17 +59,21 @@ private fun ChipFilter(option: FilterOption) {
             .height(FILTER_CHIP_HEIGHT.dp)
             .animateContentSize()
             .clickable(true) {
-                //TODO
+                val newChipState = option.chipState != ChipState.Enabled
+                val newOption = getNewFilterOptionForChip(option, newChipState)
+                onFilterOptionStateChange(newOption)
             }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(start = 4.dp, end = 12.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_check_24),
-                contentDescription = null,
-            )
+            if (option.chipState == ChipState.Enabled) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_check_24),
+                    contentDescription = null,
+                )
+            }
             Text(
                 text = option.text,
                 style = MaterialTheme.typography.body2,
@@ -75,13 +83,24 @@ private fun ChipFilter(option: FilterOption) {
     }
 }
 
+private fun getNewFilterOptionForChip(option: FilterOption, newState: Boolean): FilterOption {
+    return when (option) {
+        is FilterOption.Level1 -> FilterOption.Level1(isEnabled = newState)
+        is FilterOption.Level2 -> FilterOption.Level2(isEnabled = newState)
+        is FilterOption.Level3 -> FilterOption.Level3(isEnabled = newState)
+        is FilterOption.Public -> FilterOption.Public(isEnabled = newState)
+        is FilterOption.Private -> FilterOption.Private(isEnabled = newState)
+    }
+}
+
 @Preview
 @Composable
 private fun FilteringRowPreview() {
     PlugEvTheme {
         FilteringRow(
             state = FilterRowState(),
-            modifier = Modifier
+            modifier = Modifier,
+            onFilterOptionStateChange = { }
         )
     }
 }
@@ -90,6 +109,6 @@ private fun FilteringRowPreview() {
 @Composable
 private fun ChipFilterActivePreview() {
     PlugEvTheme {
-        ChipFilter(FilterOption.Private())
+        ChipFilter(FilterOption.Private()) { }
     }
 }

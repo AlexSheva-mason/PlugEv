@@ -133,7 +133,7 @@ fun MapScreen(
                     .statusBarsPadding()
                     .navigationBarsPadding(bottom = false, left = false, right = true)
                     .padding(top = progressBarHeight.dp)
-            )
+            ) { viewModel.submitIntent(MapScreenIntent.FilterOptionStateChange(it)) }
         }
     }
 }
