@@ -29,8 +29,8 @@ class ChargingStationRepositoryImpl
                     latitude = latitude,
                     longitude = longitude,
                     distance = distance,
-                    levelIds = levelIds,
-                    usageTypeIds = usageTypeIds
+                    levelIds = levelIds?.joinToString(separator = ","),
+                    usageTypeIds = usageTypeIds?.joinToString(separator = ",")
                 )
                 .mapNotNull {
                     try {

@@ -14,8 +14,8 @@ interface ChargingStationRetrofitService {
         @Query("longitude") longitude: Double,
         @Query("distance") distance: Float,
         @Query("maxresults") maxResults: Int = API_RESULT_LIMIT,
-        @Query("levelid") levelIds: List<String>?,
-        @Query("usagetypeid") usageTypeIds: List<String>?
+        @Query("levelid") levelIds: String?,
+        @Query("usagetypeid") usageTypeIds: String?
     ): List<ChargingStationNetworkDto>
 
 }
