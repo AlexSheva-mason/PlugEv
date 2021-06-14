@@ -13,28 +13,59 @@ data class FilterRowState(
 sealed class FilterOption(
     val filterType: FilterType,
     val text: String,
-    var chipState: ChipState,
-    open val optionIds: List<String>
+    val chipState: ChipState,
+    val optionIds: List<String>
 ) {
+
     data class Level1(
-        override val optionIds: List<String> = listOf("1"),
-    ) : FilterOption(FilterType.PowerLevel, "Level 2", ChipState.Enabled, optionIds = optionIds)
+        val isEnabled: Boolean = true,
+        val filterValues: List<String> = listOf("1"),
+    ) : FilterOption(
+        filterType = FilterType.PowerLevel,
+        text = "Level 1",
+        chipState = if (isEnabled) ChipState.Enabled else ChipState.Disabled,
+        optionIds = filterValues
+    )
 
     data class Level2(
-        override val optionIds: List<String> = listOf("2"),
-    ) : FilterOption(FilterType.PowerLevel, "Level 2", ChipState.Enabled, optionIds = optionIds)
+        val isEnabled: Boolean = true,
+        val filterValues: List<String> = listOf("2"),
+    ) : FilterOption(
+        filterType = FilterType.PowerLevel,
+        text = "Level 2",
+        chipState = if (isEnabled) ChipState.Enabled else ChipState.Disabled,
+        optionIds = filterValues
+    )
 
     data class Level3(
-        override val optionIds: List<String> = listOf("3"),
-    ) : FilterOption(FilterType.PowerLevel, "Level 3", ChipState.Enabled, optionIds = optionIds)
+        val isEnabled: Boolean = true,
+        val filterValues: List<String> = listOf("3"),
+    ) : FilterOption(
+        filterType = FilterType.PowerLevel,
+        text = "Level 3",
+        chipState = if (isEnabled) ChipState.Enabled else ChipState.Disabled,
+        optionIds = filterValues
+    )
 
     data class Public(
-        override val optionIds: List<String> = listOf("1", "4", "5", "7"),
-    ) : FilterOption(FilterType.Accessibility, "Public", ChipState.Enabled, optionIds = optionIds)
+        val isEnabled: Boolean = true,
+        val filterValues: List<String> = listOf("1", "4", "5", "7"),
+    ) : FilterOption(
+        filterType = FilterType.Accessibility,
+        text = "Public",
+        chipState = if (isEnabled) ChipState.Enabled else ChipState.Disabled,
+        optionIds = filterValues
+    )
 
     data class Private(
-        override val optionIds: List<String> = listOf("2", "3", "6"),
-    ) : FilterOption(FilterType.Accessibility, "Private", ChipState.Enabled, optionIds = optionIds)
+        val isEnabled: Boolean = true,
+        val filterValues: List<String> = listOf("2", "3", "6"),
+    ) : FilterOption(
+        filterType = FilterType.Accessibility,
+        text = "Private",
+        chipState = if (isEnabled) ChipState.Enabled else ChipState.Disabled,
+        optionIds = filterValues
+    )
 }
 
 enum class FilterType {

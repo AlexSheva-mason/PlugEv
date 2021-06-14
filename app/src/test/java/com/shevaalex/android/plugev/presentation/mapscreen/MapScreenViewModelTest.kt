@@ -351,8 +351,7 @@ class MapScreenViewModelTest {
     @Test
     fun `should set view state's Level1 filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Level1()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Level1(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -365,8 +364,7 @@ class MapScreenViewModelTest {
     @Test
     fun `should set view state's Level2 filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Level2()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Level2(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -379,8 +377,7 @@ class MapScreenViewModelTest {
     @Test
     fun `should set view state's Level3 filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Level3()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Level3(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -393,8 +390,7 @@ class MapScreenViewModelTest {
     @Test
     fun `should set view state's Public filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Public()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Public(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -407,8 +403,7 @@ class MapScreenViewModelTest {
     @Test
     fun `should set view state's Private filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Private()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Private(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -426,8 +421,7 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Level1()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Level1(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -447,8 +441,7 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Level2()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Level2(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -468,8 +461,7 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Level3()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Level3(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -489,8 +481,7 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Public()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Public(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -510,8 +501,7 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Private()
-        filterOption.chipState = ChipState.Disabled
+        val filterOption = FilterOption.Private(isEnabled = false)
 
         //WHEN
         val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
@@ -537,12 +527,9 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterLevel1 = FilterOption.Level1()
-        filterLevel1.chipState = ChipState.Disabled
-        val filterLevel2 = FilterOption.Level2()
-        filterLevel2.chipState = ChipState.Disabled
-        val filterLevel3 = FilterOption.Level3()
-        filterLevel3.chipState = ChipState.Disabled
+        val filterLevel1 = FilterOption.Level1(isEnabled = false)
+        val filterLevel2 = FilterOption.Level2(isEnabled = false)
+        val filterLevel3 = FilterOption.Level3(isEnabled = false)
 
         //WHEN
         cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel1))
@@ -565,10 +552,8 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterPublic = FilterOption.Public()
-        filterPublic.chipState = ChipState.Disabled
-        val filterPrivate = FilterOption.Private()
-        filterPrivate.chipState = ChipState.Disabled
+        val filterPublic = FilterOption.Public(isEnabled = false)
+        val filterPrivate = FilterOption.Private(isEnabled = false)
 
         //WHEN
         cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterPublic))

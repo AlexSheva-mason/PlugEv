@@ -140,12 +140,12 @@ class MapScreenViewModel
             if (option.chipState == ChipState.Disabled) {
 
                 if (shouldDisableOption(filterOption)) {
-                    filterOption.chipState = option.chipState
+                    replaceOptionInFilterStateSet(option)
                 } else {
-                    enableAllFilterOptionOfType(it.filterType)
+                    enableAllFilterOptionsOfType(it.filterType)
                 }
 
-            } else filterOption.chipState = option.chipState
+            } else replaceOptionInFilterStateSet(option)
         }
 
         onShowChargersForMapPosition(
@@ -167,10 +167,52 @@ class MapScreenViewModel
         return totalOptionTypeCount - disabledCount != 1
     }
 
-    private fun enableAllFilterOptionOfType(filterType: FilterType) {
-        state.value.filteringRowState.optionsList.forEach {
-            if (it.filterType == filterType) it.chipState = ChipState.Enabled
-        }
+    private fun replaceOptionInFilterStateSet(option: FilterOption) {
+        val newSet = state.value.filteringRowState.optionsList.map {
+            if (it.filterType == option.filterType &&
+                it.text == option.text &&
+                it.optionIds == option.optionIds
+            ) {
+                option
+            } else it
+        }.toSet()
+
+        setNewFilterRowState(newSet)
+    }
+
+    private fun enableAllFilterOptionsOfType(filterType: FilterType) {
+        val newSet = state.value.filteringRowState.optionsList.map {
+            when (filterType) {
+                FilterType.PowerLevel -> {
+                    when (it) {
+                        is FilterOption.Level1 -> FilterOption.Level1()
+                        is FilterOption.Level2 -> FilterOption.Level2()
+                        is FilterOption.Level3 -> FilterOption.Level3()
+                        is FilterOption.Private -> it
+                        is FilterOption.Public -> it
+                    }
+                }
+                FilterType.Accessibility -> {
+                    when (it) {
+                        is FilterOption.Level1 -> it
+                        is FilterOption.Level2 -> it
+                        is FilterOption.Level3 -> it
+                        is FilterOption.Private -> FilterOption.Private()
+                        is FilterOption.Public -> FilterOption.Public()
+                    }
+                }
+            }
+        }.toSet()
+
+        setNewFilterRowState(newSet)
+    }
+
+    private fun setNewFilterRowState(newSet: Set<FilterOption>) {
+        setState(
+            state.value.copy(
+                filteringRowState = FilterRowState(optionsList = newSet)
+            )
+        )
     }
 
     private fun getFilteringLevelIds(): List<String>? {
