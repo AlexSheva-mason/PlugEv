@@ -18,7 +18,6 @@ import javax.inject.Inject
 class MapScreenViewModel
 @Inject constructor(
     private val getChargeStationListUseCase: GetChargeStationListUseCase,
-    private val requestValidator: MapScreenRequestValidator
 ) : BaseViewModel<MapScreenViewState>(
     initialState = MapScreenViewState()
 ) {
@@ -56,52 +55,44 @@ class MapScreenViewModel
         distance: Float,
         latitude: Double
     ) {
-        if (requestValidator.validateNewPositionForRequest(
-                state.value,
-                latitude,
-                longitude,
-                zoom
-            )
-        ) {
-            viewModelScope.launch {
-                setState(
-                    state.value.copy(
-                        cameraZoom = zoom,
-                        cameraPosition = LatLng(latitude, longitude),
-                        fetchRadiusMiles = distance,
-                        isLoading = true
-                    )
+        viewModelScope.launch {
+            setState(
+                state.value.copy(
+                    cameraZoom = zoom,
+                    cameraPosition = LatLng(latitude, longitude),
+                    fetchRadiusMiles = distance,
+                    isLoading = true
                 )
-                getChargeStationListUseCase(
-                    latitude = latitude,
-                    longitude = longitude,
-                    distance = distance,
-                    levelIds = getFilteringLevelIds(),
-                    usageTypeIds = getFilteringUsageTypeIds()
-                ).also { result ->
-                    when (result) {
-                        is DataResult.Success -> {
-                            setState(
-                                state.value.copy(
-                                    chargingStations = result.data,
-                                    isLoading = false,
-                                    uiMessage = uiInfoResultsLimited(
-                                        isResultLimitReached = result.data.size == API_RESULT_LIMIT,
-                                        limit = API_RESULT_LIMIT
-                                    ),
-                                    fetchError = null
-                                )
+            )
+            getChargeStationListUseCase(
+                latitude = latitude,
+                longitude = longitude,
+                distance = distance,
+                levelIds = getFilteringLevelIds(),
+                usageTypeIds = getFilteringUsageTypeIds()
+            ).also { result ->
+                when (result) {
+                    is DataResult.Success -> {
+                        setState(
+                            state.value.copy(
+                                chargingStations = result.data,
+                                isLoading = false,
+                                uiMessage = uiInfoResultsLimited(
+                                    isResultLimitReached = result.data.size == API_RESULT_LIMIT,
+                                    limit = API_RESULT_LIMIT
+                                ),
+                                fetchError = null
                             )
-                        }
-                        is DataResult.Error -> {
-                            setState(
-                                state.value.copy(
-                                    isLoading = false,
-                                    uiMessage = null,
-                                    fetchError = uiErrorRetrofitException(result.e)
-                                )
+                        )
+                    }
+                    is DataResult.Error -> {
+                        setState(
+                            state.value.copy(
+                                isLoading = false,
+                                uiMessage = null,
+                                fetchError = uiErrorRetrofitException(result.e)
                             )
-                        }
+                        )
                     }
                 }
             }

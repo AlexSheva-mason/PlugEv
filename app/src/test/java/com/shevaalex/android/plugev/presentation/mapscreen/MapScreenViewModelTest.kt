@@ -37,8 +37,7 @@ class MapScreenViewModelTest {
     fun setUp() {
         MockKAnnotations.init(this)
         cut = MapScreenViewModel(
-            getChargeStationListUseCase = getChargeStationListUseCase,
-            requestValidator = MapScreenRequestValidator()
+            getChargeStationListUseCase = getChargeStationListUseCase
         )
     }
 
