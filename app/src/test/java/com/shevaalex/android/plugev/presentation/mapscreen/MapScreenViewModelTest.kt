@@ -407,7 +407,7 @@ class MapScreenViewModelTest {
     @Test
     fun `should set view state's Private filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Public()
+        val filterOption = FilterOption.Private()
         filterOption.chipState = ChipState.Disabled
 
         //WHEN
@@ -527,6 +527,59 @@ class MapScreenViewModelTest {
                 listOf("1", "4", "5", "7")
             )
         }
+    }
+
+    @Test
+    fun `should enable all filtering options of FilterType PowerLevel if all disabled`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+        val filterLevel1 = FilterOption.Level1()
+        filterLevel1.chipState = ChipState.Disabled
+        val filterLevel2 = FilterOption.Level2()
+        filterLevel2.chipState = ChipState.Disabled
+        val filterLevel3 = FilterOption.Level3()
+        filterLevel3.chipState = ChipState.Disabled
+
+        //WHEN
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel1))
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel2))
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel3))
+
+        //THEN
+        val disabledOption = cut.state.value.filteringRowState.optionsList.find { filterOption ->
+            filterOption.filterType == filterLevel1.filterType &&
+                    filterOption.chipState == ChipState.Disabled
+        }
+        assertThat(disabledOption).isNull()
+    }
+
+    @Test
+    fun `should enable all filtering options of FilterType Accessibility if all disabled`() {
+        //GIVEN
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
+        val filterPublic = FilterOption.Public()
+        filterPublic.chipState = ChipState.Disabled
+        val filterPrivate = FilterOption.Private()
+        filterPrivate.chipState = ChipState.Disabled
+
+        //WHEN
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterPublic))
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterPrivate))
+
+        //THEN
+        val disabledOption = cut.state.value.filteringRowState.optionsList.find { filterOption ->
+            filterOption.filterType == filterPublic.filterType &&
+                    filterOption.chipState == ChipState.Disabled
+        }
+        assertThat(disabledOption).isNull()
     }
 
 }

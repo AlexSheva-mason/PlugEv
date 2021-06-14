@@ -22,7 +22,6 @@ class MapScreenViewModel
 ) : BaseViewModel<MapScreenViewState>(
     initialState = MapScreenViewState()
 ) {
-
     private val pendingIntent = MutableSharedFlow<MapScreenIntent>()
 
     init {
@@ -45,6 +44,10 @@ class MapScreenViewModel
                 }
             }
         }
+    }
+
+    fun submitIntent(intent: MapScreenIntent) {
+        viewModelScope.launch { pendingIntent.emit(intent) }
     }
 
     private suspend fun onShowChargersForMapPosition(
@@ -132,7 +135,18 @@ class MapScreenViewModel
                 is FilterOption.Private -> it is FilterOption.Private
             }
         }
-        filterOption?.chipState = option.chipState
+
+        filterOption?.let {
+            if (option.chipState == ChipState.Disabled) {
+
+                if (shouldDisableOption(filterOption)) {
+                    filterOption.chipState = option.chipState
+                } else {
+                    enableAllFilterOptionOfType(it.filterType)
+                }
+
+            } else filterOption.chipState = option.chipState
+        }
 
         onShowChargersForMapPosition(
             zoom = state.value.cameraZoom,
@@ -142,8 +156,21 @@ class MapScreenViewModel
         )
     }
 
-    fun submitIntent(intent: MapScreenIntent) {
-        viewModelScope.launch { pendingIntent.emit(intent) }
+    private fun shouldDisableOption(filterOption: FilterOption): Boolean {
+        val totalOptionTypeCount = state.value.filteringRowState.optionsList.count { filter ->
+            filter.filterType == filterOption.filterType
+        }
+        val disabledCount = state.value.filteringRowState.optionsList.count { filter ->
+            filter.filterType == filterOption.filterType &&
+                    filter.chipState == ChipState.Disabled
+        }
+        return totalOptionTypeCount - disabledCount != 1
+    }
+
+    private fun enableAllFilterOptionOfType(filterType: FilterType) {
+        state.value.filteringRowState.optionsList.forEach {
+            if (it.filterType == filterType) it.chipState = ChipState.Enabled
+        }
     }
 
     private fun getFilteringLevelIds(): List<String>? {
