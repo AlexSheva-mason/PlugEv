@@ -38,7 +38,10 @@ class MapScreenViewModel
                     is MapScreenIntent.ShowBottomSheetWithInfo -> onShowBottomSheet(id = intent.id)
                     is MapScreenIntent.HideBottomSheet -> onHideBottomSheet()
                     is MapScreenIntent.FilterOptionStateChange -> {
-                        onFilterRowStateChange(option = intent.option, isEnabledState = intent.isEnabledState)
+                        onFilterRowStateChange(
+                            option = intent.option,
+                            isEnabledState = intent.isEnabledState
+                        )
                     }
                 }
             }
@@ -120,13 +123,9 @@ class MapScreenViewModel
         val newOption = getNewFilterOptionWithState(option, isEnabledState)
 
         val filterOption = state.value.filteringRowState.optionsList.find {
-            when (newOption) {
-                is FilterOption.Level1 -> it is FilterOption.Level1
-                is FilterOption.Level2 -> it is FilterOption.Level2
-                is FilterOption.Level3 -> it is FilterOption.Level3
-                is FilterOption.Public -> it is FilterOption.Public
-                is FilterOption.Private -> it is FilterOption.Private
-            }
+            it.filterType == newOption.filterType &&
+                    it.optionIds == newOption.optionIds &&
+                    it.text == newOption.text
         }
 
         filterOption?.let {
@@ -184,24 +183,24 @@ class MapScreenViewModel
     }
 
     private fun enableAllFilterOptionsOfType(filterType: FilterType) {
-        val newSet = state.value.filteringRowState.optionsList.map {
+        val newSet = state.value.filteringRowState.optionsList.map { filterOption ->
             when (filterType) {
                 FilterType.PowerLevel -> {
-                    when (it) {
-                        is FilterOption.Level1 -> FilterOption.Level1()
-                        is FilterOption.Level2 -> FilterOption.Level2()
-                        is FilterOption.Level3 -> FilterOption.Level3()
-                        is FilterOption.Private -> it
-                        is FilterOption.Public -> it
+                    when (filterOption) {
+                        is FilterOption.Level1 -> FilterOption.Level1(isEnabled = true)
+                        is FilterOption.Level2 -> FilterOption.Level2(isEnabled = true)
+                        is FilterOption.Level3 -> FilterOption.Level3(isEnabled = true)
+                        is FilterOption.Private -> filterOption
+                        is FilterOption.Public -> filterOption
                     }
                 }
                 FilterType.Accessibility -> {
-                    when (it) {
-                        is FilterOption.Level1 -> it
-                        is FilterOption.Level2 -> it
-                        is FilterOption.Level3 -> it
-                        is FilterOption.Private -> FilterOption.Private()
-                        is FilterOption.Public -> FilterOption.Public()
+                    when (filterOption) {
+                        is FilterOption.Level1 -> filterOption
+                        is FilterOption.Level2 -> filterOption
+                        is FilterOption.Level3 -> filterOption
+                        is FilterOption.Private -> FilterOption.Private(isEnabled = true)
+                        is FilterOption.Public -> FilterOption.Public(isEnabled = true)
                     }
                 }
             }
