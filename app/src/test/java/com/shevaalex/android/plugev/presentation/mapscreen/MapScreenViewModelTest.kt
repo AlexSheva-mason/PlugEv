@@ -350,66 +350,71 @@ class MapScreenViewModelTest {
     @Test
     fun `should set view state's Level1 filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Level1(isEnabled = false)
+        val filterOption = FilterOption.Level1()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
-        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+        assertThat(cut.state.value.filteringRowState.optionsList)
+            .contains(FilterOption.Level1(isEnabled = false))
     }
 
     @Test
     fun `should set view state's Level2 filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Level2(isEnabled = false)
+        val filterOption = FilterOption.Level2()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
-        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+        assertThat(cut.state.value.filteringRowState.optionsList)
+            .contains(FilterOption.Level2(false))
     }
 
     @Test
     fun `should set view state's Level3 filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Level3(isEnabled = false)
+        val filterOption = FilterOption.Level3()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
-        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+        assertThat(cut.state.value.filteringRowState.optionsList)
+            .contains(FilterOption.Level3(false))
     }
 
     @Test
     fun `should set view state's Public filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Public(isEnabled = false)
+        val filterOption = FilterOption.Public()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
-        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+        assertThat(cut.state.value.filteringRowState.optionsList)
+            .contains(FilterOption.Public(false))
     }
 
     @Test
     fun `should set view state's Private filtering option when calling FilterOptionStateChange`() {
         //GIVEN
-        val filterOption = FilterOption.Private(isEnabled = false)
+        val filterOption = FilterOption.Private()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
-        assertThat(cut.state.value.filteringRowState.optionsList).contains(filterOption)
+        assertThat(cut.state.value.filteringRowState.optionsList)
+            .contains(FilterOption.Private(false))
     }
 
     @Test
@@ -420,10 +425,10 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Level1(isEnabled = false)
+        val filterOption = FilterOption.Level1()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
@@ -440,10 +445,10 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Level2(isEnabled = false)
+        val filterOption = FilterOption.Level2()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
@@ -460,10 +465,10 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Level3(isEnabled = false)
+        val filterOption = FilterOption.Level3()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
@@ -480,10 +485,10 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Public(isEnabled = false)
+        val filterOption = FilterOption.Public()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
@@ -500,10 +505,10 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterOption = FilterOption.Private(isEnabled = false)
+        val filterOption = FilterOption.Private()
 
         //WHEN
-        val intent = MapScreenIntent.FilterOptionStateChange(filterOption)
+        val intent = MapScreenIntent.FilterOptionStateChange(filterOption, false)
         cut.submitIntent(intent)
 
         //THEN
@@ -526,14 +531,14 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterLevel1 = FilterOption.Level1(isEnabled = false)
-        val filterLevel2 = FilterOption.Level2(isEnabled = false)
-        val filterLevel3 = FilterOption.Level3(isEnabled = false)
+        val filterLevel1 = FilterOption.Level1()
+        val filterLevel2 = FilterOption.Level2()
+        val filterLevel3 = FilterOption.Level3()
 
         //WHEN
-        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel1))
-        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel2))
-        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel3))
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel1, false))
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel2, false))
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel3, false))
 
         //THEN
         val disabledOption = cut.state.value.filteringRowState.optionsList.find { filterOption ->
@@ -551,12 +556,12 @@ class MapScreenViewModelTest {
         } returns DataResult.Success(
             data = listOf()
         )
-        val filterPublic = FilterOption.Public(isEnabled = false)
-        val filterPrivate = FilterOption.Private(isEnabled = false)
+        val filterPublic = FilterOption.Public()
+        val filterPrivate = FilterOption.Private()
 
         //WHEN
-        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterPublic))
-        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterPrivate))
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterPublic, false))
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterPrivate, false))
 
         //THEN
         val disabledOption = cut.state.value.filteringRowState.optionsList.find { filterOption ->

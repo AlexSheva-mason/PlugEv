@@ -38,7 +38,7 @@ class MapScreenViewModel
                     is MapScreenIntent.ShowBottomSheetWithInfo -> onShowBottomSheet(id = intent.id)
                     is MapScreenIntent.HideBottomSheet -> onHideBottomSheet()
                     is MapScreenIntent.FilterOptionStateChange -> {
-                        onFilterRowStateChange(option = intent.filterOption)
+                        onFilterRowStateChange(option = intent.option, isEnabledState = intent.isEnabledState)
                     }
                 }
             }
@@ -116,9 +116,11 @@ class MapScreenViewModel
         )
     }
 
-    private suspend fun onFilterRowStateChange(option: FilterOption) {
+    private suspend fun onFilterRowStateChange(option: FilterOption, isEnabledState: Boolean) {
+        val newOption = getNewFilterOptionWithState(option, isEnabledState)
+
         val filterOption = state.value.filteringRowState.optionsList.find {
-            when (option) {
+            when (newOption) {
                 is FilterOption.Level1 -> it is FilterOption.Level1
                 is FilterOption.Level2 -> it is FilterOption.Level2
                 is FilterOption.Level3 -> it is FilterOption.Level3
@@ -128,15 +130,15 @@ class MapScreenViewModel
         }
 
         filterOption?.let {
-            if (option.chipState == ChipState.Disabled) {
+            if (!isEnabledState) {
 
                 if (shouldDisableOption(filterOption)) {
-                    replaceOptionInFilterStateSet(option)
+                    replaceOptionInFilterStateSet(newOption)
                 } else {
                     enableAllFilterOptionsOfType(it.filterType)
                 }
 
-            } else replaceOptionInFilterStateSet(option)
+            } else replaceOptionInFilterStateSet(newOption)
         }
 
         onShowChargersForMapPosition(
@@ -145,6 +147,16 @@ class MapScreenViewModel
             latitude = state.value.cameraPosition.latitude,
             distance = state.value.fetchRadiusMiles ?: 2f,
         )
+    }
+
+    private fun getNewFilterOptionWithState(option: FilterOption, newState: Boolean): FilterOption {
+        return when (option) {
+            is FilterOption.Level1 -> FilterOption.Level1(isEnabled = newState)
+            is FilterOption.Level2 -> FilterOption.Level2(isEnabled = newState)
+            is FilterOption.Level3 -> FilterOption.Level3(isEnabled = newState)
+            is FilterOption.Public -> FilterOption.Public(isEnabled = newState)
+            is FilterOption.Private -> FilterOption.Private(isEnabled = newState)
+        }
     }
 
     private fun shouldDisableOption(filterOption: FilterOption): Boolean {

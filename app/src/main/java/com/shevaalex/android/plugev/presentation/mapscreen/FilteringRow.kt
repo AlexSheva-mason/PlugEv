@@ -25,7 +25,7 @@ import com.shevaalex.android.plugev.presentation.common.compose.Teal800
 fun FilteringRow(
     state: FilterRowState,
     modifier: Modifier,
-    onFilterOptionStateChange: (FilterOption) -> Unit
+    onFilterOptionStateChange: (FilterOption, Boolean) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -47,7 +47,7 @@ fun FilteringRow(
 @Composable
 private fun ChipFilter(
     option: FilterOption,
-    onFilterOptionStateChange: (FilterOption) -> Unit
+    onFilterOptionStateChange: (FilterOption, Boolean) -> Unit
 ) {
     Surface(
         shape = MaterialTheme.shapes.small,
@@ -60,8 +60,7 @@ private fun ChipFilter(
             .animateContentSize()
             .clickable(true) {
                 val newChipState = option.chipState != ChipState.Enabled
-                val newOption = getNewFilterOptionForChip(option, newChipState)
-                onFilterOptionStateChange(newOption)
+                onFilterOptionStateChange(option, newChipState)
             }
     ) {
         Row(
@@ -83,16 +82,6 @@ private fun ChipFilter(
     }
 }
 
-private fun getNewFilterOptionForChip(option: FilterOption, newState: Boolean): FilterOption {
-    return when (option) {
-        is FilterOption.Level1 -> FilterOption.Level1(isEnabled = newState)
-        is FilterOption.Level2 -> FilterOption.Level2(isEnabled = newState)
-        is FilterOption.Level3 -> FilterOption.Level3(isEnabled = newState)
-        is FilterOption.Public -> FilterOption.Public(isEnabled = newState)
-        is FilterOption.Private -> FilterOption.Private(isEnabled = newState)
-    }
-}
-
 @Preview
 @Composable
 private fun FilteringRowPreview() {
@@ -100,7 +89,7 @@ private fun FilteringRowPreview() {
         FilteringRow(
             state = FilterRowState(),
             modifier = Modifier,
-            onFilterOptionStateChange = { }
+            onFilterOptionStateChange = { _, _ -> }
         )
     }
 }
@@ -109,6 +98,6 @@ private fun FilteringRowPreview() {
 @Composable
 private fun ChipFilterActivePreview() {
     PlugEvTheme {
-        ChipFilter(FilterOption.Private()) { }
+        ChipFilter(FilterOption.Private()) { _, _ -> }
     }
 }
