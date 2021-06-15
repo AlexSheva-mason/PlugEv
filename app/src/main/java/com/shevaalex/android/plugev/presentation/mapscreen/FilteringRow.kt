@@ -1,6 +1,8 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -10,6 +12,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -49,15 +52,36 @@ private fun ChipFilter(
     option: FilterOption,
     onFilterOptionStateChange: (FilterOption, Boolean) -> Unit
 ) {
+    val transition = updateTransition(
+        targetState = option.chipState,
+        label = "filter_chip_transition"
+    )
+    val colourBackground by transition.animateColor(
+        label = "filter_chip_transition"
+    ) { state ->
+        when (state) {
+            ChipState.Enabled -> Teal100
+            ChipState.Disabled -> MaterialTheme.colors.background
+        }
+    }
+    val contentColour by transition.animateColor(
+        label = "filter_chip_transition"
+    ) { state ->
+        when (state) {
+            ChipState.Enabled -> Teal800
+            ChipState.Disabled -> MaterialTheme.colors.onBackground
+        }
+    }
+
     Surface(
         shape = MaterialTheme.shapes.small,
-        color = Teal100,
-        contentColor = Teal800,
+        color = colourBackground,
+        contentColor = contentColour,
         modifier = Modifier
+            .animateContentSize()
             .padding(FILTER_CHIP_PADDING.dp)
             .shadow(2.dp, MaterialTheme.shapes.small)
             .height(FILTER_CHIP_HEIGHT.dp)
-            .animateContentSize()
             .clickable(true) {
                 val newChipState = option.chipState != ChipState.Enabled
                 onFilterOptionStateChange(option, newChipState)
