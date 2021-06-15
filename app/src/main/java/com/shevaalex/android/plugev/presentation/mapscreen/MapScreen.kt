@@ -254,6 +254,11 @@ fun MapViewContainer(
                     evClusterManager = evClusterManager
                 )
 
+                removeItemsNotPresentInViewState(
+                    chargingStationList = viewState.chargingStations,
+                    evClusterManager = evClusterManager
+                )
+
                 //re-cluster the map
                 evClusterManager.cluster()
             }
