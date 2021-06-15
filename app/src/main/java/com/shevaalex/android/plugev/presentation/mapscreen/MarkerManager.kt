@@ -46,3 +46,16 @@ suspend fun removeItemFromCollection(
         }
     }
 }
+
+suspend fun removeItemsNotPresentInViewState(
+    chargingStationList: List<ChargingStation>,
+    evClusterManager: PlugEvClusterManager
+) = withContext(Dispatchers.Default) {
+    evClusterManager.algorithm.items.forEach { algrorithmItem ->
+        ensureActive()
+        val existentItem = chargingStationList.find { viewStateItem ->
+            viewStateItem.id == algrorithmItem.id
+        }
+        if (existentItem == null) evClusterManager.removeItem(algrorithmItem)
+    }
+}

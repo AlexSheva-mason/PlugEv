@@ -169,7 +169,29 @@ class MarkerManagerKtTest {
 
     @Test
     fun `should delete markers that are not in the viewState's list`() {
-        assert(false)
+        //GIVEN
+        val chargingStationList = listOf(
+            getChargingStationDomainModel(52.200584275800814, 0.13395156135782119),
+            getChargingStationDomainModel(52.20759197890927, 0.1229459606575915)
+        )
+
+        //WHEN
+        runBlocking {
+            removeItemsNotPresentInViewState(
+                chargingStationList = chargingStationList,
+                evClusterManager = clusterManager
+            )
+        }
+
+        //THEN
+        verify(exactly = 1) {
+            clusterManager.removeItem(
+                getChargingStationDomainModel(52.20771169949917, 0.13875083384775075)
+            )
+            clusterManager.removeItem(
+                getChargingStationDomainModel(52.20332286606809, 0.13211238948885104)
+            )
+        }
     }
 
 }
