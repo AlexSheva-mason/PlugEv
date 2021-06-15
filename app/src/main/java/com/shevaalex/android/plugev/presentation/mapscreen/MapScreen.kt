@@ -249,11 +249,6 @@ fun MapViewContainer(
                     evClusterManager = evClusterManager
                 )
 
-                removeItemFromCollection(
-                    latLngBounds = latLngBounds,
-                    evClusterManager = evClusterManager
-                )
-
                 removeItemsNotPresentInViewState(
                     chargingStationList = viewState.chargingStations,
                     evClusterManager = evClusterManager

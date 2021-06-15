@@ -119,55 +119,6 @@ class MarkerManagerKtTest {
     }
 
     @Test
-    fun `removeItemFromCollection does not remove item if it's within LatLngBounds`() {
-
-        runBlocking {
-            removeItemFromCollection(
-                latLngBounds = latLngBounds,
-                evClusterManager = clusterManager
-            )
-        }
-
-        verify(exactly = 0) {
-            clusterManager.removeItem(any())
-        }
-    }
-
-    @Test
-    fun `removeItemFromCollection removes an item if it's out of LatLngBounds`() {
-        every {
-            clusterManager.algorithm.items
-        } returns listOf(
-            getChargingStationDomainModel(53.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(53.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(53.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(53.20332286606809, 0.13211238948885104),
-        )
-
-        runBlocking {
-            removeItemFromCollection(
-                latLngBounds = latLngBounds,
-                evClusterManager = clusterManager
-            )
-        }
-
-        verify(exactly = 1) {
-            clusterManager.removeItem(
-                getChargingStationDomainModel(53.20771169949917, 0.13875083384775075)
-            )
-            clusterManager.removeItem(
-                getChargingStationDomainModel(53.200584275800814, 0.13395156135782119)
-            )
-            clusterManager.removeItem(
-                getChargingStationDomainModel(53.20759197890927, 0.1229459606575915)
-            )
-            clusterManager.removeItem(
-                getChargingStationDomainModel(53.20332286606809, 0.13211238948885104)
-            )
-        }
-    }
-
-    @Test
     fun `should delete markers that are not in the viewState's list`() {
         //GIVEN
         val chargingStationList = listOf(

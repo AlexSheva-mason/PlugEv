@@ -32,21 +32,6 @@ suspend fun addItemsToCollection(
     }
 }
 
-/**
- * iterates through items in ClusterManager Algorithm and purges ones that are not within visibleRegion
- */
-suspend fun removeItemFromCollection(
-    latLngBounds: LatLngBounds,
-    evClusterManager: PlugEvClusterManager
-) = withContext(Dispatchers.Default) {
-    evClusterManager.algorithm.items.forEach { clusterItem ->
-        ensureActive()
-        if (!latLngBounds.contains(clusterItem.position)) {
-            evClusterManager.removeItem(clusterItem)
-        }
-    }
-}
-
 suspend fun removeItemsNotPresentInViewState(
     chargingStationList: List<ChargingStation>,
     evClusterManager: PlugEvClusterManager
