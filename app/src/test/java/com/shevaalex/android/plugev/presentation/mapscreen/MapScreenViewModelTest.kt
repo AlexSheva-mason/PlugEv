@@ -36,6 +36,11 @@ class MapScreenViewModelTest {
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = listOf()
+        )
         cut = MapScreenViewModel(
             getChargeStationListUseCase = getChargeStationListUseCase
         )
@@ -59,11 +64,6 @@ class MapScreenViewModelTest {
 
     @Test
     fun `submitting ShowChargingStationsForCurrentMapPosition intent calls getChargeStationListUseCase`() {
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
 
         cut.submitIntent(intent)
@@ -73,12 +73,7 @@ class MapScreenViewModelTest {
 
     @Test
     fun `should call getChargeStationListUseCase with filtering options null by default`() {
-        //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
+        //GIVEN @Before
 
         //WHEN
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
@@ -94,12 +89,7 @@ class MapScreenViewModelTest {
 
     @Test
     fun `should set ViewState's cameraPosition from ShowChargingStationsForCurrentMapPosition intent`() {
-        //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
+        //GIVEN @Before
 
         //WHEN
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition(
@@ -118,12 +108,7 @@ class MapScreenViewModelTest {
 
     @Test
     fun `should set ViewState's cameraZoom from ShowChargingStationsForCurrentMapPosition intent`() {
-        //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
+        //GIVEN @Before
 
         //WHEN
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition(zoom = 1234567f)
@@ -139,12 +124,7 @@ class MapScreenViewModelTest {
 
     @Test
     fun `should set ViewState's fetchRadiusMiles from ShowChargingStationsForCurrentMapPosition intent`() {
-        //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
+        //GIVEN @Before
 
         //WHEN
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition(distance = 123456f)
@@ -160,12 +140,7 @@ class MapScreenViewModelTest {
 
     @Test
     fun `should set ViewState's isLoading false after calling getChargeStationListUseCase`() {
-        //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
+        //GIVEN @Before
 
         //WHEN
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
@@ -220,12 +195,6 @@ class MapScreenViewModelTest {
 
     @Test
     fun `viewState should contain empty list when getChargeStationListUseCase DataResultSuccess has empty list`() {
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
-
         val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
         cut.submitIntent(intent)
 
@@ -425,11 +394,6 @@ class MapScreenViewModelTest {
     @Test
     fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Level1`() {
         //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
         val filterOption = FilterOption.Level1()
 
         //WHEN
@@ -445,11 +409,6 @@ class MapScreenViewModelTest {
     @Test
     fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Level2`() {
         //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
         val filterOption = FilterOption.Level2()
 
         //WHEN
@@ -465,11 +424,6 @@ class MapScreenViewModelTest {
     @Test
     fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Level3`() {
         //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
         val filterOption = FilterOption.Level3()
 
         //WHEN
@@ -485,11 +439,6 @@ class MapScreenViewModelTest {
     @Test
     fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Public`() {
         //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
         val filterOption = FilterOption.Public()
 
         //WHEN
@@ -505,11 +454,6 @@ class MapScreenViewModelTest {
     @Test
     fun `should call getChargeStationListUseCase with appropriate filtering ids excluding Private`() {
         //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
         val filterOption = FilterOption.Private()
 
         //WHEN
@@ -531,11 +475,6 @@ class MapScreenViewModelTest {
     @Test
     fun `should enable all filtering options of FilterType PowerLevel if all disabled`() {
         //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
         val filterLevel1 = FilterOption.Level1()
         val filterLevel2 = FilterOption.Level2()
         val filterLevel3 = FilterOption.Level3()
@@ -556,11 +495,6 @@ class MapScreenViewModelTest {
     @Test
     fun `should enable all filtering options of FilterType Accessibility if all disabled`() {
         //GIVEN
-        coEvery {
-            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
-        } returns DataResult.Success(
-            data = listOf()
-        )
         val filterPublic = FilterOption.Public()
         val filterPrivate = FilterOption.Private()
 
