@@ -9,11 +9,13 @@ import retrofit2.http.Query
 interface ChargingStationRetrofitService {
 
     @GET("/v3/poi/?key=${BuildConfig.OPEN_CHARGE_MAP_KEY}&opendata=true")
-    suspend fun getChargingStationsForLocation(
+    suspend fun getChargingStationsForLocationFiltered(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
         @Query("distance") distance: Float,
-        @Query("maxresults") maxResults: Int = API_RESULT_LIMIT
+        @Query("maxresults") maxResults: Int = API_RESULT_LIMIT,
+        @Query("levelid") levelIds: String?,
+        @Query("usagetypeid") usageTypeIds: String?
     ): List<ChargingStationNetworkDto>
 
 }

@@ -32,25 +32,52 @@ class MarkerManagerKtTest {
         MockKAnnotations.init(this)
         every { clusterManager.addItem(any()) } returns true
         every { clusterManager.removeItem(any()) } returns true
+        every {
+            clusterManager.algorithm.items
+        } returns listOf(
+            getChargingStationDomainModel(
+                latitude = 52.20771169949917,
+                longitude = 0.13875083384775075
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.200584275800814,
+                longitude = 0.13395156135782119
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20759197890927,
+                longitude = 0.1229459606575915
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20332286606809,
+                longitude = 0.13211238948885104
+            )
+        )
     }
 
     @Test
     fun `addItemToCollection does not add item if it's out of LatLngBounds`() {
         //algorithm's collection does not contain 1 item, but it's out of LatLngBounds
-        every {
-            clusterManager.algorithm.items
-        } returns listOf(
-            getChargingStationDomainModel(52.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(52.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(52.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
-        )
         val chargingStationList = listOf(
-            getChargingStationDomainModel(52.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(52.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(52.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
-            getChargingStationDomainModel(52.202899622094066, 0.10845701204142827)
+            getChargingStationDomainModel(
+                latitude = 52.20771169949917,
+                longitude = 0.13875083384775075
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.200584275800814,
+                longitude = 0.13395156135782119
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20759197890927,
+                longitude = 0.1229459606575915
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20332286606809,
+                longitude = 0.13211238948885104
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.202899622094066,
+                longitude = 0.10845701204142827
+            )
         )
 
         runBlocking {
@@ -69,22 +96,28 @@ class MarkerManagerKtTest {
     @Test
     fun `addItemToCollection adds item if it's within LatLngBounds and not in algorithm's collection`() {
         //algorithm's collection does not contain 1 item
-        every {
-            clusterManager.algorithm.items
-        } returns listOf(
-            getChargingStationDomainModel(52.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(52.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(52.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
-        )
-
         //last item should be added to algorithm's collection
-        val itemToAdd = getChargingStationDomainModel(52.20312154620868, 0.13168523135162127)
+        val itemToAdd = getChargingStationDomainModel(
+            latitude = 52.20312154620868,
+            longitude = 0.13168523135162127
+        )
         val chargingStationList = listOf(
-            getChargingStationDomainModel(52.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(52.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(52.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
+            getChargingStationDomainModel(
+                latitude = 52.20771169949917,
+                longitude = 0.13875083384775075
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.200584275800814,
+                longitude = 0.13395156135782119
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20759197890927,
+                longitude = 0.1229459606575915
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20332286606809,
+                longitude = 0.13211238948885104
+            ),
             itemToAdd
         )
 
@@ -107,19 +140,23 @@ class MarkerManagerKtTest {
     @Test
     fun `addItemToCollection does not add item if it's already in the algorithm's collection`() {
         //algorithm's collection already contains all items
-        every {
-            clusterManager.algorithm.items
-        } returns listOf(
-            getChargingStationDomainModel(52.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(52.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(52.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
-        )
         val chargingStationList = listOf(
-            getChargingStationDomainModel(52.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(52.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(52.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
+            getChargingStationDomainModel(
+                latitude = 52.20771169949917,
+                longitude = 0.13875083384775075
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.200584275800814,
+                longitude = 0.13395156135782119
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20759197890927,
+                longitude = 0.1229459606575915
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20332286606809,
+                longitude = 0.13211238948885104
+            ),
         )
 
         runBlocking {
@@ -136,58 +173,40 @@ class MarkerManagerKtTest {
     }
 
     @Test
-    fun `removeItemFromCollection does not remove item if it's within LatLngBounds`() {
-        every {
-            clusterManager.algorithm.items
-        } returns listOf(
-            getChargingStationDomainModel(52.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(52.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(52.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(52.20332286606809, 0.13211238948885104),
+    fun `should delete markers that are not in the viewState's list`() {
+        //GIVEN
+        val chargingStationList = listOf(
+            getChargingStationDomainModel(
+                latitude = 52.200584275800814,
+                longitude = 0.13395156135782119
+            ),
+            getChargingStationDomainModel(
+                latitude = 52.20759197890927,
+                longitude = 0.1229459606575915
+            )
         )
 
+        //WHEN
         runBlocking {
-            removeItemFromCollection(
-                latLngBounds = latLngBounds,
+            removeItemsNotPresentInViewState(
+                chargingStationList = chargingStationList,
                 evClusterManager = clusterManager
             )
         }
 
-        verify(exactly = 0) {
-            clusterManager.removeItem(any())
-        }
-    }
-
-    @Test
-    fun `removeItemFromCollection removes an item if it's out of LatLngBounds`() {
-        every {
-            clusterManager.algorithm.items
-        } returns listOf(
-            getChargingStationDomainModel(53.20771169949917, 0.13875083384775075),
-            getChargingStationDomainModel(53.200584275800814, 0.13395156135782119),
-            getChargingStationDomainModel(53.20759197890927, 0.1229459606575915),
-            getChargingStationDomainModel(53.20332286606809, 0.13211238948885104),
-        )
-
-        runBlocking {
-            removeItemFromCollection(
-                latLngBounds = latLngBounds,
-                evClusterManager = clusterManager
-            )
-        }
-
+        //THEN
         verify(exactly = 1) {
             clusterManager.removeItem(
-                getChargingStationDomainModel(53.20771169949917, 0.13875083384775075)
+                getChargingStationDomainModel(
+                    latitude = 52.20771169949917,
+                    longitude = 0.13875083384775075
+                )
             )
             clusterManager.removeItem(
-                getChargingStationDomainModel(53.200584275800814, 0.13395156135782119)
-            )
-            clusterManager.removeItem(
-                getChargingStationDomainModel(53.20759197890927, 0.1229459606575915)
-            )
-            clusterManager.removeItem(
-                getChargingStationDomainModel(53.20332286606809, 0.13211238948885104)
+                getChargingStationDomainModel(
+                    latitude = 52.20332286606809,
+                    longitude = 0.13211238948885104
+                )
             )
         }
     }

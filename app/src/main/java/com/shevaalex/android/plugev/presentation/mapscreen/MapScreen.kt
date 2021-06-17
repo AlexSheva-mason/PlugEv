@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -34,6 +35,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.ktx.awaitMap
 import com.shevaalex.android.plugev.R
 import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
 import kotlinx.coroutines.launch
 
@@ -49,8 +51,10 @@ fun MapScreen(
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
 
-    val mapIntent = viewState.bottomSheetInfoObject?.let {
-        getMapIntentForChargingStation(it, context)
+    val mapIntent = remember(viewState.bottomSheetViewState) {
+        viewState.bottomSheetViewState?.let {
+            getMapIntentForChargingStation(it.chargingStation, context)
+        }
     }
 
     LaunchedEffect(viewState.fetchError, viewState.uiMessage) {
@@ -65,9 +69,9 @@ fun MapScreen(
 
     BottomSheetScaffold(
         sheetContent = {
-            viewState.bottomSheetInfoObject?.let {
+            viewState.bottomSheetViewState?.let {
                 BottomSheet(
-                    chargingStation = it,
+                    bottomSheetViewState = it,
                     modifier = Modifier
                         .navigationBarsPadding(
                             bottom = true,
@@ -82,7 +86,7 @@ fun MapScreen(
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = modifier
-                    .widthIn(min = 100.dp, max = 344.dp)
+                    .widthIn(min = SNACK_WIDTH_MIN.dp, max = SNACK_WIDTH_MAX.dp)
                     .navigationBarsPadding(bottom = true, left = false, right = true)
                     .padding(16.dp),
             ) { data ->
@@ -92,7 +96,7 @@ fun MapScreen(
                 )
             }
         },
-        floatingActionButton = if (viewState.bottomSheetInfoObject != null && mapIntent != null) {
+        floatingActionButton = if (viewState.bottomSheetViewState != null && mapIntent != null) {
             {
                 FloatingActionButton(
                     onClick = { startActivity(context, mapIntent, null) },
@@ -106,24 +110,33 @@ fun MapScreen(
             }
         } else null,
         floatingActionButtonPosition = FabPosition.Center,
-        sheetPeekHeight = viewState.bottomSheetInfoObject?.let { 125.dp } ?: 0.dp
+        sheetPeekHeight = viewState.bottomSheetViewState?.let {
+            BOTTOM_SHEET_PEEK_HEIGHT.dp
+        } ?: 0.dp
     ) {
         Box {
             MapViewContainer(
                 map = mapView,
                 locationProviderClient = locationProviderClient,
-                viewModel = viewModel,
-                chargingStationList = viewState.chargingStations,
-                cameraPosition = viewState.cameraPosition,
-                cameraZoom = viewState.cameraZoom,
-                bottomSheetInfo = viewState.bottomSheetInfoObject
-            )
+                viewState = viewState
+            ) { viewModel.submitIntent(it) }
             if (viewState.isLoading) {
                 LinearProgressIndicator(
                     modifier = modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
                         .navigationBarsPadding(bottom = false, left = false, right = true)
+                )
+            }
+            FilteringRow(
+                state = viewState.filteringRowState,
+                modifier = modifier
+                    .statusBarsPadding()
+                    .navigationBarsPadding(bottom = false, left = false, right = true)
+                    .padding(top = progressBarHeight.dp)
+            ) { filterOption, newState ->
+                viewModel.submitIntent(
+                    MapScreenIntent.FilterOptionStateChange(filterOption, newState)
                 )
             }
         }
@@ -135,17 +148,18 @@ fun MapScreen(
 fun MapViewContainer(
     map: MapView,
     locationProviderClient: FusedLocationProviderClient,
-    viewModel: MapScreenViewModel = viewModel(),
-    chargingStationList: List<ChargingStation>,
-    cameraPosition: LatLng,
-    cameraZoom: Float,
-    bottomSheetInfo: ChargingStation?
+    viewState: MapScreenViewState,
+    submitIntent: (MapScreenIntent) -> Unit
 ) {
     val context = LocalContext.current
-    var mapInitialized by remember(map) { mutableStateOf(false) }
     val insets = LocalWindowInsets.current
-    val progressIndicatorStrokePx =
-        with(LocalDensity.current) { ProgressIndicatorDefaults.StrokeWidth.toPx().toInt() }
+    var mapInitialized by remember(map) { mutableStateOf(false) }
+
+    val mapPaddingTopContent = remember {
+        getMapPaddingTop()
+    }
+    val mapPaddingTopContentPx = with(LocalDensity.current) { mapPaddingTopContent.toPx().toInt() }
+
     val coroutineScope = rememberCoroutineScope()
     var clusterManager: PlugEvClusterManager? by remember(map) { mutableStateOf(null) }
     val requestLauncher = rememberLauncher(
@@ -155,7 +169,7 @@ fun MapViewContainer(
             val googleMap = map.awaitMap()
             googleMap.isMyLocationEnabled = true
             googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(it, cameraZoom)
+                CameraUpdateFactory.newLatLngZoom(it, viewState.cameraZoom)
             )
         }
     }
@@ -167,12 +181,10 @@ fun MapViewContainer(
                 context = context,
                 googleMap = googleMap,
                 onMarkerClick = { id ->
-                    viewModel.submitIntent(
-                        MapScreenIntent.ShowBottomSheetWithInfo(id)
-                    )
+                    submitIntent(MapScreenIntent.ShowBottomSheetWithInfo(id))
                 }
             ) {
-                viewModel.submitIntent(
+                submitIntent(
                     MapScreenIntent.ShowChargingStationsForCurrentMapPosition(
                         zoom = googleMap.cameraPosition.zoom,
                         latitude = googleMap.cameraPosition.target.latitude,
@@ -185,14 +197,14 @@ fun MapViewContainer(
                 )
             }
             googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(cameraPosition, cameraZoom)
+                CameraUpdateFactory.newLatLngZoom(viewState.cameraPosition, viewState.cameraZoom)
             )
             googleMap.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(context, R.raw.google_map_style)
             )
             googleMap.setPadding(
                 0,
-                (insets.statusBars.top).plus(progressIndicatorStrokePx),
+                (insets.statusBars.top).plus(mapPaddingTopContentPx),
                 insets.navigationBars.right,
                 insets.navigationBars.bottom
             )
@@ -203,9 +215,16 @@ fun MapViewContainer(
                 googleMap.isMyLocationEnabled = true
                 getLastKnownPosition(locationProviderClient) { lastKnownPosition ->
                     //if viewState has camera position at defaults -> move camera to lastKnownPosition
-                    if (cameraPosition == LatLng(MAP_DEFAULT_LATITUDE, MAP_DEFAULT_LONGITUDE)) {
+                    if (viewState.cameraPosition == LatLng(
+                            MAP_DEFAULT_LATITUDE,
+                            MAP_DEFAULT_LONGITUDE
+                        )
+                    ) {
                         googleMap.moveCamera(
-                            CameraUpdateFactory.newLatLngZoom(lastKnownPosition, cameraZoom)
+                            CameraUpdateFactory.newLatLngZoom(
+                                lastKnownPosition,
+                                viewState.cameraZoom
+                            )
                         )
                     }
                 }
@@ -219,8 +238,8 @@ fun MapViewContainer(
             val googleMap = mapView.awaitMap()
 
             googleMap.setOnCameraMoveStartedListener { reason ->
-                if (reason == REASON_GESTURE && bottomSheetInfo != null) {
-                    viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
+                if (reason == REASON_GESTURE && viewState.bottomSheetViewState != null) {
+                    submitIntent(MapScreenIntent.HideBottomSheet)
                 }
             }
 
@@ -230,13 +249,13 @@ fun MapViewContainer(
                 val latLngBounds = googleMap.projection.visibleRegion.latLngBounds
 
                 addItemsToCollection(
-                    chargingStationList = chargingStationList,
+                    chargingStationList = viewState.chargingStations,
                     latLngBounds = latLngBounds,
                     evClusterManager = evClusterManager
                 )
 
-                removeItemFromCollection(
-                    latLngBounds = latLngBounds,
+                removeItemsNotPresentInViewState(
+                    chargingStationList = viewState.chargingStations,
                     evClusterManager = evClusterManager
                 )
 
@@ -308,7 +327,6 @@ private fun getLastKnownPosition(
 @Composable
 fun Snack(message: String, isError: Boolean) {
     Card(
-        shape = MaterialTheme.shapes.small,
         backgroundColor = MaterialTheme.colors.background,
         elevation = 6.dp
     ) {
@@ -343,4 +361,11 @@ private fun getMapIntentForChargingStation(
         longitude = chargingStation.longitude,
         packageManager = context.packageManager
     )
+}
+
+private fun getMapPaddingTop(): Dp {
+    val filterRowHeight = (
+            FILTER_CHIP_HEIGHT + FILTER_CHIP_PADDING * 2 + FILTER_ROW_PADDING_VERTICAL * 2
+            ).dp
+    return progressBarHeight.dp + filterRowHeight
 }

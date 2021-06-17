@@ -32,17 +32,15 @@ suspend fun addItemsToCollection(
     }
 }
 
-/**
- * iterates through items in ClusterManager Algorithm and purges ones that are not within visibleRegion
- */
-suspend fun removeItemFromCollection(
-    latLngBounds: LatLngBounds,
+suspend fun removeItemsNotPresentInViewState(
+    chargingStationList: List<ChargingStation>,
     evClusterManager: PlugEvClusterManager
 ) = withContext(Dispatchers.Default) {
-    evClusterManager.algorithm.items.forEach { clusterItem ->
+    evClusterManager.algorithm.items.forEach { algrorithmItem ->
         ensureActive()
-        if (!latLngBounds.contains(clusterItem.position)) {
-            evClusterManager.removeItem(clusterItem)
+        val existentItem = chargingStationList.find { viewStateItem ->
+            viewStateItem.id == algrorithmItem.id
         }
+        if (existentItem == null) evClusterManager.removeItem(algrorithmItem)
     }
 }

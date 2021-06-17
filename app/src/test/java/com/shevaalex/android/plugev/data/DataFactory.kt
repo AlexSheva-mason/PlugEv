@@ -19,22 +19,30 @@ object DataFactory {
     }
 
     fun getChargingStationDomainModel(
+        usageCost: String = "usageCost",
+        addressTitle: String = "addressInfoTitle",
+        addressLine1: String = "addressLine1",
+        addressLine2: String = "addressLine2",
+        town: String = "town",
+        province: String = "province",
+        postCode: String = "postCode",
         latitude: Double = 51.72215137119824,
-        longitude: Double = 0.047445889881063685
+        longitude: Double = 0.047445889881063685,
+        usageTypeTitle: String = "usageTypeTitle"
     ): ChargingStation {
         return ChargingStation(
             id = "id$latitude",
-            usageCost = "usageCost",
-            addressTitle = "addressInfoTitle",
-            addressLine1 = "addressLine1",
-            addressLine2 = "addressLine2",
-            town = "town",
-            province = "province",
-            postCode = "postCode",
+            usageCost = usageCost,
+            addressTitle = addressTitle,
+            addressLine1 = addressLine1,
+            addressLine2 = addressLine2,
+            town = town,
+            province = province,
+            postCode = postCode,
             distanceMiles = "1.23",
             latitude = latitude,
             longitude = longitude,
-            usageTypeTitle = "usageTypeTitle",
+            usageTypeTitle = usageTypeTitle,
             isPayAtLocation = true,
             isMembershipRequired = true,
             statusTypeTitle = "statusTypeTitle",
@@ -66,10 +74,10 @@ object DataFactory {
         )
     }
 
-    private fun getStatusType(): StatusType {
+    private fun getStatusType(isOperational: Boolean? = true): StatusType {
         return StatusType(
             title = "statusTypeTitle",
-            isOperational = true
+            isOperational = isOperational
         )
     }
 
@@ -80,15 +88,20 @@ object DataFactory {
         )
     }
 
-    fun getConnectionNetworkDto(typeNum: String, power: Double, quantity: Int) =
-        ConnectionNetworkDto(
-            connectionType = getConnectionType(typeNum),
-            statusType = getStatusType(),
-            powerLevelId = 3,
-            powerLevel = PowerLevel("test power level"),
-            power = power,
-            quantity = quantity
-        )
+    fun getConnectionNetworkDto(
+        typeNum: String = "type0",
+        power: Double? = 1.0,
+        quantity: Int = 0,
+        powerLevelTitle: String? = "test power level",
+        isOperational: Boolean? = true
+    ) = ConnectionNetworkDto(
+        connectionType = getConnectionType(typeNum),
+        statusType = getStatusType(isOperational = isOperational),
+        powerLevelId = 3,
+        powerLevel = PowerLevel(powerLevelTitle),
+        power = power,
+        quantity = quantity
+    )
 
     private fun getConnectionType(type: String): ConnectionType {
         return ConnectionType(

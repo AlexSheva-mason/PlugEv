@@ -15,12 +15,16 @@ class GetChargeStationListUseCase
     suspend operator fun invoke(
         latitude: Double,
         longitude: Double,
-        distance: Float
+        distance: Float,
+        levelIds: List<String>? = null,
+        usageTypeIds: List<String>? = null
     ): DataResult<List<ChargingStation>> {
-        return chargeStationRepository.getChargingStationsForLocation(
+        return chargeStationRepository.getChargingStationsForLocationFiltered(
             latitude = latitude,
             longitude = longitude,
-            distance = distance
+            distance = distance,
+            levelIds = levelIds,
+            usageTypeIds = usageTypeIds
         )
     }
 

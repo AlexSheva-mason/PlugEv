@@ -16,17 +16,21 @@ class ChargingStationRepositoryImpl
     private val apiService: ChargingStationRetrofitService
 ) : ChargingStationRepository {
 
-    override suspend fun getChargingStationsForLocation(
+    override suspend fun getChargingStationsForLocationFiltered(
         latitude: Double,
         longitude: Double,
-        distance: Float
+        distance: Float,
+        levelIds: List<String>?,
+        usageTypeIds: List<String>?
     ): DataResult<List<ChargingStation>> {
         return retrofitCall {
             apiService
-                .getChargingStationsForLocation(
+                .getChargingStationsForLocationFiltered(
                     latitude = latitude,
                     longitude = longitude,
-                    distance = distance
+                    distance = distance,
+                    levelIds = levelIds?.joinToString(separator = ","),
+                    usageTypeIds = usageTypeIds?.joinToString(separator = ",")
                 )
                 .mapNotNull {
                     try {
