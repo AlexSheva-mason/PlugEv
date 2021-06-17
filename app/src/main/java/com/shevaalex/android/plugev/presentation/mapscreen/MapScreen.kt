@@ -50,9 +50,9 @@ fun MapScreen(
     val context = LocalContext.current
     val mapView = rememberMapViewWithLifecycle()
 
-    val mapIntent = remember(viewState.bottomSheetInfoObject) {
-        viewState.bottomSheetInfoObject?.let {
-            getMapIntentForChargingStation(it, context)
+    val mapIntent = remember(viewState.bottomSheetViewState) {
+        viewState.bottomSheetViewState?.let {
+            getMapIntentForChargingStation(it.chargingStation, context)
         }
     }
 
@@ -68,9 +68,9 @@ fun MapScreen(
 
     BottomSheetScaffold(
         sheetContent = {
-            viewState.bottomSheetInfoObject?.let {
+            viewState.bottomSheetViewState?.let {
                 BottomSheet(
-                    chargingStation = it,
+                    bottomSheetViewState = it,
                     modifier = Modifier
                         .navigationBarsPadding(
                             bottom = true,
@@ -95,7 +95,7 @@ fun MapScreen(
                 )
             }
         },
-        floatingActionButton = if (viewState.bottomSheetInfoObject != null && mapIntent != null) {
+        floatingActionButton = if (viewState.bottomSheetViewState != null && mapIntent != null) {
             {
                 FloatingActionButton(
                     onClick = { startActivity(context, mapIntent, null) },
@@ -109,7 +109,7 @@ fun MapScreen(
             }
         } else null,
         floatingActionButtonPosition = FabPosition.Center,
-        sheetPeekHeight = viewState.bottomSheetInfoObject?.let {
+        sheetPeekHeight = viewState.bottomSheetViewState?.let {
             BOTTOM_SHEET_PEEK_HEIGHT.dp
         } ?: 0.dp
     ) {
@@ -237,7 +237,7 @@ fun MapViewContainer(
             val googleMap = mapView.awaitMap()
 
             googleMap.setOnCameraMoveStartedListener { reason ->
-                if (reason == REASON_GESTURE && viewState.bottomSheetInfoObject != null) {
+                if (reason == REASON_GESTURE && viewState.bottomSheetViewState != null) {
                     submitIntent(MapScreenIntent.HideBottomSheet)
                 }
             }

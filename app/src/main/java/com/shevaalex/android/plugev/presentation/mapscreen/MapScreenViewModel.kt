@@ -103,18 +103,21 @@ class MapScreenViewModel
     }
 
     private fun onShowBottomSheet(id: String) {
-        setState(
-            state.value.copy(
-                isLoading = false,
-                bottomSheetInfoObject = state.value.chargingStations.find { it.id == id }
+        val infoObject = state.value.chargingStations.find { it.id == id }
+        infoObject?.let {
+            setState(
+                state.value.copy(
+                    isLoading = false,
+                    bottomSheetViewState = BottomSheetViewState(chargingStation = it)
+                )
             )
-        )
+        }
     }
 
     private fun onHideBottomSheet() {
         setState(
             state.value.copy(
-                bottomSheetInfoObject = null
+                bottomSheetViewState = null
             )
         )
     }

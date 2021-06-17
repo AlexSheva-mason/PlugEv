@@ -11,25 +11,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.domain.model.Connection
 import com.shevaalex.android.plugev.presentation.common.compose.*
 
 @Composable
 fun BottomSheet(
-    chargingStation: ChargingStation,
+    bottomSheetViewState: BottomSheetViewState,
     modifier: Modifier
 ) {
-    val isPublic = chargingStation.usageTypeTitle.contains("public", true)
-    val addressLine = getFullAddress(chargingStation)
     BottomSheetContent(
-        isOperational = chargingStation.isOperationalStatus,
-        isPublic = isPublic,
-        title = chargingStation.addressTitle,
-        address = addressLine,
-        accessType = chargingStation.usageTypeTitle,
-        usageCost = chargingStation.usageCost,
-        connections = chargingStation.connections,
+        isOperational = bottomSheetViewState.isOperational,
+        isPublic = bottomSheetViewState.isPublic,
+        title = bottomSheetViewState.title,
+        address = bottomSheetViewState.address,
+        accessType = bottomSheetViewState.accessType,
+        usageCost = bottomSheetViewState.usageCost,
+        connections = bottomSheetViewState.connectionStateList,
         modifier = modifier
     )
 }
@@ -42,7 +39,7 @@ private fun BottomSheetContent(
     address: String,
     accessType: String?,
     usageCost: String,
-    connections: List<Connection>,
+    connections: List<BsConnectionListItemState>,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -85,7 +82,7 @@ private fun BottomSheetContent(
         }
         Spacer(Modifier.height(5.dp))
         Text(
-            text = if (usageCost.isNotBlank()) usageCost else "£ Usage cost unknown",
+            text = usageCost,
             style = MaterialTheme.typography.body2
         )
         Spacer(Modifier.height(5.dp))
@@ -96,11 +93,12 @@ private fun BottomSheetContent(
             items(connections.size) { index ->
                 val connection = connections[index]
                 ConnectionListItem(
-                    quantity = connection.quantity,
+                    quantityText = connection.quantityText,
                     connectionTitle = connection.connectionTitle,
                     powerLevelTitle = connection.powerLevelTitle,
-                    isOperational = connection.isOperationalStatus,
-                    powerKw = connection.power
+                    isOperational = connection.isOperational,
+                    operationalText = connection.operationalText,
+                    power = connection.power
                 )
             }
         }
@@ -110,7 +108,7 @@ private fun BottomSheetContent(
 @Composable
 private fun ChipGreen(text: String) {
     ChipStatus(
-        backgroundColor = Teal100trans70,
+        backgroundColor = Teal100,
         contentColor = Teal800,
         text = text
     )
@@ -156,21 +154,17 @@ private fun ChipStatus(backgroundColor: Color, contentColor: Color, text: String
 
 @Composable
 private fun ConnectionListItem(
-    quantity: Int,
+    quantityText: String,
     connectionTitle: String,
-    powerLevelTitle: String?,
+    powerLevelTitle: String,
     isOperational: Boolean?,
-    powerKw: String
+    operationalText: String,
+    power: String
 ) {
     val backgroundColour = isOperational?.let { isOperationalBoolean ->
         if (isOperationalBoolean) Teal050
         else Red050
     } ?: Grey200
-    val operationalText = isOperational?.let { isOperationalBoolean ->
-        if (isOperationalBoolean) "Operational"
-        else "Not Operational"
-    } ?: "Unknown"
-    val quantityText = if (quantity == 0) "N/A" else quantity.toString().plus("x")
     val operationalColour = isOperational?.let { isOperationalBoolean ->
         if (isOperationalBoolean) Teal800
         else Red900
@@ -233,11 +227,10 @@ private fun ConnectionListItem(
                 ) {
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                         Text(
-                            text = powerLevelTitle ?: "Power level unknown",
+                            text = powerLevelTitle,
                             style = MaterialTheme.typography.body2,
                         )
                     }
-                    val power = if (powerKw.isBlank()) "? KW" else powerKw.plus(" KW")
                     Text(
                         text = power,
                         style = MaterialTheme.typography.body2,
@@ -270,76 +263,65 @@ private fun BottomSheetPreview() {
 private fun ConnectionListItemPreview() {
     PlugEvTheme {
         ConnectionListItem(
-            quantity = 1,
+            quantityText = "1",
             connectionTitle = "Type 2 (Tethered Connector)",
             powerLevelTitle = "Level 3:  High (Over 40kW)",
             isOperational = true,
-            powerKw = "50.0 KW"
+            operationalText = "Operational",
+            power = "50.0 KW"
         )
     }
 }
 
-private fun connectionListForPreview(): List<Connection> {
+private fun connectionListForPreview(): List<BsConnectionListItemState> {
     return listOf(
-        Connection(
-            connectionFormalName = "IEC 62196-3 Configuration AA",
-            connectionTitle = "CHAdeMO",
-            statusTitle = "Operational",
-            isOperationalStatus = true,
-            powerLevel = 3,
-            powerLevelTitle = "Level 3:  High (Over 40kW)",
-            power = "50.0",
-            quantity = 2
+        BsConnectionListItemState(
+            Connection(
+                connectionFormalName = "IEC 62196-3 Configuration AA",
+                connectionTitle = "CHAdeMO",
+                statusTitle = "Operational",
+                isOperationalStatus = true,
+                powerLevel = 3,
+                powerLevelTitle = "Level 3:  High (Over 40kW)",
+                power = "50.0",
+                quantity = 2
+            )
         ),
-        Connection(
-            connectionFormalName = "SAE J1772-2009",
-            connectionTitle = "Type 1 (J1772)",
-            statusTitle = "Not Operational",
-            isOperationalStatus = false,
-            powerLevel = 2,
-            powerLevelTitle = "Level 2 : Medium (Over 2kW)",
-            power = "4.0",
-            quantity = 0
+        BsConnectionListItemState(
+            Connection(
+                connectionFormalName = "SAE J1772-2009",
+                connectionTitle = "Type 1 (J1772)",
+                statusTitle = "Not Operational",
+                isOperationalStatus = false,
+                powerLevel = 2,
+                powerLevelTitle = "Level 2 : Medium (Over 2kW)",
+                power = "4.0",
+                quantity = 0
+            )
         ),
-        Connection(
-            connectionFormalName = "IEC 62196-2 Type 2",
-            connectionTitle = "Type 2 (Socket Only)",
-            statusTitle = "Operational",
-            isOperationalStatus = true,
-            powerLevel = 2,
-            powerLevelTitle = "Level 2 : Medium (Over 2kW)",
-            power = "5.0",
-            quantity = 4
+        BsConnectionListItemState(
+            Connection(
+                connectionFormalName = "IEC 62196-2 Type 2",
+                connectionTitle = "Type 2 (Socket Only)",
+                statusTitle = "Operational",
+                isOperationalStatus = true,
+                powerLevel = 2,
+                powerLevelTitle = "Level 2 : Medium (Over 2kW)",
+                power = "5.0",
+                quantity = 4
+            )
         ),
-        Connection(
-            connectionFormalName = "SAE J1772-2009",
-            connectionTitle = "Type 1 (J1772)",
-            statusTitle = "Unknown",
-            isOperationalStatus = null,
-            powerLevel = 2,
-            powerLevelTitle = "Level 2 : Medium (Over 2kW)",
-            power = "7.0",
-            quantity = 3
-        )
+        BsConnectionListItemState(
+            Connection(
+                connectionFormalName = "SAE J1772-2009",
+                connectionTitle = "Type 1 (J1772)",
+                statusTitle = "Unknown",
+                isOperationalStatus = null,
+                powerLevel = 2,
+                powerLevelTitle = "Level 2 : Medium (Over 2kW)",
+                power = "7.0",
+                quantity = 3
+            )
+        ),
     )
-}
-
-private fun getFullAddress(chargingStation: ChargingStation): String {
-    val addressLine1 = if (chargingStation.addressLine1.isNotBlank()) {
-        chargingStation.addressLine1.plus(", ")
-    } else null
-    val addressLine2 = if (chargingStation.addressLine2.isNotBlank()) {
-        chargingStation.addressLine2.plus(", ")
-    } else null
-    val town = if (chargingStation.town.isNotBlank()) {
-        chargingStation.town.plus(", ")
-    } else null
-    val province = if (chargingStation.province.isNotBlank()) {
-        chargingStation.province.plus(", ")
-    } else null
-    return addressLine1.orEmpty() +
-            addressLine2.orEmpty() +
-            town.orEmpty() +
-            province.orEmpty() +
-            chargingStation.postCode
 }

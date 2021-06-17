@@ -12,7 +12,7 @@ data class MapScreenViewState(
     val isLoading: Boolean = true,
     val uiMessage: UiState.UiInfo? = null,
     val fetchError: UiState.UiError? = null,
-    val bottomSheetInfoObject: ChargingStation? = null,
+    val bottomSheetViewState: BottomSheetViewState? = null,
     val filteringRowState: FilterRowState = FilterRowState()
 ) {
 
@@ -24,7 +24,7 @@ data class MapScreenViewState(
                 " \n isLoading=$isLoading," +
                 " \n uiMessage=$uiMessage," +
                 " \n fetchError=$fetchError," +
-                " \n bottomSheetInfoObject=$bottomSheetInfoObject," +
+                " \n bottomSheetInfoObject=$bottomSheetViewState," +
                 " \n filteringRowState=$filteringRowState)"
     }
 

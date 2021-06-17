@@ -51,7 +51,7 @@ class MapScreenViewModelTest {
             isLoading = true,
             uiMessage = null,
             fetchError = null,
-            bottomSheetInfoObject = null,
+            bottomSheetViewState = null,
             filteringRowState = FilterRowState()
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)
@@ -257,14 +257,17 @@ class MapScreenViewModelTest {
     @Test
     fun `viewState should have isLoading false after submitting ShowBottomSheetWithInfo intent`() {
         //GIVEN
+        val list = listOf(DataFactory.getChargingStationDomainModel())
         coEvery {
             getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
         } returns DataResult.Success(
-            data = listOf()
+            data = list
         )
+        val intentShowChargingPoints = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intentShowChargingPoints)
+        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("id51.72215137119824")
 
         //WHEN
-        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("testID")
         cut.submitIntent(intentShowBottomSheet)
 
         //THEN
@@ -294,28 +297,30 @@ class MapScreenViewModelTest {
         //THEN
         assertThat(cut.state.value).isEqualTo(
             cut.state.value.copy(
-                bottomSheetInfoObject = ChargingStation(
-                    id = "id51.72215137119824",
-                    usageCost = "usageCost",
-                    addressTitle = "addressInfoTitle",
-                    addressLine1 = "addressLine1",
-                    addressLine2 = "addressLine2",
-                    town = "town",
-                    province = "province",
-                    postCode = "postCode",
-                    distanceMiles = "1.23",
-                    latitude = 51.72215137119824,
-                    longitude = 0.047445889881063685,
-                    usageTypeTitle = "usageTypeTitle",
-                    isPayAtLocation = true,
-                    isMembershipRequired = true,
-                    statusTypeTitle = "statusTypeTitle",
-                    isOperationalStatus = true,
-                    connections = listOf(
-                        DataFactory.getConnectionNetworkDto("1", 3.0, 1),
-                        DataFactory.getConnectionNetworkDto("2", 7.0, 1)
-                    ).map { it.toDomainModel() },
-                    totalNumberOfPoints = 2
+                bottomSheetViewState = BottomSheetViewState(
+                    chargingStation = ChargingStation(
+                        id = "id51.72215137119824",
+                        usageCost = "usageCost",
+                        addressTitle = "addressInfoTitle",
+                        addressLine1 = "addressLine1",
+                        addressLine2 = "addressLine2",
+                        town = "town",
+                        province = "province",
+                        postCode = "postCode",
+                        distanceMiles = "1.23",
+                        latitude = 51.72215137119824,
+                        longitude = 0.047445889881063685,
+                        usageTypeTitle = "usageTypeTitle",
+                        isPayAtLocation = true,
+                        isMembershipRequired = true,
+                        statusTypeTitle = "statusTypeTitle",
+                        isOperationalStatus = true,
+                        connections = listOf(
+                            DataFactory.getConnectionNetworkDto("1", 3.0, 1),
+                            DataFactory.getConnectionNetworkDto("2", 7.0, 1)
+                        ).map { it.toDomainModel() },
+                        totalNumberOfPoints = 2
+                    )
                 )
             )
         )
@@ -342,7 +347,7 @@ class MapScreenViewModelTest {
         //THEN
         assertThat(cut.state.value).isEqualTo(
             cut.state.value.copy(
-                bottomSheetInfoObject = null
+                bottomSheetViewState = null
             )
         )
     }
