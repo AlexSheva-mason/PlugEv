@@ -12,6 +12,7 @@ import com.shevaalex.android.plugev.domain.model.DataResult
 import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
+import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

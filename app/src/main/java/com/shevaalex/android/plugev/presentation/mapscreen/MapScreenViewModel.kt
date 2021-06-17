@@ -8,6 +8,7 @@ import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.BaseViewModel
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
+import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect

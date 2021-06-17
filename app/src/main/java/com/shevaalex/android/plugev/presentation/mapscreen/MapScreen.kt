@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.ktx.awaitMap
 import com.shevaalex.android.plugev.R
 import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
 import kotlinx.coroutines.launch
 
