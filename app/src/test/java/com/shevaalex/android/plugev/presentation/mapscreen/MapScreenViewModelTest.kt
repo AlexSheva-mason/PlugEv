@@ -576,4 +576,48 @@ class MapScreenViewModelTest {
         assertThat(disabledOption).isNull()
     }
 
+    @Test
+    fun `should not nullify bottom sheet state when new filtering state enabled`() {
+        //GIVEN
+        val list = listOf(DataFactory.getChargingStationDomainModel())
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intentShowChargingPoints = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intentShowChargingPoints)
+        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("id51.72215137119824")
+        cut.submitIntent(intentShowBottomSheet)
+
+        //WHEN
+        val filterLevel1 = FilterOption.Level1()
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel1, true))
+
+        //THEN
+        assertThat(cut.state.value.bottomSheetViewState).isNotNull()
+    }
+
+    @Test
+    fun `should nullify bottom sheet state when new filtering state disabled`() {
+        //GIVEN
+        val list = listOf(DataFactory.getChargingStationDomainModel())
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intentShowChargingPoints = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intentShowChargingPoints)
+        val intentShowBottomSheet = MapScreenIntent.ShowBottomSheetWithInfo("id51.72215137119824")
+        cut.submitIntent(intentShowBottomSheet)
+
+        //WHEN
+        val filterLevel1 = FilterOption.Level1()
+        cut.submitIntent(MapScreenIntent.FilterOptionStateChange(filterLevel1, false))
+
+        //THEN
+        assertThat(cut.state.value.bottomSheetViewState).isNull()
+    }
+
 }

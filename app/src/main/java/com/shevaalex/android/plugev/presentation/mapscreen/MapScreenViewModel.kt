@@ -182,7 +182,10 @@ class MapScreenViewModel
             } else it
         }.toSet()
 
-        setNewFilterRowState(newSet)
+        setNewFilterRowState(
+            newSet = newSet,
+            resetBottomSheetState = option.chipState == ChipState.Disabled
+        )
     }
 
     private fun enableAllFilterOptionsOfType(filterType: FilterType) {
@@ -212,9 +215,15 @@ class MapScreenViewModel
         setNewFilterRowState(newSet)
     }
 
-    private fun setNewFilterRowState(newSet: Set<FilterOption>) {
+    private fun setNewFilterRowState(
+        newSet: Set<FilterOption>,
+        resetBottomSheetState: Boolean = false
+    ) {
         setState(
             state.value.copy(
+                bottomSheetViewState = if (resetBottomSheetState) {
+                    null
+                } else state.value.bottomSheetViewState,
                 filteringRowState = FilterRowState(optionsList = newSet)
             )
         )
