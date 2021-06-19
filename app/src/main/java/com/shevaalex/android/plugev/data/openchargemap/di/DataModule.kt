@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.di
+package com.shevaalex.android.plugev.data.openchargemap.di
 
 import com.shevaalex.android.plugev.data.openchargemap.network.service.ChargingStationRetrofitService
 import dagger.Module
