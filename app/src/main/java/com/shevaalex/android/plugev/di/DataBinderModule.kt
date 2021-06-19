@@ -10,7 +10,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
 @InstallIn(ViewModelComponent::class)
-abstract class MapScreenModule {
+abstract class DataBinderModule {
 
     @Binds
     @ViewModelScoped
