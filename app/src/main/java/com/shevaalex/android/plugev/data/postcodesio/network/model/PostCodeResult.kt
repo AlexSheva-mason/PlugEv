@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.data.network.postcodesio.model
+package com.shevaalex.android.plugev.data.postcodesio.network.model
 
 import com.google.gson.annotations.SerializedName
 

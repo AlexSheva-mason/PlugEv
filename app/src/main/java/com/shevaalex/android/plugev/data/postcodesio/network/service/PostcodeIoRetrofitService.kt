@@ -1,6 +1,6 @@
-package com.shevaalex.android.plugev.data.network.postcodesio.service
+package com.shevaalex.android.plugev.data.postcodesio.network.service
 
-import com.shevaalex.android.plugev.data.network.postcodesio.model.PostcodeNetworkDto
+import com.shevaalex.android.plugev.data.postcodesio.network.model.PostcodeNetworkDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 

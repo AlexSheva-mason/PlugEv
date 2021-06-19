@@ -1,6 +1,6 @@
 package com.shevaalex.android.plugev.data
 
-import com.shevaalex.android.plugev.data.network.openchargemap.model.*
+import com.shevaalex.android.plugev.data.openchargemap.network.model.*
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.presentation.mapscreen.MapScreenIntent
 

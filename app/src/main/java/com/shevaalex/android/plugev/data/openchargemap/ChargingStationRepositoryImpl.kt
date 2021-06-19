@@ -1,7 +1,7 @@
-package com.shevaalex.android.plugev.data.network.openchargemap
+package com.shevaalex.android.plugev.data.openchargemap
 
-import com.shevaalex.android.plugev.data.network.openchargemap.model.toDomainModel
-import com.shevaalex.android.plugev.data.network.openchargemap.service.ChargingStationRetrofitService
+import com.shevaalex.android.plugev.data.openchargemap.network.model.toDomainModel
+import com.shevaalex.android.plugev.data.openchargemap.network.service.ChargingStationRetrofitService
 import com.shevaalex.android.plugev.domain.NetworkSafeCaller
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult

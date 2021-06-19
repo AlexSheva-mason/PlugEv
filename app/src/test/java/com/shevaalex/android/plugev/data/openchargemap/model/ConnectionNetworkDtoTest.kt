@@ -1,7 +1,8 @@
-package com.shevaalex.android.plugev.data.network.openchargemap.model
+package com.shevaalex.android.plugev.data.openchargemap.model
 
 import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.data.DataFactory
+import com.shevaalex.android.plugev.data.openchargemap.network.model.toDomainModel
 import com.shevaalex.android.plugev.domain.openchargemap.model.Connection
 import org.junit.Test
 

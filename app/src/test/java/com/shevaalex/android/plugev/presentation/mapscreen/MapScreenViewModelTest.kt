@@ -5,7 +5,7 @@ import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.CoroutinesTestRule
 import com.shevaalex.android.plugev.data.DataFactory
 import com.shevaalex.android.plugev.data.DataFactory.getMapScreenIntentShowChargingStationsForCurrentMapPosition
-import com.shevaalex.android.plugev.data.network.openchargemap.model.toDomainModel
+import com.shevaalex.android.plugev.data.openchargemap.network.model.toDomainModel
 import com.shevaalex.android.plugev.domain.openchargemap.API_RESULT_LIMIT
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult

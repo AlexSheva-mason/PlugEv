@@ -3,7 +3,7 @@ package com.shevaalex.android.plugev.presentation.mapscreen
 import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.data.DataFactory.getChargingStationDomainModel
 import com.shevaalex.android.plugev.data.DataFactory.getConnectionNetworkDto
-import com.shevaalex.android.plugev.data.network.openchargemap.model.toDomainModel
+import com.shevaalex.android.plugev.data.openchargemap.network.model.toDomainModel
 import org.junit.Test
 
 class BottomSheetViewStateTest {
