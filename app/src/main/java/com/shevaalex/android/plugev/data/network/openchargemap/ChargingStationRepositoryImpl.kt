@@ -1,12 +1,14 @@
 package com.shevaalex.android.plugev.data.network.openchargemap
 
 import com.shevaalex.android.plugev.data.network.openchargemap.model.toDomainModel
-import com.shevaalex.android.plugev.data.network.retrofitCall
 import com.shevaalex.android.plugev.data.network.openchargemap.service.ChargingStationRetrofitService
+import com.shevaalex.android.plugev.domain.NetworkSafeCaller
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
 import com.shevaalex.android.plugev.domain.openchargemap.repository.ChargingStationRepository
 import dagger.hilt.android.scopes.ViewModelScoped
+import retrofit2.HttpException
+import java.io.IOException
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -14,7 +16,7 @@ import javax.inject.Inject
 class ChargingStationRepositoryImpl
 @Inject constructor(
     private val apiService: ChargingStationRetrofitService
-) : ChargingStationRepository {
+) : ChargingStationRepository, NetworkSafeCaller {
 
     override suspend fun getChargingStationsForLocationFiltered(
         latitude: Double,
@@ -39,6 +41,16 @@ class ChargingStationRepositoryImpl
                         null
                     }
                 }
+        }
+    }
+
+    override suspend fun <T> retrofitCall(apiCall: suspend () -> T): DataResult<T> {
+        return try {
+            DataResult.Success(apiCall.invoke())
+        } catch (ex: HttpException) {
+            DataResult.Error(ex)
+        } catch (ex: IOException) {
+            DataResult.Error(ex)
         }
     }
 
