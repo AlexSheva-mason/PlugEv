@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.data.network.model
+package com.shevaalex.android.plugev.data.network.openchargemap.model
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName

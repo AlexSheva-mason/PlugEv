@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.data.network.model
+package com.shevaalex.android.plugev.data.network.openchargemap.model
 
 import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.data.DataFactory

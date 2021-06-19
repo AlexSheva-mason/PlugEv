@@ -1,7 +1,7 @@
-package com.shevaalex.android.plugev.data.network.service
+package com.shevaalex.android.plugev.data.network.openchargemap.service
 
 import com.shevaalex.android.plugev.BuildConfig
-import com.shevaalex.android.plugev.data.network.model.ChargingStationNetworkDto
+import com.shevaalex.android.plugev.data.network.openchargemap.model.ChargingStationNetworkDto
 import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
 import retrofit2.http.GET
 import retrofit2.http.Query

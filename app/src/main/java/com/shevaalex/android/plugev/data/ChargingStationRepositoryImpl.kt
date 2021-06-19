@@ -1,8 +1,8 @@
 package com.shevaalex.android.plugev.data
 
-import com.shevaalex.android.plugev.data.network.model.toDomainModel
+import com.shevaalex.android.plugev.data.network.openchargemap.model.toDomainModel
 import com.shevaalex.android.plugev.data.network.retrofitCall
-import com.shevaalex.android.plugev.data.network.service.ChargingStationRetrofitService
+import com.shevaalex.android.plugev.data.network.openchargemap.service.ChargingStationRetrofitService
 import com.shevaalex.android.plugev.domain.model.ChargingStation
 import com.shevaalex.android.plugev.domain.model.DataResult
 import com.shevaalex.android.plugev.domain.repository.ChargingStationRepository
