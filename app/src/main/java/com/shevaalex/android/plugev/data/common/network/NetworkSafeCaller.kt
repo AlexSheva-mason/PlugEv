@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.domain
+package com.shevaalex.android.plugev.data.common.network
 
 import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
 import retrofit2.HttpException
