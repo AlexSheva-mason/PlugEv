@@ -2,7 +2,7 @@ package com.shevaalex.android.plugev.data.network.openchargemap.model
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import java.math.BigDecimal
 import java.math.RoundingMode
 

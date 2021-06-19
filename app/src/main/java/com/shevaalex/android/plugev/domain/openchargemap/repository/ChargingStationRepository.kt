@@ -1,7 +1,7 @@
-package com.shevaalex.android.plugev.domain.repository
+package com.shevaalex.android.plugev.domain.openchargemap.repository
 
-import com.shevaalex.android.plugev.domain.model.ChargingStation
-import com.shevaalex.android.plugev.domain.model.DataResult
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
 
 interface ChargingStationRepository {
 

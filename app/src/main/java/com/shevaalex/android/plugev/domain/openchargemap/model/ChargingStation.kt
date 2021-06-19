@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.domain.model
+package com.shevaalex.android.plugev.domain.openchargemap.model
 
 import androidx.annotation.Keep
 import com.google.android.gms.maps.model.LatLng

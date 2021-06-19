@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.domain.model
+package com.shevaalex.android.plugev.domain.openchargemap.model
 
 sealed class DataResult<out T> {
     data class Success<out T>(val data: T) : DataResult<T>()

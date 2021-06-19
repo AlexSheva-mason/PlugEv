@@ -4,7 +4,7 @@ import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.clustering.ClusterManager
-import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 
 class PlugEvClusterManager(
     context: Context,

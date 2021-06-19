@@ -6,10 +6,10 @@ import com.shevaalex.android.plugev.CoroutinesTestRule
 import com.shevaalex.android.plugev.data.DataFactory
 import com.shevaalex.android.plugev.data.DataFactory.getMapScreenIntentShowChargingStationsForCurrentMapPosition
 import com.shevaalex.android.plugev.data.network.openchargemap.model.toDomainModel
-import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
-import com.shevaalex.android.plugev.domain.model.ChargingStation
-import com.shevaalex.android.plugev.domain.model.DataResult
-import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
+import com.shevaalex.android.plugev.domain.openchargemap.API_RESULT_LIMIT
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
+import com.shevaalex.android.plugev.domain.openchargemap.usecase.GetChargeStationListUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
 import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState

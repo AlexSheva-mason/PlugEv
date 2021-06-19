@@ -2,7 +2,7 @@ package com.shevaalex.android.plugev.data.network.openchargemap.model
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import com.shevaalex.android.plugev.domain.model.Connection
+import com.shevaalex.android.plugev.domain.openchargemap.model.Connection
 
 @Keep
 data class ConnectionNetworkDto(

@@ -1,7 +1,7 @@
 package com.shevaalex.android.plugev.data
 
 import com.shevaalex.android.plugev.data.network.openchargemap.model.*
-import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.presentation.mapscreen.MapScreenIntent
 
 object DataFactory {

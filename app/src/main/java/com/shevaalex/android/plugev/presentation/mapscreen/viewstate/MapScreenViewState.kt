@@ -1,7 +1,7 @@
 package com.shevaalex.android.plugev.presentation.mapscreen.viewstate
 
 import com.google.android.gms.maps.model.LatLng
-import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.presentation.common.ui.UiState
 import com.shevaalex.android.plugev.presentation.mapscreen.*
 

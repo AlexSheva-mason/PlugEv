@@ -2,7 +2,7 @@ package com.shevaalex.android.plugev.data.network
 
 import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.data.DataFactory
-import com.shevaalex.android.plugev.domain.model.DataResult
+import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.ResponseBody.Companion.toResponseBody

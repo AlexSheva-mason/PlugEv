@@ -11,7 +11,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import com.shevaalex.android.plugev.R
-import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 
 class PlugEvClusterRenderer(
     private val context: Context,

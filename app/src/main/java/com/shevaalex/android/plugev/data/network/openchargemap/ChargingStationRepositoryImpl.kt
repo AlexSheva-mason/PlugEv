@@ -3,9 +3,9 @@ package com.shevaalex.android.plugev.data.network.openchargemap
 import com.shevaalex.android.plugev.data.network.openchargemap.model.toDomainModel
 import com.shevaalex.android.plugev.data.network.retrofitCall
 import com.shevaalex.android.plugev.data.network.openchargemap.service.ChargingStationRetrofitService
-import com.shevaalex.android.plugev.domain.model.ChargingStation
-import com.shevaalex.android.plugev.domain.model.DataResult
-import com.shevaalex.android.plugev.domain.repository.ChargingStationRepository
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
+import com.shevaalex.android.plugev.domain.openchargemap.repository.ChargingStationRepository
 import dagger.hilt.android.scopes.ViewModelScoped
 import java.lang.Exception
 import javax.inject.Inject

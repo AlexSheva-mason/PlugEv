@@ -2,9 +2,9 @@ package com.shevaalex.android.plugev.presentation.mapscreen
 
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
-import com.shevaalex.android.plugev.domain.model.DataResult
-import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
+import com.shevaalex.android.plugev.domain.openchargemap.API_RESULT_LIMIT
+import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
+import com.shevaalex.android.plugev.domain.openchargemap.usecase.GetChargeStationListUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.BaseViewModel
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited

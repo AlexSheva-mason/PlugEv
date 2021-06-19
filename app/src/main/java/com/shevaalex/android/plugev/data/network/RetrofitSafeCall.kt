@@ -1,6 +1,6 @@
 package com.shevaalex.android.plugev.data.network
 
-import com.shevaalex.android.plugev.domain.model.DataResult
+import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
 import retrofit2.HttpException
 import java.io.IOException
 
