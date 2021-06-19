@@ -9,14 +9,20 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 private const val BASE_URL = "https://api.openchargemap.io/v3/poi/"
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ChargingStationRetrofitBuilder
 
 @Module
 @InstallIn(SingletonComponent::class)
 object OpenChargeDataModule {
 
+    @ChargingStationRetrofitBuilder
     @Singleton
     @Provides
     fun provideRetrofitBuilder(): Retrofit.Builder {
@@ -34,7 +40,9 @@ object OpenChargeDataModule {
 
     @Singleton
     @Provides
-    fun provideChargingStationRetrofitService(builder: Retrofit.Builder): ChargingStationRetrofitService {
+    fun provideChargingStationRetrofitService(
+        @ChargingStationRetrofitBuilder builder: Retrofit.Builder
+    ): ChargingStationRetrofitService {
         return builder
             .build()
             .create(ChargingStationRetrofitService::class.java)
