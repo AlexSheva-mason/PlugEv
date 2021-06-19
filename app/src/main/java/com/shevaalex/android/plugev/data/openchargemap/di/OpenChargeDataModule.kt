@@ -15,7 +15,7 @@ private const val BASE_URL = "https://api.openchargemap.io/v3/poi/"
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DataModule {
+object OpenChargeDataModule {
 
     @Singleton
     @Provides
