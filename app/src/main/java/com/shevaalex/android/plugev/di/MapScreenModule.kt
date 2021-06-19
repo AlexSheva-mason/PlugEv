@@ -1,6 +1,6 @@
 package com.shevaalex.android.plugev.di
 
-import com.shevaalex.android.plugev.data.ChargingStationRepositoryImpl
+import com.shevaalex.android.plugev.data.network.openchargemap.ChargingStationRepositoryImpl
 import com.shevaalex.android.plugev.domain.repository.ChargingStationRepository
 import dagger.Binds
 import dagger.Module

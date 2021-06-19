@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.data
+package com.shevaalex.android.plugev.data.network.openchargemap
 
 import com.shevaalex.android.plugev.data.network.openchargemap.model.toDomainModel
 import com.shevaalex.android.plugev.data.network.retrofitCall
