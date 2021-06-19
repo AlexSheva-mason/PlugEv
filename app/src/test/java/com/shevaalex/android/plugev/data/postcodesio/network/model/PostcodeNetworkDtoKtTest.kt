@@ -75,4 +75,29 @@ class PostcodeNetworkDtoKtTest {
         )
     }
 
+    @Test
+    fun `should map to domain model error geolocation not available`() {
+        //GIVEN
+        val dtoModel = PostcodeNetworkDto(
+            status = 200,
+            postCode = PostCodeResult(
+                postCodeName = "CB6 3NW",
+                latitude = null,
+                longitude = null
+            ),
+            error = null
+        )
+
+        //WHEN
+        val result = dtoModel.toDomainModel()
+
+        //THEN
+        assertThat(result).isEqualTo(
+            PostCode.PostCodeError(
+                status = 200,
+                error = "Geolocation for this postcode is not available"
+            )
+        )
+    }
+
 }
