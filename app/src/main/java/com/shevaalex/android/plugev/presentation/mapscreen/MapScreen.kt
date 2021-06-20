@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -133,11 +134,21 @@ fun MapScreen(
                 modifier = modifier
                     .statusBarsPadding()
                     .navigationBarsPadding(bottom = false, left = false, right = true)
-                    .padding(top = progressBarHeight.dp)
+                    .padding(top = getFilteringRowPaddingTop())
             ) { filterOption, newState ->
                 viewModel.submitIntent(
                     MapScreenIntent.FilterOptionStateChange(filterOption, newState)
                 )
+            }
+            SearchBar(
+                state = TextFieldValue(),
+                modifier = modifier
+                    .statusBarsPadding()
+                    .navigationBarsPadding(bottom = false, left = false, right = true)
+                    .padding(top = SEARCH_BAR_PADDING_TOP.dp + progressBarHeight),
+                onTextValueChange = { /*TODO*/ }
+            ) {
+
             }
         }
     }
@@ -363,9 +374,14 @@ private fun getMapIntentForChargingStation(
     )
 }
 
+private fun getFilteringRowPaddingTop(): Dp {
+    val searchBarHeight = SEARCH_BAR_PADDING_TOP.dp + searchBarHeight
+    return progressBarHeight + searchBarHeight
+}
+
 private fun getMapPaddingTop(): Dp {
-    val filterRowHeight = (
-            FILTER_CHIP_HEIGHT + FILTER_CHIP_PADDING * 2 + FILTER_ROW_PADDING_VERTICAL * 2
-            ).dp
-    return progressBarHeight.dp + filterRowHeight
+    val filterRowPadding = getFilteringRowPaddingTop()
+    val filerRowHeight =
+        (FILTER_CHIP_HEIGHT + FILTER_CHIP_PADDING * 2 + FILTER_ROW_PADDING_VERTICAL * 2).dp
+    return filterRowPadding + filerRowHeight
 }
