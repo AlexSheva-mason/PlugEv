@@ -39,11 +39,11 @@ fun FilteringRow(
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(FILTER_ROW_PADDING_HORIZONTAL.dp))
         state.optionsList.forEach {
             ChipFilter(it, onFilterOptionStateChange)
         }
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(FILTER_ROW_PADDING_HORIZONTAL.dp))
     }
 }
 
