@@ -1,5 +1,7 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
+import androidx.compose.ui.text.input.TextFieldValue
+
 sealed class MapScreenIntent {
 
     data class ShowChargingStationsForCurrentMapPosition(
@@ -22,6 +24,10 @@ sealed class MapScreenIntent {
 
     data class SetLocationFromPostcode(
         val postcode: String
+    ) : MapScreenIntent()
+
+    data class SearchBarStateChange(
+        val textFieldValue: TextFieldValue
     ) : MapScreenIntent()
 
 }
