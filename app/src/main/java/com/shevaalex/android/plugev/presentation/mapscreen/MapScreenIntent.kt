@@ -20,4 +20,8 @@ sealed class MapScreenIntent {
         val isEnabledState: Boolean
     ) : MapScreenIntent()
 
+    data class SetLocationFromPostcode(
+        val postcode: String
+    ) : MapScreenIntent()
+
 }
