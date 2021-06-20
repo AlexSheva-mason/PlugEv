@@ -5,7 +5,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.shevaalex.android.plugev.domain.openchargemap.API_RESULT_LIMIT
 import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
 import com.shevaalex.android.plugev.domain.openchargemap.usecase.GetChargeStationListUseCase
+import com.shevaalex.android.plugev.domain.postcode.model.PostCode
+import com.shevaalex.android.plugev.domain.postcode.usecase.GetLocationForPostcodeUseCase
 import com.shevaalex.android.plugev.presentation.common.ui.BaseViewModel
+import com.shevaalex.android.plugev.presentation.common.ui.UiState
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
 import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
@@ -19,6 +22,7 @@ import javax.inject.Inject
 class MapScreenViewModel
 @Inject constructor(
     private val getChargeStationListUseCase: GetChargeStationListUseCase,
+    private val getLocationForPostcodeUseCase: GetLocationForPostcodeUseCase
 ) : BaseViewModel<MapScreenViewState>(
     initialState = MapScreenViewState()
 ) {
@@ -44,6 +48,7 @@ class MapScreenViewModel
                             isEnabledState = intent.isEnabledState
                         )
                     }
+                    is MapScreenIntent.SetLocationFromPostcode -> setLocationFromPostcode(intent.postcode)
                 }
             }
         }
@@ -89,15 +94,7 @@ class MapScreenViewModel
                             )
                         )
                     }
-                    is DataResult.Error -> {
-                        setState(
-                            state.value.copy(
-                                isLoading = false,
-                                uiMessage = null,
-                                fetchError = uiErrorRetrofitException(result.e)
-                            )
-                        )
-                    }
+                    is DataResult.Error -> setErrorState(result)
                 }
             }
         }
@@ -275,6 +272,50 @@ class MapScreenViewModel
             if (list.isNotEmpty()) list
             else null
         }
+    }
+
+    private suspend fun setLocationFromPostcode(postCodeString: String) {
+        setState(
+            state.value.copy(
+                isLoading = true
+            )
+        )
+        getLocationForPostcodeUseCase(postCodeString).also { result ->
+            when (result) {
+                is DataResult.Success -> {
+                    when (result.data) {
+                        is PostCode.PostCodeSuccess -> {
+                            setState(
+                                state.value.copy(
+                                    cameraZoom = 15f,
+                                    cameraPosition = result.data.position,
+                                    isLoading = false
+                                )
+                            )
+                        }
+                        is PostCode.PostCodeError -> {
+                            setState(
+                                state.value.copy(
+                                    isLoading = false,
+                                    fetchError = UiState.UiError(result.data.error)
+                                )
+                            )
+                        }
+                    }
+                }
+                is DataResult.Error -> setErrorState(errorResult = result)
+            }
+        }
+    }
+
+    private fun setErrorState(errorResult: DataResult.Error) {
+        setState(
+            state.value.copy(
+                isLoading = false,
+                uiMessage = null,
+                fetchError = uiErrorRetrofitException(errorResult.e)
+            )
+        )
     }
 
 }
