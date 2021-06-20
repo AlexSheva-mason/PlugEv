@@ -1,5 +1,6 @@
 package com.shevaalex.android.plugev.presentation.mapscreen.viewstate
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.google.android.gms.maps.model.LatLng
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.presentation.common.ui.UiState
@@ -14,7 +15,8 @@ data class MapScreenViewState(
     val uiMessage: UiState.UiInfo? = null,
     val fetchError: UiState.UiError? = null,
     val bottomSheetViewState: BottomSheetViewState? = null,
-    val filteringRowState: FilterRowState = FilterRowState()
+    val filteringRowState: FilterRowState = FilterRowState(),
+    val searchBarState: TextFieldValue = TextFieldValue()
 ) {
 
     override fun toString(): String {
@@ -26,7 +28,8 @@ data class MapScreenViewState(
                 " \n uiMessage=$uiMessage," +
                 " \n fetchError=$fetchError," +
                 " \n bottomSheetInfoObject=$bottomSheetViewState," +
-                " \n filteringRowState=$filteringRowState)"
+                " \n filteringRowState=$filteringRowState)," +
+                " \n searchBarState=$searchBarState)"
     }
 
 }

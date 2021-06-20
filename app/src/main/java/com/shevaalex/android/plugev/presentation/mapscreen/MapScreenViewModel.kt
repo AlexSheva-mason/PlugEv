@@ -48,7 +48,12 @@ class MapScreenViewModel
                             isEnabledState = intent.isEnabledState
                         )
                     }
-                    is MapScreenIntent.SetLocationFromPostcode -> setLocationFromPostcode(intent.postcode)
+                    is MapScreenIntent.SetLocationFromPostcode -> {
+                        setLocationFromPostcode(intent.postcode.trim())
+                    }
+                    is MapScreenIntent.SearchBarStateChange -> setState(state.value.copy(
+                        searchBarState = intent.textFieldValue
+                    ))
                 }
             }
         }

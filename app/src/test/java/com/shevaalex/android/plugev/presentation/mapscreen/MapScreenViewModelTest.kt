@@ -1,5 +1,6 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.google.android.gms.maps.model.LatLng
 import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.CoroutinesTestRule
@@ -65,7 +66,8 @@ class MapScreenViewModelTest {
             uiMessage = null,
             fetchError = null,
             bottomSheetViewState = null,
-            filteringRowState = FilterRowState()
+            filteringRowState = FilterRowState(),
+            searchBarState = TextFieldValue()
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)
     }
@@ -735,6 +737,19 @@ class MapScreenViewModelTest {
 
         //THEN
         assertThat(cut.state.value.isLoading).isFalse()
+    }
+
+    @Test
+    fun `should set search bar view state`(){
+        //GIVEN
+        val intent =
+            MapScreenIntent.SearchBarStateChange(textFieldValue = TextFieldValue(text = "test"))
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.searchBarState).isEqualTo(TextFieldValue(text = "test"))
     }
 
 }
