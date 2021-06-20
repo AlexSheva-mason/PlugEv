@@ -54,7 +54,9 @@ private fun SearchField(
     ) {
         TextField(
             value = state,
-            onValueChange = onTextValueChange,
+            onValueChange = {
+                onTextValueChange(it)
+            },
             label = { Text(text = "Search postcode") },
             placeholder = { Text(text = "enter postcode e.g. EC2M 7PD") },
             leadingIcon = {

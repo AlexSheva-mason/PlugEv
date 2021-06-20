@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -141,14 +140,16 @@ fun MapScreen(
                 )
             }
             SearchBar(
-                state = TextFieldValue(),
+                state = viewState.searchBarState,
                 modifier = modifier
                     .statusBarsPadding()
                     .navigationBarsPadding(bottom = false, left = false, right = true)
                     .padding(top = SEARCH_BAR_PADDING_TOP.dp + progressBarHeight),
-                onTextValueChange = { /*TODO*/ }
+                onTextValueChange = {
+                    viewModel.submitIntent(MapScreenIntent.SearchBarStateChange(textFieldValue = it))
+                }
             ) {
-
+                viewModel.submitIntent(MapScreenIntent.SetLocationFromPostcode(postcode = it))
             }
         }
     }
