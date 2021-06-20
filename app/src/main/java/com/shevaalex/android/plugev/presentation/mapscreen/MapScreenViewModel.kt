@@ -64,38 +64,36 @@ class MapScreenViewModel
         distance: Float,
         latitude: Double
     ) {
-        viewModelScope.launch {
-            setState(
-                state.value.copy(
-                    cameraZoom = zoom,
-                    cameraPosition = LatLng(latitude, longitude),
-                    fetchRadiusMiles = distance,
-                    isLoading = true
-                )
+        setState(
+            state.value.copy(
+                cameraZoom = zoom,
+                cameraPosition = LatLng(latitude, longitude),
+                fetchRadiusMiles = distance,
+                isLoading = true
             )
-            getChargeStationListUseCase(
-                latitude = latitude,
-                longitude = longitude,
-                distance = distance,
-                levelIds = getFilteringLevelIds(),
-                usageTypeIds = getFilteringUsageTypeIds()
-            ).also { result ->
-                when (result) {
-                    is DataResult.Success -> {
-                        setState(
-                            state.value.copy(
-                                chargingStations = result.data,
-                                isLoading = false,
-                                uiMessage = uiInfoResultsLimited(
-                                    isResultLimitReached = result.data.size == API_RESULT_LIMIT,
-                                    limit = API_RESULT_LIMIT
-                                ),
-                                fetchError = null
-                            )
+        )
+        getChargeStationListUseCase(
+            latitude = latitude,
+            longitude = longitude,
+            distance = distance,
+            levelIds = getFilteringLevelIds(),
+            usageTypeIds = getFilteringUsageTypeIds()
+        ).also { result ->
+            when (result) {
+                is DataResult.Success -> {
+                    setState(
+                        state.value.copy(
+                            chargingStations = result.data,
+                            isLoading = false,
+                            uiMessage = uiInfoResultsLimited(
+                                isResultLimitReached = result.data.size == API_RESULT_LIMIT,
+                                limit = API_RESULT_LIMIT
+                            ),
+                            fetchError = null
                         )
-                    }
-                    is DataResult.Error -> setErrorState(result)
+                    )
                 }
+                is DataResult.Error -> setErrorState(result)
             }
         }
     }
