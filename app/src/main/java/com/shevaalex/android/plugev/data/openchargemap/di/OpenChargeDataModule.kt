@@ -6,7 +6,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Qualifier
@@ -25,13 +24,7 @@ object OpenChargeDataModule {
     @ChargingStationRetrofitBuilder
     @Singleton
     @Provides
-    fun provideRetrofitBuilder(): Retrofit.Builder {
-        val client = OkHttpClient.Builder()
-            .addInterceptor(
-                HttpLoggingInterceptor()
-                    .setLevel(HttpLoggingInterceptor.Level.BASIC)
-            )
-            .build()
+    fun provideRetrofitBuilder(client: OkHttpClient): Retrofit.Builder {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
