@@ -16,7 +16,8 @@ data class MapScreenViewState(
     val fetchError: UiState.UiError? = null,
     val bottomSheetViewState: BottomSheetViewState? = null,
     val filteringRowState: FilterRowState = FilterRowState(),
-    val searchBarState: TextFieldValue = TextFieldValue()
+    val searchBarState: TextFieldValue = TextFieldValue(),
+    val shouldHandlePostcodeLocation: Boolean = false,
 ) {
 
     override fun toString(): String {
@@ -28,8 +29,9 @@ data class MapScreenViewState(
                 " \n uiMessage=$uiMessage," +
                 " \n fetchError=$fetchError," +
                 " \n bottomSheetInfoObject=$bottomSheetViewState," +
-                " \n filteringRowState=$filteringRowState)," +
-                " \n searchBarState=$searchBarState)"
+                " \n filteringRowState=$filteringRowState," +
+                " \n searchBarState=$searchBarState," +
+                " \n shouldHandlePostcodeLocation=$shouldHandlePostcodeLocation)"
     }
 
 }

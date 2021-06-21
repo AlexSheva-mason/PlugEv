@@ -67,7 +67,8 @@ class MapScreenViewModelTest {
             fetchError = null,
             bottomSheetViewState = null,
             filteringRowState = FilterRowState(),
-            searchBarState = TextFieldValue()
+            searchBarState = TextFieldValue(),
+            shouldHandlePostcodeLocation = false,
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)
     }
@@ -740,7 +741,7 @@ class MapScreenViewModelTest {
     }
 
     @Test
-    fun `should set search bar view state`(){
+    fun `should set search bar view state`() {
         //GIVEN
         val intent =
             MapScreenIntent.SearchBarStateChange(textFieldValue = TextFieldValue(text = "TEST"))
