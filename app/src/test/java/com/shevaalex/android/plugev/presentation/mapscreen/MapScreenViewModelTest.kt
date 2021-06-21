@@ -743,13 +743,13 @@ class MapScreenViewModelTest {
     fun `should set search bar view state`(){
         //GIVEN
         val intent =
-            MapScreenIntent.SearchBarStateChange(textFieldValue = TextFieldValue(text = "test"))
+            MapScreenIntent.SearchBarStateChange(textFieldValue = TextFieldValue(text = "TEST"))
 
         //WHEN
         cut.submitIntent(intent = intent)
 
         //THEN
-        assertThat(cut.state.value.searchBarState).isEqualTo(TextFieldValue(text = "test"))
+        assertThat(cut.state.value.searchBarState).isEqualTo(TextFieldValue(text = "TEST"))
     }
 
 }

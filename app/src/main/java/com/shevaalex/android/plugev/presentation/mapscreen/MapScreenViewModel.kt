@@ -1,5 +1,6 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.shevaalex.android.plugev.domain.openchargemap.API_RESULT_LIMIT
@@ -51,9 +52,7 @@ class MapScreenViewModel
                     is MapScreenIntent.SetLocationFromPostcode -> {
                         setLocationFromPostcode(intent.postcode.trim())
                     }
-                    is MapScreenIntent.SearchBarStateChange -> setState(state.value.copy(
-                        searchBarState = intent.textFieldValue
-                    ))
+                    is MapScreenIntent.SearchBarStateChange -> setSearchbarState(intent.textFieldValue)
                 }
             }
         }
@@ -317,6 +316,15 @@ class MapScreenViewModel
                 isLoading = false,
                 uiMessage = null,
                 fetchError = uiErrorRetrofitException(errorResult.e)
+            )
+        )
+    }
+
+    private fun setSearchbarState(newTextFieldValue: TextFieldValue) {
+        val newText = returnValidatedTextForInput(newTextFieldValue.text)
+        setState(
+            state.value.copy(
+                searchBarState = newTextFieldValue.copy(text = newText)
             )
         )
     }
