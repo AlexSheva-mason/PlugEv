@@ -186,6 +186,17 @@ fun MapViewContainer(
         }
     }
 
+    LaunchedEffect(viewState.shouldHandlePostcodeLocation) {
+        if (viewState.shouldHandlePostcodeLocation) {
+            val googleMap = map.awaitMap()
+            googleMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(viewState.cameraPosition, viewState.cameraZoom)
+            ).also {
+                submitIntent(MapScreenIntent.PostcodeLocationHandled)
+            }
+        }
+    }
+
     LaunchedEffect(map, mapInitialized) {
         if (!mapInitialized) {
             val googleMap = map.awaitMap()
