@@ -53,6 +53,7 @@ class MapScreenViewModel
                         setLocationFromPostcode(intent.postcode.trim())
                     }
                     is MapScreenIntent.SearchBarStateChange -> setSearchbarState(intent.textFieldValue)
+                    is MapScreenIntent.PostcodeLocationHandled -> setLocationHandled()
                 }
             }
         }
@@ -326,6 +327,14 @@ class MapScreenViewModel
         setState(
             state.value.copy(
                 searchBarState = newTextFieldValue.copy(text = newText)
+            )
+        )
+    }
+
+    private fun setLocationHandled() {
+        setState(
+            state.value.copy(
+                shouldHandlePostcodeLocation = false
             )
         )
     }

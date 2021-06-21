@@ -771,4 +771,24 @@ class MapScreenViewModelTest {
         assertThat(cut.state.value.searchBarState).isEqualTo(TextFieldValue(text = "TEST"))
     }
 
+    @Test
+    fun `should handle postcode location consuming intent`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW", latitude = 2.0, longitude = 2.0)
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intentFetchLocation = MapScreenIntent.SetLocationFromPostcode("")
+        cut.submitIntent(intent = intentFetchLocation)
+
+        //WHEN
+        val intentHandleLocation = MapScreenIntent.PostcodeLocationHandled
+        cut.submitIntent(intent = intentHandleLocation)
+
+        //THEN
+        assertThat(cut.state.value.shouldHandlePostcodeLocation).isFalse()
+    }
+
 }
