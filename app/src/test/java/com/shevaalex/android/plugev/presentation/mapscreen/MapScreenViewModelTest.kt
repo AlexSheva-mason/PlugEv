@@ -648,6 +648,24 @@ class MapScreenViewModelTest {
     }
 
     @Test
+    fun `should set shouldHandlePostcodeLocation true after fetching post code location`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW", latitude = 2.0, longitude = 2.0)
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intent = MapScreenIntent.SetLocationFromPostcode("")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.shouldHandlePostcodeLocation).isTrue()
+    }
+
+    @Test
     fun `should set geolocation error message after fetching post code location`() {
         //GIVEN
         val postCodeInfo = DataFactory

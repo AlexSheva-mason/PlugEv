@@ -291,7 +291,8 @@ class MapScreenViewModel
                                 state.value.copy(
                                     cameraZoom = 15f,
                                     cameraPosition = result.data.position,
-                                    isLoading = false
+                                    isLoading = false,
+                                    shouldHandlePostcodeLocation = true,
                                 )
                             )
                         }
