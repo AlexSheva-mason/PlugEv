@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -181,6 +182,7 @@ fun MapViewContainer(
 ) {
     val context = LocalContext.current
     val insets = LocalWindowInsets.current
+    val focusManager = LocalFocusManager.current
     var mapInitialized by remember(map) { mutableStateOf(false) }
 
     val mapPaddingTopContent = remember {
@@ -220,6 +222,9 @@ fun MapViewContainer(
                 context = context,
                 googleMap = googleMap,
                 onMarkerClick = { id ->
+                    if(insets.ime.isVisible) {
+                        focusManager.clearFocus()
+                    }
                     submitIntent(MapScreenIntent.ShowBottomSheetWithInfo(id))
                 }
             ) {
