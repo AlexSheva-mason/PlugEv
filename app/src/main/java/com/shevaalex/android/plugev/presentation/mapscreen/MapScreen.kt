@@ -147,12 +147,14 @@ fun MapScreen(
                     .padding(top = SEARCH_BAR_PADDING_TOP.dp + progressBarHeight),
                 onTextValueChange = {
                     viewModel.submitIntent(MapScreenIntent.SearchBarStateChange(textFieldValue = it))
-                    viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
-                }
-            ) {
-                viewModel.submitIntent(MapScreenIntent.SetLocationFromPostcode(postcode = it))
-                viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
-            }
+                },
+                onSearchRequested = {
+                    viewModel.submitIntent(MapScreenIntent.SetLocationFromPostcode(postcode = it))
+                },
+                onClearState = {
+                    viewModel.submitIntent(MapScreenIntent.SearchBarClearState)
+                },
+            )
         }
     }
 }

@@ -25,14 +25,16 @@ fun SearchBar(
     state: TextFieldValue,
     modifier: Modifier,
     onTextValueChange: (TextFieldValue) -> Unit,
-    onSearchRequested: (String) -> Unit
+    onSearchRequested: (String) -> Unit,
+    onClearState: () -> Unit,
 ) {
 
     SearchField(
         modifier = modifier,
         state = state,
         onTextValueChange = onTextValueChange,
-        onSearchRequested = onSearchRequested
+        onSearchRequested = onSearchRequested,
+        onClearState = onClearState,
     )
 
 }
@@ -42,7 +44,8 @@ private fun SearchField(
     modifier: Modifier,
     state: TextFieldValue,
     onTextValueChange: (TextFieldValue) -> Unit,
-    onSearchRequested: (String) -> Unit
+    onSearchRequested: (String) -> Unit,
+    onClearState: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     Row(
@@ -75,8 +78,8 @@ private fun SearchField(
                         modifier = Modifier
                             .shadow(elevation = 0.dp, shape = CircleShape, clip = true)
                             .clickable {
-                                onTextValueChange(state.copy(text = ""))
                                 focusManager.clearFocus()
+                                onClearState()
                             }
                             .padding(3.dp)
 
@@ -120,7 +123,8 @@ private fun SearchRowPreview() {
             modifier = Modifier,
             state = TextFieldValue(),
             onTextValueChange = {},
-            onSearchRequested = {}
+            onSearchRequested = {},
+            onClearState = {},
         )
     }
 }
