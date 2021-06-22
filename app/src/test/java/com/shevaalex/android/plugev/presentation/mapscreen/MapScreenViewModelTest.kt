@@ -68,6 +68,7 @@ class MapScreenViewModelTest {
             bottomSheetViewState = null,
             filteringRowState = FilterRowState(),
             searchBarState = TextFieldValue(),
+            searchBarInteractionSource = cut.state.value.searchBarInteractionSource,
             shouldHandlePostcodeLocation = false,
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)

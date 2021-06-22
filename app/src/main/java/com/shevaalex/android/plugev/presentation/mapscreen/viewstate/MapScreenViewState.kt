@@ -1,5 +1,6 @@
 package com.shevaalex.android.plugev.presentation.mapscreen.viewstate
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.text.input.TextFieldValue
 import com.google.android.gms.maps.model.LatLng
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
@@ -17,6 +18,7 @@ data class MapScreenViewState(
     val bottomSheetViewState: BottomSheetViewState? = null,
     val filteringRowState: FilterRowState = FilterRowState(),
     val searchBarState: TextFieldValue = TextFieldValue(),
+    val searchBarInteractionSource: MutableInteractionSource = MutableInteractionSource(),
     val shouldHandlePostcodeLocation: Boolean = false,
 ) {
 
@@ -31,6 +33,7 @@ data class MapScreenViewState(
                 " \n bottomSheetInfoObject=$bottomSheetViewState," +
                 " \n filteringRowState=$filteringRowState," +
                 " \n searchBarState=$searchBarState," +
+                " \n searchBarInteractionSource=$searchBarInteractionSource," +
                 " \n shouldHandlePostcodeLocation=$shouldHandlePostcodeLocation)"
     }
 
