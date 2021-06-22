@@ -30,6 +30,8 @@ sealed class MapScreenIntent {
         val textFieldValue: TextFieldValue
     ) : MapScreenIntent()
 
-    object PostcodeLocationHandled :  MapScreenIntent()
+    object PostcodeLocationHandled : MapScreenIntent()
+
+    object SearchBarClearState : MapScreenIntent()
 
 }
