@@ -72,8 +72,9 @@ fun MapScreen(
 
     LaunchedEffect(viewState.searchBarInteractionSource) {
         viewState.searchBarInteractionSource.interactions.collectLatest {
-            if (it is FocusInteraction.Focus) viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
-            if (it is PressInteraction.Press) viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
+            if (it is FocusInteraction.Focus || it is PressInteraction.Press) {
+                viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
+            }
         }
     }
 
