@@ -1,6 +1,8 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -65,6 +67,22 @@ private fun SearchField(
                     contentDescription = null,
                 )
             },
+            trailingIcon = if (state.text.isNotEmpty()) {
+                {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_close_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .shadow(elevation = 0.dp, shape = CircleShape, clip = true)
+                            .clickable {
+                                onTextValueChange(state.copy(text = ""))
+                                focusManager.clearFocus()
+                            }
+                            .padding(3.dp)
+
+                    )
+                }
+            } else null,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Characters,
                 autoCorrect = false,
