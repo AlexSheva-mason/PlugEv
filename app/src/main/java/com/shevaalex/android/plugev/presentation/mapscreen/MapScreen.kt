@@ -16,6 +16,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -222,9 +223,7 @@ fun MapViewContainer(
                 context = context,
                 googleMap = googleMap,
                 onMarkerClick = { id ->
-                    if(insets.ime.isVisible) {
-                        focusManager.clearFocus()
-                    }
+                    imeClearFocus(insets.ime.isVisible, focusManager)
                     submitIntent(MapScreenIntent.ShowBottomSheetWithInfo(id))
                 }
             ) {
@@ -285,6 +284,7 @@ fun MapViewContainer(
                 if (reason == REASON_GESTURE && viewState.bottomSheetViewState != null) {
                     submitIntent(MapScreenIntent.HideBottomSheet)
                 }
+                imeClearFocus(insets.ime.isVisible, focusManager)
             }
 
             clusterManager?.let { evClusterManager ->
@@ -417,4 +417,13 @@ private fun getMapPaddingTop(): Dp {
     val filerRowHeight =
         (FILTER_CHIP_HEIGHT + FILTER_CHIP_PADDING * 2 + FILTER_ROW_PADDING_VERTICAL * 2).dp
     return filterRowPadding + filerRowHeight
+}
+
+private fun imeClearFocus(
+    isVisible: Boolean,
+    focusManager: FocusManager
+) {
+    if (isVisible) {
+        focusManager.clearFocus()
+    }
 }
