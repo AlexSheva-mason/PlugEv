@@ -5,12 +5,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -72,7 +72,8 @@ fun MapScreen(
 
     LaunchedEffect(viewState.searchBarInteractionSource) {
         viewState.searchBarInteractionSource.interactions.collectLatest {
-            if (it is FocusInteraction.Focus) Log.d("LOG_TAG", "MapScreen: FOCUS")
+            if (it is FocusInteraction.Focus) viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
+            if (it is PressInteraction.Press) viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
         }
     }
 
