@@ -42,4 +42,16 @@ class TextInputValidatorKtTest {
         assertThat(result).isEqualTo("ABCD EFG")
     }
 
+    @Test
+    fun `should limit output whitespace to maximum 8 chars`() {
+        //GIVEN
+        val input = "          "
+
+        //WHEN
+        val result = returnValidatedTextForInput(input)
+
+        //THEN
+        assertThat(result).isEqualTo("        ")
+    }
+
 }
