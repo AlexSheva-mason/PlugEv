@@ -791,4 +791,19 @@ class MapScreenViewModelTest {
         assertThat(cut.state.value.shouldHandlePostcodeLocation).isFalse()
     }
 
+    @Test
+    fun `should reset search bar state when calling intent that clears search bar state`() {
+        //GIVEN
+        val setSearchBarState =
+            MapScreenIntent.SearchBarStateChange(textFieldValue = TextFieldValue(text = "TEST"))
+        cut.submitIntent(intent = setSearchBarState)
+
+        //WHEN
+        val clearSearchBarState = MapScreenIntent.SearchBarClearState
+        cut.submitIntent(intent = clearSearchBarState)
+
+        //THEN
+        assertThat(cut.state.value.searchBarState).isEqualTo(TextFieldValue())
+    }
+
 }

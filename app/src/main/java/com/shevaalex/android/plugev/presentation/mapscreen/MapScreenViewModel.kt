@@ -54,6 +54,7 @@ class MapScreenViewModel
                     }
                     is MapScreenIntent.SearchBarStateChange -> setSearchbarState(intent.textFieldValue)
                     is MapScreenIntent.PostcodeLocationHandled -> setLocationHandled()
+                    is MapScreenIntent.SearchBarClearState -> resetSearchBarState()
                 }
             }
         }
@@ -327,6 +328,14 @@ class MapScreenViewModel
         setState(
             state.value.copy(
                 searchBarState = newTextFieldValue.copy(text = newText)
+            )
+        )
+    }
+
+    private fun resetSearchBarState() {
+        setState(
+            state.value.copy(
+                searchBarState = TextFieldValue()
             )
         )
     }
