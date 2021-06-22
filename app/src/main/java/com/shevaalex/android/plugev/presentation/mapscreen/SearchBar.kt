@@ -1,6 +1,7 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -23,6 +24,7 @@ import com.shevaalex.android.plugev.presentation.common.compose.PlugEvTheme
 @Composable
 fun SearchBar(
     state: TextFieldValue,
+    interactionSource: MutableInteractionSource,
     modifier: Modifier,
     onTextValueChange: (TextFieldValue) -> Unit,
     onSearchRequested: (String) -> Unit,
@@ -32,6 +34,7 @@ fun SearchBar(
     SearchField(
         modifier = modifier,
         state = state,
+        interactionSource = interactionSource,
         onTextValueChange = onTextValueChange,
         onSearchRequested = onSearchRequested,
         onClearState = onClearState,
@@ -43,6 +46,7 @@ fun SearchBar(
 private fun SearchField(
     modifier: Modifier,
     state: TextFieldValue,
+    interactionSource: MutableInteractionSource,
     onTextValueChange: (TextFieldValue) -> Unit,
     onSearchRequested: (String) -> Unit,
     onClearState: () -> Unit,
@@ -99,6 +103,7 @@ private fun SearchField(
                 }
             ),
             singleLine = true,
+            interactionSource = interactionSource,
             shape = MaterialTheme.shapes.small,
             colors = TextFieldDefaults
                 .textFieldColors(
@@ -122,6 +127,7 @@ private fun SearchRowPreview() {
         SearchField(
             modifier = Modifier,
             state = TextFieldValue(),
+            interactionSource = MutableInteractionSource(),
             onTextValueChange = {},
             onSearchRequested = {},
             onClearState = {},

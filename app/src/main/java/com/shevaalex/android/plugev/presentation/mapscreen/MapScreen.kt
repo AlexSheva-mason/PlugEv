@@ -5,10 +5,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -37,6 +39,7 @@ import com.shevaalex.android.plugev.R
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -64,6 +67,12 @@ fun MapScreen(
         } else SnackbarDuration.Short
         message?.let { messageText ->
             scaffoldState.snackbarHostState.showSnackbar(message = messageText, duration = duration)
+        }
+    }
+
+    LaunchedEffect(viewState.searchBarInteractionSource) {
+        viewState.searchBarInteractionSource.interactions.collectLatest {
+            if (it is FocusInteraction.Focus) Log.d("LOG_TAG", "MapScreen: FOCUS")
         }
     }
 
@@ -141,6 +150,7 @@ fun MapScreen(
             }
             SearchBar(
                 state = viewState.searchBarState,
+                interactionSource = viewState.searchBarInteractionSource,
                 modifier = modifier
                     .statusBarsPadding()
                     .navigationBarsPadding(bottom = false, left = false, right = true)
