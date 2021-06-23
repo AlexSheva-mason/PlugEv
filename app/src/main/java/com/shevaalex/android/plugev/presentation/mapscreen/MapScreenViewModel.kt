@@ -279,6 +279,14 @@ class MapScreenViewModel
     }
 
     private suspend fun setLocationFromPostcode(postCodeString: String) {
+        if (!validatePostCodeForRequest(postCode = postCodeString)) {
+            setState(
+                state.value.copy(
+                    fetchError = UiState.UiError("Invalid postcode request")
+                )
+            )
+            return
+        }
         setState(
             state.value.copy(
                 isLoading = true
@@ -294,6 +302,7 @@ class MapScreenViewModel
                                     cameraZoom = 15f,
                                     cameraPosition = result.data.position,
                                     isLoading = false,
+                                    fetchError = null,
                                     shouldHandlePostcodeLocation = true,
                                 )
                             )

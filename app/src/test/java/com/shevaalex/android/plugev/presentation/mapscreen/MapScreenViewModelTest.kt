@@ -569,7 +569,7 @@ class MapScreenViewModelTest {
     @Test
     fun `should call location for post code use case`() {
         //GIVEN
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent = intent)
@@ -587,7 +587,7 @@ class MapScreenViewModelTest {
         cut.submitIntent(intentChargeStations)
 
         //WHEN
-        val intentPostCode = MapScreenIntent.SetLocationFromPostcode("")
+        val intentPostCode = MapScreenIntent.SetLocationFromPostcode("123456")
         cut.submitIntent(intent = intentPostCode)
 
         //THEN
@@ -603,7 +603,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Success(postCodeInfo)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent = intent)
@@ -621,7 +621,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Success(postCodeInfo)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent = intent)
@@ -639,7 +639,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Success(postCodeInfo)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent = intent)
@@ -657,7 +657,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Success(postCodeInfo)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent = intent)
@@ -675,7 +675,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Success(postCodeInfo)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent = intent)
@@ -694,7 +694,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Success(postCodeInfo)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent = intent)
@@ -713,7 +713,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Success(postCodeInfo)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent = intent)
@@ -729,7 +729,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Error(exception)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent)
@@ -750,7 +750,7 @@ class MapScreenViewModelTest {
         coEvery {
             getLocationForPostCodeUseCase.invoke(any())
         } returns DataResult.Error(exception)
-        val intent = MapScreenIntent.SetLocationFromPostcode("")
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
 
         //WHEN
         cut.submitIntent(intent)
