@@ -2,6 +2,7 @@ package com.shevaalex.android.plugev.service.googlemap
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.google.android.gms.maps.GoogleMap
@@ -12,6 +13,7 @@ import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import com.shevaalex.android.plugev.R
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
+import com.shevaalex.android.plugev.presentation.common.compose.Teal800
 
 class PlugEvClusterRenderer(
     private val context: Context,
@@ -152,6 +154,10 @@ class PlugEvClusterRenderer(
                 }
             }
         }
+    }
+
+    override fun getColor(clusterSize: Int): Int {
+        return Teal800.toArgb()
     }
 
 }
