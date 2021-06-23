@@ -64,18 +64,22 @@ fun MapScreen(
 
     LaunchedEffect(viewState.uiMessage) {
         viewState.uiMessage?.let { uiInfo ->
-            scaffoldState
-                .snackbarHostState
-                .showSnackbar(message = uiInfo.message, duration = SnackbarDuration.Indefinite)
+            handleSnackMessage(
+                snackbarHostState = scaffoldState.snackbarHostState,
+                message = uiInfo.message,
+                duration = SnackbarDuration.Indefinite
+            )
             viewModel.submitIntent(MapScreenIntent.ConsumeUiInfoSnack)
         }
     }
 
     LaunchedEffect(viewState.fetchError) {
         viewState.fetchError?.let { uiError ->
-            scaffoldState
-                .snackbarHostState
-                .showSnackbar(message = uiError.message, duration = SnackbarDuration.Short)
+            handleSnackMessage(
+                snackbarHostState = scaffoldState.snackbarHostState,
+                message = uiError.message,
+                duration = SnackbarDuration.Short
+            )
             viewModel.submitIntent(MapScreenIntent.ConsumeUiErrorSnack)
         }
     }
@@ -402,6 +406,15 @@ fun Snack(message: String, isError: Boolean) {
             )
         }
     }
+}
+
+private suspend fun handleSnackMessage(
+    snackbarHostState: SnackbarHostState,
+    message: String,
+    duration: SnackbarDuration
+) {
+    snackbarHostState.currentSnackbarData?.dismiss()
+    snackbarHostState.showSnackbar(message = message, duration = duration)
 }
 
 private fun getMapIntentForChargingStation(
