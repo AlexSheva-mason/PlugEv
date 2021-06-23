@@ -62,13 +62,21 @@ fun MapScreen(
         }
     }
 
-    LaunchedEffect(viewState.fetchError, viewState.uiMessage) {
-        val message = viewState.fetchError?.message ?: viewState.uiMessage?.message
-        val duration = if (viewState.uiMessage != null) {
-            SnackbarDuration.Indefinite
-        } else SnackbarDuration.Short
-        message?.let { messageText ->
-            scaffoldState.snackbarHostState.showSnackbar(message = messageText, duration = duration)
+    LaunchedEffect(viewState.uiMessage) {
+        viewState.uiMessage?.let { uiInfo ->
+            scaffoldState
+                .snackbarHostState
+                .showSnackbar(message = uiInfo.message, duration = SnackbarDuration.Indefinite)
+            viewModel.submitIntent(MapScreenIntent.ConsumeUiInfoSnack)
+        }
+    }
+
+    LaunchedEffect(viewState.fetchError) {
+        viewState.fetchError?.let { uiError ->
+            scaffoldState
+                .snackbarHostState
+                .showSnackbar(message = uiError.message, duration = SnackbarDuration.Short)
+            viewModel.submitIntent(MapScreenIntent.ConsumeUiErrorSnack)
         }
     }
 
