@@ -56,6 +56,7 @@ class MapScreenViewModel
                     is MapScreenIntent.PostcodeLocationHandled -> setLocationHandled()
                     is MapScreenIntent.SearchBarClearState -> resetSearchBarState()
                     is MapScreenIntent.ConsumeUiInfoSnack -> resetUiInfo()
+                    is MapScreenIntent.ConsumeUiErrorSnack -> resetUiError()
                 }
             }
         }
@@ -96,7 +97,6 @@ class MapScreenViewModel
                                 isResultLimitReached = result.data.size == API_RESULT_LIMIT,
                                 limit = API_RESULT_LIMIT
                             ),
-                            fetchError = null
                         )
                     )
                 }
@@ -303,7 +303,6 @@ class MapScreenViewModel
                                     cameraZoom = 15f,
                                     cameraPosition = result.data.position,
                                     isLoading = false,
-                                    fetchError = null,
                                     shouldHandlePostcodeLocation = true,
                                 )
                             )
@@ -361,6 +360,14 @@ class MapScreenViewModel
         setState(
             state.value.copy(
                 uiMessage = null
+            )
+        )
+    }
+
+    private fun resetUiError() {
+        setState(
+            state.value.copy(
+                fetchError = null,
             )
         )
     }

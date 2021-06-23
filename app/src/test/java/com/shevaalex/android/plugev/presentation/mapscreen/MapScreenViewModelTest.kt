@@ -827,4 +827,22 @@ class MapScreenViewModelTest {
         assertThat(cut.state.value.uiMessage).isNull()
     }
 
+    @Test
+    fun `should reset snack bar ui error message to null`() {
+        //GIVEN
+        val exception = Exception("Test exception")
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Error(exception)
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intent)
+
+        //WHEN
+        val clearErrorSnackIntent = MapScreenIntent.ConsumeUiErrorSnack
+        cut.submitIntent(clearErrorSnackIntent)
+
+        //THEN
+        assertThat(cut.state.value.fetchError).isNull()
+    }
+
 }
