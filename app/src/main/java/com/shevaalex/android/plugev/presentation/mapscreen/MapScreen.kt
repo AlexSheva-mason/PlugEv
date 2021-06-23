@@ -78,7 +78,8 @@ fun MapScreen(
             handleSnackMessage(
                 snackbarHostState = scaffoldState.snackbarHostState,
                 message = uiError.message,
-                duration = SnackbarDuration.Short
+                duration = SnackbarDuration.Short,
+                actionLabel = "error"
             )
             viewModel.submitIntent(MapScreenIntent.ConsumeUiErrorSnack)
         }
@@ -117,7 +118,7 @@ fun MapScreen(
             ) { data ->
                 Snack(
                     message = data.message,
-                    isError = viewState.fetchError != null
+                    isError = data.actionLabel == "error"
                 )
             }
         },
@@ -411,10 +412,15 @@ fun Snack(message: String, isError: Boolean) {
 private suspend fun handleSnackMessage(
     snackbarHostState: SnackbarHostState,
     message: String,
-    duration: SnackbarDuration
+    duration: SnackbarDuration,
+    actionLabel: String? = null
 ) {
     snackbarHostState.currentSnackbarData?.dismiss()
-    snackbarHostState.showSnackbar(message = message, duration = duration)
+    snackbarHostState.showSnackbar(
+        message = message,
+        actionLabel = actionLabel,
+        duration = duration
+    )
 }
 
 private fun getMapIntentForChargingStation(
