@@ -55,6 +55,7 @@ class MapScreenViewModel
                     is MapScreenIntent.SearchBarStateChange -> setSearchbarState(intent.textFieldValue)
                     is MapScreenIntent.PostcodeLocationHandled -> setLocationHandled()
                     is MapScreenIntent.SearchBarClearState -> resetSearchBarState()
+                    is MapScreenIntent.ConsumeUiInfoSnack -> resetUiInfo()
                 }
             }
         }
@@ -326,7 +327,6 @@ class MapScreenViewModel
         setState(
             state.value.copy(
                 isLoading = false,
-                uiMessage = null,
                 fetchError = uiErrorRetrofitException(errorResult.e)
             )
         )
@@ -353,6 +353,14 @@ class MapScreenViewModel
         setState(
             state.value.copy(
                 shouldHandlePostcodeLocation = false
+            )
+        )
+    }
+
+    private fun resetUiInfo() {
+        setState(
+            state.value.copy(
+                uiMessage = null
             )
         )
     }

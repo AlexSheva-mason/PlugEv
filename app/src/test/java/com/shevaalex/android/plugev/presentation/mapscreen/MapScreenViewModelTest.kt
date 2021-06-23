@@ -807,4 +807,24 @@ class MapScreenViewModelTest {
         assertThat(cut.state.value.searchBarState).isEqualTo(TextFieldValue())
     }
 
+    @Test
+    fun `should reset snack bar ui info message to null`() {
+        //GIVEN
+        val list = List(API_RESULT_LIMIT) { DataFactory.getChargingStationDomainModel() }
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intent)
+
+        //WHEN
+        val clearInfoSnackIntent = MapScreenIntent.ConsumeUiInfoSnack
+        cut.submitIntent(clearInfoSnackIntent)
+
+        //THEN
+        assertThat(cut.state.value.uiMessage).isNull()
+    }
+
 }
