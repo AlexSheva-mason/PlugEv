@@ -34,4 +34,8 @@ sealed class MapScreenIntent {
 
     object SearchBarClearState : MapScreenIntent()
 
+    object ConsumeUiInfoSnack : MapScreenIntent()
+
+    object ConsumeUiErrorSnack : MapScreenIntent()
+
 }
