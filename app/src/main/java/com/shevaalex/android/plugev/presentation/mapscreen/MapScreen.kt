@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.view.LayoutInflater
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,9 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -41,6 +40,7 @@ import com.shevaalex.android.plugev.R
 import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.presentation.mapscreen.viewmodel.MapScreenViewModel
 import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
+import com.shevaalex.android.plugev.service.googlemap.MapInfoWindowAdapter
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -253,6 +253,8 @@ fun MapViewContainer(
                     )
                 )
             }
+            val infoAdapter = MapInfoWindowAdapter(LayoutInflater.from(context))
+            clusterManager?.markerCollection?.setInfoWindowAdapter(infoAdapter)
             googleMap.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(viewState.cameraPosition, viewState.cameraZoom)
             )
