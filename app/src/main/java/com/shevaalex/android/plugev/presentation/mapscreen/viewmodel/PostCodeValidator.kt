@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.presentation.mapscreen
+package com.shevaalex.android.plugev.presentation.mapscreen.viewmodel
 
 
 fun validatePostCodeForRequest(postCode: String): Boolean {

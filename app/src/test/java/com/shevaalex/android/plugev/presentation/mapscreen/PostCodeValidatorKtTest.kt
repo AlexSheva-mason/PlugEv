@@ -1,6 +1,7 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
 import com.google.common.truth.Truth.assertThat
+import com.shevaalex.android.plugev.presentation.mapscreen.viewmodel.validatePostCodeForRequest
 import org.junit.Test
 
 

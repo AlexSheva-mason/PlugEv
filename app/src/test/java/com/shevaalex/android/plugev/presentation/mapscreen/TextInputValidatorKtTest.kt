@@ -1,6 +1,7 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
 import com.google.common.truth.Truth.assertThat
+import com.shevaalex.android.plugev.presentation.mapscreen.viewmodel.returnValidatedTextForInput
 import org.junit.Test
 
 
