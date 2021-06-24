@@ -1,4 +1,4 @@
-package com.shevaalex.android.plugev.presentation.mapscreen
+package com.shevaalex.android.plugev.presentation.mapscreen.viewmodel
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
@@ -12,6 +12,7 @@ import com.shevaalex.android.plugev.presentation.common.ui.BaseViewModel
 import com.shevaalex.android.plugev.presentation.common.ui.UiState
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
+import com.shevaalex.android.plugev.presentation.mapscreen.*
 import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

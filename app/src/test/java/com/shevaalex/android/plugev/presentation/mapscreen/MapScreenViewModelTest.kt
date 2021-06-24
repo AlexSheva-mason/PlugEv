@@ -16,6 +16,7 @@ import com.shevaalex.android.plugev.domain.postcode.usecase.GetLocationForPostco
 import com.shevaalex.android.plugev.presentation.common.ui.UiState
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
+import com.shevaalex.android.plugev.presentation.mapscreen.viewmodel.MapScreenViewModel
 import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
