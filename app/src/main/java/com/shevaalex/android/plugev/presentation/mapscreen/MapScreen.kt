@@ -101,11 +101,7 @@ fun MapScreen(
                 BottomSheet(
                     bottomSheetViewState = it,
                     modifier = Modifier
-                        .navigationBarsPadding(
-                            bottom = true,
-                            left = false,
-                            right = true
-                        )
+                        .navigationBarsPadding(bottom = true, left = true, right = true)
                 )
             }
         },
@@ -115,7 +111,7 @@ fun MapScreen(
                 hostState = snackbarHostState,
                 modifier = modifier
                     .widthIn(min = SNACK_WIDTH_MIN.dp, max = SNACK_WIDTH_MAX.dp)
-                    .navigationBarsPadding(bottom = true, left = false, right = true)
+                    .navigationBarsPadding(bottom = true, left = true, right = true)
                     .padding(16.dp),
             ) { data ->
                 Snack(
@@ -148,42 +144,43 @@ fun MapScreen(
                 locationProviderClient = locationProviderClient,
                 viewState = viewState
             ) { viewModel.submitIntent(it) }
-            if (viewState.isLoading) {
-                LinearProgressIndicator(
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .navigationBarsPadding(bottom = false, left = true, right = true)
+            ) {
+                if (viewState.isLoading) {
+                    LinearProgressIndicator(
+                        modifier = modifier
+                            .fillMaxWidth()
+                    )
+                } else Spacer(modifier = Modifier.height(progressBarHeight))
+                SearchBar(
+                    state = viewState.searchBarState,
+                    interactionSource = viewState.searchBarInteractionSource,
                     modifier = modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .navigationBarsPadding(bottom = false, left = false, right = true)
+                        .padding(top = SEARCH_BAR_PADDING_TOP.dp),
+                    onTextValueChange = {
+                        viewModel.submitIntent(MapScreenIntent.SearchBarStateChange(textFieldValue = it))
+                    },
+                    onSearchRequested = {
+                        viewModel.submitIntent(MapScreenIntent.SetLocationFromPostcode(postcode = it))
+                    },
+                    onClearState = {
+                        viewModel.submitIntent(MapScreenIntent.SearchBarClearState)
+                    },
                 )
+                FilteringRow(
+                    state = viewState.filteringRowState,
+                    modifier = modifier
+                        .padding(top = FILTER_ROW_PADDING_VERTICAL.dp)
+                ) { filterOption, newState ->
+                    viewModel.submitIntent(
+                        MapScreenIntent.FilterOptionStateChange(filterOption, newState)
+                    )
+                }
             }
-            FilteringRow(
-                state = viewState.filteringRowState,
-                modifier = modifier
-                    .statusBarsPadding()
-                    .navigationBarsPadding(bottom = false, left = false, right = true)
-                    .padding(top = getFilteringRowPaddingTop())
-            ) { filterOption, newState ->
-                viewModel.submitIntent(
-                    MapScreenIntent.FilterOptionStateChange(filterOption, newState)
-                )
-            }
-            SearchBar(
-                state = viewState.searchBarState,
-                interactionSource = viewState.searchBarInteractionSource,
-                modifier = modifier
-                    .statusBarsPadding()
-                    .navigationBarsPadding(bottom = false, left = false, right = true)
-                    .padding(top = SEARCH_BAR_PADDING_TOP.dp + progressBarHeight),
-                onTextValueChange = {
-                    viewModel.submitIntent(MapScreenIntent.SearchBarStateChange(textFieldValue = it))
-                },
-                onSearchRequested = {
-                    viewModel.submitIntent(MapScreenIntent.SetLocationFromPostcode(postcode = it))
-                },
-                onClearState = {
-                    viewModel.submitIntent(MapScreenIntent.SearchBarClearState)
-                },
-            )
         }
     }
 }
@@ -439,16 +436,11 @@ private fun getMapIntentForChargingStation(
     )
 }
 
-private fun getFilteringRowPaddingTop(): Dp {
-    val searchBarHeight = SEARCH_BAR_PADDING_TOP.dp + searchBarHeight
-    return progressBarHeight + searchBarHeight
-}
-
 private fun getMapPaddingTop(): Dp {
-    val filterRowPadding = getFilteringRowPaddingTop()
+    val searchBarHeight = SEARCH_BAR_PADDING_TOP.dp + searchBarHeight
     val filerRowHeight =
         (FILTER_CHIP_HEIGHT + FILTER_CHIP_PADDING * 2 + FILTER_ROW_PADDING_VERTICAL * 2).dp
-    return filterRowPadding + filerRowHeight
+    return progressBarHeight + searchBarHeight + filerRowHeight
 }
 
 private fun imeClearFocus(
