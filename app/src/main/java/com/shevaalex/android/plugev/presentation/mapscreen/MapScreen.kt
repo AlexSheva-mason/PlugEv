@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.view.LayoutInflater
+import android.widget.ImageView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -233,6 +234,7 @@ fun MapViewContainer(
     LaunchedEffect(map, mapInitialized) {
         if (!mapInitialized) {
             val googleMap = map.awaitMap()
+            setMyLocationIcon(map, context)
             clusterManager = PlugEvClusterManager(
                 context = context,
                 googleMap = googleMap,
@@ -456,4 +458,19 @@ private fun imeClearFocus(
     if (isVisible) {
         focusManager.clearFocus()
     }
+}
+
+private fun setMyLocationIcon(
+    map: MapView,
+    context: Context
+) {
+    val myLocationIcon: ImageView? = map.findViewWithTag("GoogleMapMyLocationButton")
+    myLocationIcon?.setImageDrawable(
+        ContextCompat.getDrawable(
+            context,
+            R.drawable.ic_my_location
+        )
+    )
+    myLocationIcon?.outlineProvider = IconOutlineProvider()
+    myLocationIcon?.elevation = 25f
 }
