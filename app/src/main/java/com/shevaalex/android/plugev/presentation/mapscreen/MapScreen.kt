@@ -101,7 +101,7 @@ fun MapScreen(
                 BottomSheet(
                     bottomSheetViewState = it,
                     modifier = Modifier
-                        .navigationBarsPadding(bottom = true, left = true, right = true)
+                        .navigationBarsPadding(bottom = true, start = true, end = true)
                 )
             }
         },
@@ -111,7 +111,7 @@ fun MapScreen(
                 hostState = snackbarHostState,
                 modifier = modifier
                     .widthIn(min = SNACK_WIDTH_MIN.dp, max = SNACK_WIDTH_MAX.dp)
-                    .navigationBarsPadding(bottom = true, left = true, right = true)
+                    .navigationBarsPadding(bottom = true, start = true, end = true)
                     .padding(16.dp),
             ) { data ->
                 Snack(
@@ -148,7 +148,7 @@ fun MapScreen(
                 modifier = modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .navigationBarsPadding(bottom = false, left = true, right = true)
+                    .navigationBarsPadding(bottom = false, start = true, end = true)
             ) {
                 if (viewState.isLoading) {
                     LinearProgressIndicator(
