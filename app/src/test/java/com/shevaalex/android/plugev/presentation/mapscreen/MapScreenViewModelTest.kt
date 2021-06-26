@@ -1,17 +1,22 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.google.android.gms.maps.model.LatLng
 import com.google.common.truth.Truth.assertThat
 import com.shevaalex.android.plugev.CoroutinesTestRule
 import com.shevaalex.android.plugev.data.DataFactory
 import com.shevaalex.android.plugev.data.DataFactory.getMapScreenIntentShowChargingStationsForCurrentMapPosition
-import com.shevaalex.android.plugev.data.network.model.toDomainModel
-import com.shevaalex.android.plugev.domain.API_RESULT_LIMIT
-import com.shevaalex.android.plugev.domain.model.ChargingStation
-import com.shevaalex.android.plugev.domain.model.DataResult
-import com.shevaalex.android.plugev.domain.usecase.GetChargeStationListUseCase
+import com.shevaalex.android.plugev.data.openchargemap.network.model.toDomainModel
+import com.shevaalex.android.plugev.data.postcodesio.network.model.toDomainModel
+import com.shevaalex.android.plugev.domain.openchargemap.API_RESULT_LIMIT
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.DataResult
+import com.shevaalex.android.plugev.domain.openchargemap.usecase.GetChargeStationListUseCase
+import com.shevaalex.android.plugev.domain.postcode.usecase.GetLocationForPostcodeUseCase
+import com.shevaalex.android.plugev.presentation.common.ui.UiState
 import com.shevaalex.android.plugev.presentation.common.ui.uiErrorRetrofitException
 import com.shevaalex.android.plugev.presentation.common.ui.uiInfoResultsLimited
+import com.shevaalex.android.plugev.presentation.mapscreen.viewmodel.MapScreenViewModel
 import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -32,6 +37,9 @@ class MapScreenViewModelTest {
     @MockK
     private lateinit var getChargeStationListUseCase: GetChargeStationListUseCase
 
+    @MockK
+    private lateinit var getLocationForPostCodeUseCase: GetLocationForPostcodeUseCase
+
     private lateinit var cut: MapScreenViewModel
 
     @Before
@@ -43,7 +51,8 @@ class MapScreenViewModelTest {
             data = listOf()
         )
         cut = MapScreenViewModel(
-            getChargeStationListUseCase = getChargeStationListUseCase
+            getChargeStationListUseCase = getChargeStationListUseCase,
+            getLocationForPostcodeUseCase = getLocationForPostCodeUseCase
         )
     }
 
@@ -58,7 +67,10 @@ class MapScreenViewModelTest {
             uiMessage = null,
             fetchError = null,
             bottomSheetViewState = null,
-            filteringRowState = FilterRowState()
+            filteringRowState = FilterRowState(),
+            searchBarState = TextFieldValue(),
+            searchBarInteractionSource = cut.state.value.searchBarInteractionSource,
+            shouldHandlePostcodeLocation = false,
         )
         assertThat(cut.state.value).isEqualTo(expectedViewState)
     }
@@ -553,6 +565,285 @@ class MapScreenViewModelTest {
 
         //THEN
         assertThat(cut.state.value.bottomSheetViewState).isNull()
+    }
+
+    @Test
+    fun `should call location for post code use case`() {
+        //GIVEN
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        coVerify {
+            getLocationForPostCodeUseCase.invoke(any())
+        }
+    }
+
+    @Test
+    fun `should set isLoading true when calling post code use case`() {
+        //GIVEN
+        val intentChargeStations = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intentChargeStations)
+
+        //WHEN
+        val intentPostCode = MapScreenIntent.SetLocationFromPostcode("123456")
+        cut.submitIntent(intent = intentPostCode)
+
+        //THEN
+        assertThat(cut.state.value.isLoading).isTrue()
+    }
+
+    @Test
+    fun `should set camera position after fetching post code location`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW", latitude = 2.0, longitude = 2.0)
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.cameraPosition).isEqualTo(LatLng(2.0, 2.0))
+    }
+
+    @Test
+    fun `should set isLoading false along with camera position`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW", latitude = 2.0, longitude = 2.0)
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.isLoading).isFalse()
+    }
+
+    @Test
+    fun `should set zoom after fetching post code location`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW", latitude = 2.0, longitude = 2.0)
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.cameraZoom).isEqualTo(15f)
+    }
+
+    @Test
+    fun `should set shouldHandlePostcodeLocation true after fetching post code location`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW", latitude = 2.0, longitude = 2.0)
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.shouldHandlePostcodeLocation).isTrue()
+    }
+
+    @Test
+    fun `should set geolocation error message after fetching post code location`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW")
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.fetchError)
+            .isEqualTo(UiState.UiError("Geolocation for this postcode is not available"))
+    }
+
+    @Test
+    fun `should set invalid postcode error message after fetching post code location`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto()
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.fetchError)
+            .isEqualTo(UiState.UiError("Invalid postcode"))
+    }
+
+    @Test
+    fun `should set isLoading false along with error message`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW")
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.isLoading).isFalse()
+    }
+
+    @Test
+    fun `should set error message if retrofit call failed`() {
+        //GIVEN
+        val exception = Exception("Test exception")
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Error(exception)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        val expectedErrorMessage = uiErrorRetrofitException(exception)
+        assertThat(cut.state.value).isEqualTo(
+            cut.state.value.copy(
+                fetchError = expectedErrorMessage
+            )
+        )
+    }
+
+    @Test
+    fun `should set isLoading false if retrofit call failed`() {
+        //GIVEN
+        val exception = Exception("Test exception")
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Error(exception)
+        val intent = MapScreenIntent.SetLocationFromPostcode("123456")
+
+        //WHEN
+        cut.submitIntent(intent)
+
+        //THEN
+        assertThat(cut.state.value.isLoading).isFalse()
+    }
+
+    @Test
+    fun `should set search bar view state`() {
+        //GIVEN
+        val intent =
+            MapScreenIntent.SearchBarStateChange(textFieldValue = TextFieldValue(text = "TEST"))
+
+        //WHEN
+        cut.submitIntent(intent = intent)
+
+        //THEN
+        assertThat(cut.state.value.searchBarState).isEqualTo(TextFieldValue(text = "TEST"))
+    }
+
+    @Test
+    fun `should handle postcode location consuming intent`() {
+        //GIVEN
+        val postCodeInfo = DataFactory
+            .getPostCodeDto(postCodeName = "CB6 3NW", latitude = 2.0, longitude = 2.0)
+            .toDomainModel()
+        coEvery {
+            getLocationForPostCodeUseCase.invoke(any())
+        } returns DataResult.Success(postCodeInfo)
+        val intentFetchLocation = MapScreenIntent.SetLocationFromPostcode("")
+        cut.submitIntent(intent = intentFetchLocation)
+
+        //WHEN
+        val intentHandleLocation = MapScreenIntent.PostcodeLocationHandled
+        cut.submitIntent(intent = intentHandleLocation)
+
+        //THEN
+        assertThat(cut.state.value.shouldHandlePostcodeLocation).isFalse()
+    }
+
+    @Test
+    fun `should reset search bar state when calling intent that clears search bar state`() {
+        //GIVEN
+        val setSearchBarState =
+            MapScreenIntent.SearchBarStateChange(textFieldValue = TextFieldValue(text = "TEST"))
+        cut.submitIntent(intent = setSearchBarState)
+
+        //WHEN
+        val clearSearchBarState = MapScreenIntent.SearchBarClearState
+        cut.submitIntent(intent = clearSearchBarState)
+
+        //THEN
+        assertThat(cut.state.value.searchBarState).isEqualTo(TextFieldValue())
+    }
+
+    @Test
+    fun `should reset snack bar ui info message to null`() {
+        //GIVEN
+        val list = List(API_RESULT_LIMIT) { DataFactory.getChargingStationDomainModel() }
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Success(
+            data = list
+        )
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intent)
+
+        //WHEN
+        val clearInfoSnackIntent = MapScreenIntent.ConsumeUiInfoSnack
+        cut.submitIntent(clearInfoSnackIntent)
+
+        //THEN
+        assertThat(cut.state.value.uiMessage).isNull()
+    }
+
+    @Test
+    fun `should reset snack bar ui error message to null`() {
+        //GIVEN
+        val exception = Exception("Test exception")
+        coEvery {
+            getChargeStationListUseCase.invoke(any(), any(), any(), any(), any())
+        } returns DataResult.Error(exception)
+        val intent = getMapScreenIntentShowChargingStationsForCurrentMapPosition()
+        cut.submitIntent(intent)
+
+        //WHEN
+        val clearErrorSnackIntent = MapScreenIntent.ConsumeUiErrorSnack
+        cut.submitIntent(clearErrorSnackIntent)
+
+        //THEN
+        assertThat(cut.state.value.fetchError).isNull()
     }
 
 }

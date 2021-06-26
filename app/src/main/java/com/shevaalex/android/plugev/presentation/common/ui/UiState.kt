@@ -8,7 +8,7 @@ sealed class UiState {
     )
 
     data class UiError(
-        val message: String?
+        val message: String
     )
 
 }

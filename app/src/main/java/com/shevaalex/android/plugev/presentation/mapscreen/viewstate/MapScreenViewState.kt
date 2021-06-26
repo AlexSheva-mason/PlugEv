@@ -1,7 +1,9 @@
 package com.shevaalex.android.plugev.presentation.mapscreen.viewstate
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.text.input.TextFieldValue
 import com.google.android.gms.maps.model.LatLng
-import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.presentation.common.ui.UiState
 import com.shevaalex.android.plugev.presentation.mapscreen.*
 
@@ -14,7 +16,10 @@ data class MapScreenViewState(
     val uiMessage: UiState.UiInfo? = null,
     val fetchError: UiState.UiError? = null,
     val bottomSheetViewState: BottomSheetViewState? = null,
-    val filteringRowState: FilterRowState = FilterRowState()
+    val filteringRowState: FilterRowState = FilterRowState(),
+    val searchBarState: TextFieldValue = TextFieldValue(),
+    val searchBarInteractionSource: MutableInteractionSource = MutableInteractionSource(),
+    val shouldHandlePostcodeLocation: Boolean = false,
 ) {
 
     override fun toString(): String {
@@ -26,7 +31,10 @@ data class MapScreenViewState(
                 " \n uiMessage=$uiMessage," +
                 " \n fetchError=$fetchError," +
                 " \n bottomSheetInfoObject=$bottomSheetViewState," +
-                " \n filteringRowState=$filteringRowState)"
+                " \n filteringRowState=$filteringRowState," +
+                " \n searchBarState=$searchBarState," +
+                " \n searchBarInteractionSource=$searchBarInteractionSource," +
+                " \n shouldHandlePostcodeLocation=$shouldHandlePostcodeLocation)"
     }
 
 }

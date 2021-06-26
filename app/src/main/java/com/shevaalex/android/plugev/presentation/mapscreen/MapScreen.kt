@@ -5,17 +5,21 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.view.LayoutInflater
+import android.widget.ImageView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,9 +38,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.ktx.awaitMap
 import com.shevaalex.android.plugev.R
-import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
+import com.shevaalex.android.plugev.presentation.mapscreen.viewmodel.MapScreenViewModel
 import com.shevaalex.android.plugev.presentation.mapscreen.viewstate.MapScreenViewState
+import com.shevaalex.android.plugev.service.googlemap.MapInfoWindowAdapter
 import com.shevaalex.android.plugev.service.googlemap.PlugEvClusterManager
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -57,13 +64,34 @@ fun MapScreen(
         }
     }
 
-    LaunchedEffect(viewState.fetchError, viewState.uiMessage) {
-        val message = viewState.fetchError?.message ?: viewState.uiMessage?.message
-        val duration = if (viewState.uiMessage != null) {
-            SnackbarDuration.Indefinite
-        } else SnackbarDuration.Short
-        message?.let { messageText ->
-            scaffoldState.snackbarHostState.showSnackbar(message = messageText, duration = duration)
+    LaunchedEffect(viewState.uiMessage) {
+        viewState.uiMessage?.let { uiInfo ->
+            handleSnackMessage(
+                snackbarHostState = scaffoldState.snackbarHostState,
+                message = uiInfo.message,
+                duration = SnackbarDuration.Indefinite
+            )
+            viewModel.submitIntent(MapScreenIntent.ConsumeUiInfoSnack)
+        }
+    }
+
+    LaunchedEffect(viewState.fetchError) {
+        viewState.fetchError?.let { uiError ->
+            handleSnackMessage(
+                snackbarHostState = scaffoldState.snackbarHostState,
+                message = uiError.message,
+                duration = SnackbarDuration.Short,
+                actionLabel = "error"
+            )
+            viewModel.submitIntent(MapScreenIntent.ConsumeUiErrorSnack)
+        }
+    }
+
+    LaunchedEffect(viewState.searchBarInteractionSource) {
+        viewState.searchBarInteractionSource.interactions.collectLatest {
+            if (it is FocusInteraction.Focus || it is PressInteraction.Press) {
+                viewModel.submitIntent(MapScreenIntent.HideBottomSheet)
+            }
         }
     }
 
@@ -73,11 +101,7 @@ fun MapScreen(
                 BottomSheet(
                     bottomSheetViewState = it,
                     modifier = Modifier
-                        .navigationBarsPadding(
-                            bottom = true,
-                            left = false,
-                            right = true
-                        )
+                        .navigationBarsPadding(bottom = true, left = true, right = true)
                 )
             }
         },
@@ -87,12 +111,12 @@ fun MapScreen(
                 hostState = snackbarHostState,
                 modifier = modifier
                     .widthIn(min = SNACK_WIDTH_MIN.dp, max = SNACK_WIDTH_MAX.dp)
-                    .navigationBarsPadding(bottom = true, left = false, right = true)
+                    .navigationBarsPadding(bottom = true, left = true, right = true)
                     .padding(16.dp),
             ) { data ->
                 Snack(
                     message = data.message,
-                    isError = viewState.fetchError != null
+                    isError = data.actionLabel == "error"
                 )
             }
         },
@@ -120,24 +144,42 @@ fun MapScreen(
                 locationProviderClient = locationProviderClient,
                 viewState = viewState
             ) { viewModel.submitIntent(it) }
-            if (viewState.isLoading) {
-                LinearProgressIndicator(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .navigationBarsPadding(bottom = false, left = false, right = true)
-                )
-            }
-            FilteringRow(
-                state = viewState.filteringRowState,
+            Column(
                 modifier = modifier
+                    .fillMaxWidth()
                     .statusBarsPadding()
-                    .navigationBarsPadding(bottom = false, left = false, right = true)
-                    .padding(top = progressBarHeight.dp)
-            ) { filterOption, newState ->
-                viewModel.submitIntent(
-                    MapScreenIntent.FilterOptionStateChange(filterOption, newState)
+                    .navigationBarsPadding(bottom = false, left = true, right = true)
+            ) {
+                if (viewState.isLoading) {
+                    LinearProgressIndicator(
+                        modifier = modifier
+                            .fillMaxWidth()
+                    )
+                } else Spacer(modifier = Modifier.height(progressBarHeight))
+                SearchBar(
+                    state = viewState.searchBarState,
+                    interactionSource = viewState.searchBarInteractionSource,
+                    modifier = modifier
+                        .padding(top = SEARCH_BAR_PADDING_TOP.dp),
+                    onTextValueChange = {
+                        viewModel.submitIntent(MapScreenIntent.SearchBarStateChange(textFieldValue = it))
+                    },
+                    onSearchRequested = {
+                        viewModel.submitIntent(MapScreenIntent.SetLocationFromPostcode(postcode = it))
+                    },
+                    onClearState = {
+                        viewModel.submitIntent(MapScreenIntent.SearchBarClearState)
+                    },
                 )
+                FilteringRow(
+                    state = viewState.filteringRowState,
+                    modifier = modifier
+                        .padding(top = FILTER_ROW_PADDING_VERTICAL.dp)
+                ) { filterOption, newState ->
+                    viewModel.submitIntent(
+                        MapScreenIntent.FilterOptionStateChange(filterOption, newState)
+                    )
+                }
             }
         }
     }
@@ -153,6 +195,7 @@ fun MapViewContainer(
 ) {
     val context = LocalContext.current
     val insets = LocalWindowInsets.current
+    val focusManager = LocalFocusManager.current
     var mapInitialized by remember(map) { mutableStateOf(false) }
 
     val mapPaddingTopContent = remember {
@@ -174,13 +217,26 @@ fun MapViewContainer(
         }
     }
 
+    LaunchedEffect(viewState.shouldHandlePostcodeLocation) {
+        if (viewState.shouldHandlePostcodeLocation) {
+            val googleMap = map.awaitMap()
+            googleMap.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(viewState.cameraPosition, viewState.cameraZoom)
+            ).also {
+                submitIntent(MapScreenIntent.PostcodeLocationHandled)
+            }
+        }
+    }
+
     LaunchedEffect(map, mapInitialized) {
         if (!mapInitialized) {
             val googleMap = map.awaitMap()
+            setMyLocationIcon(map, context)
             clusterManager = PlugEvClusterManager(
                 context = context,
                 googleMap = googleMap,
                 onMarkerClick = { id ->
+                    imeClearFocus(insets.ime.isVisible, focusManager)
                     submitIntent(MapScreenIntent.ShowBottomSheetWithInfo(id))
                 }
             ) {
@@ -196,6 +252,8 @@ fun MapViewContainer(
                     )
                 )
             }
+            val infoAdapter = MapInfoWindowAdapter(LayoutInflater.from(context))
+            clusterManager?.markerCollection?.setInfoWindowAdapter(infoAdapter)
             googleMap.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(viewState.cameraPosition, viewState.cameraZoom)
             )
@@ -241,6 +299,7 @@ fun MapViewContainer(
                 if (reason == REASON_GESTURE && viewState.bottomSheetViewState != null) {
                     submitIntent(MapScreenIntent.HideBottomSheet)
                 }
+                imeClearFocus(insets.ime.isVisible, focusManager)
             }
 
             clusterManager?.let { evClusterManager ->
@@ -352,6 +411,20 @@ fun Snack(message: String, isError: Boolean) {
     }
 }
 
+private suspend fun handleSnackMessage(
+    snackbarHostState: SnackbarHostState,
+    message: String,
+    duration: SnackbarDuration,
+    actionLabel: String? = null
+) {
+    snackbarHostState.currentSnackbarData?.dismiss()
+    snackbarHostState.showSnackbar(
+        message = message,
+        actionLabel = actionLabel,
+        duration = duration
+    )
+}
+
 private fun getMapIntentForChargingStation(
     chargingStation: ChargingStation,
     context: Context
@@ -364,8 +437,32 @@ private fun getMapIntentForChargingStation(
 }
 
 private fun getMapPaddingTop(): Dp {
-    val filterRowHeight = (
-            FILTER_CHIP_HEIGHT + FILTER_CHIP_PADDING * 2 + FILTER_ROW_PADDING_VERTICAL * 2
-            ).dp
-    return progressBarHeight.dp + filterRowHeight
+    val searchBarHeight = SEARCH_BAR_PADDING_TOP.dp + searchBarHeight
+    val filerRowHeight =
+        (FILTER_CHIP_HEIGHT + FILTER_CHIP_PADDING * 2 + FILTER_ROW_PADDING_VERTICAL * 2).dp
+    return progressBarHeight + searchBarHeight + filerRowHeight
+}
+
+private fun imeClearFocus(
+    isVisible: Boolean,
+    focusManager: FocusManager
+) {
+    if (isVisible) {
+        focusManager.clearFocus()
+    }
+}
+
+private fun setMyLocationIcon(
+    map: MapView,
+    context: Context
+) {
+    val myLocationIcon: ImageView? = map.findViewWithTag("GoogleMapMyLocationButton")
+    myLocationIcon?.setImageDrawable(
+        ContextCompat.getDrawable(
+            context,
+            R.drawable.ic_my_location
+        )
+    )
+    myLocationIcon?.outlineProvider = IconOutlineProvider()
+    myLocationIcon?.elevation = 25f
 }

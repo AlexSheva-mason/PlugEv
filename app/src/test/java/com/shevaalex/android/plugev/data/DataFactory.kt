@@ -1,7 +1,9 @@
 package com.shevaalex.android.plugev.data
 
-import com.shevaalex.android.plugev.data.network.model.*
-import com.shevaalex.android.plugev.domain.model.ChargingStation
+import com.shevaalex.android.plugev.data.openchargemap.network.model.*
+import com.shevaalex.android.plugev.data.postcodesio.network.model.PostCodeResult
+import com.shevaalex.android.plugev.data.postcodesio.network.model.PostcodeNetworkDto
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
 import com.shevaalex.android.plugev.presentation.mapscreen.MapScreenIntent
 
 object DataFactory {
@@ -122,6 +124,38 @@ object DataFactory {
             latitude = latitude,
             longitude = longitude,
             distance = distance
+        )
+    }
+
+    fun getPostCodeDto(
+        status: Int = 200,
+        postCodeName: String? = null,
+        latitude: Double? = null,
+        longitude: Double? = null,
+        error: String? = null
+    ): PostcodeNetworkDto {
+        return PostcodeNetworkDto(
+            status = status,
+            postCode = postCodeName?.let {
+                getPostCodeResult(
+                    postCodeName = it,
+                    latitude = latitude,
+                    longitude = longitude
+                )
+            },
+            error = error
+        )
+    }
+
+    private fun getPostCodeResult(
+        postCodeName: String,
+        latitude: Double?,
+        longitude: Double?,
+    ): PostCodeResult {
+        return PostCodeResult(
+            postCodeName = postCodeName,
+            latitude = latitude,
+            longitude = longitude
         )
     }
 

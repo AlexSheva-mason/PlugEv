@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.shevaalex.android.plugev.domain.model.Connection
+import com.shevaalex.android.plugev.domain.openchargemap.model.Connection
 import com.shevaalex.android.plugev.presentation.common.compose.*
 
 @Composable

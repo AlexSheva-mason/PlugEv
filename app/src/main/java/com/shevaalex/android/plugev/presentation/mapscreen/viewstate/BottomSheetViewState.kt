@@ -1,7 +1,7 @@
 package com.shevaalex.android.plugev.presentation.mapscreen
 
-import com.shevaalex.android.plugev.domain.model.ChargingStation
-import com.shevaalex.android.plugev.domain.model.Connection
+import com.shevaalex.android.plugev.domain.openchargemap.model.ChargingStation
+import com.shevaalex.android.plugev.domain.openchargemap.model.Connection
 
 data class BottomSheetViewState(
     val chargingStation: ChargingStation,
