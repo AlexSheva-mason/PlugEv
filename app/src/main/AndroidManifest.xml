@@ -17,7 +17,7 @@
             android:name=".presentation.common.ui.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.PlugEv.NoActionBar">
+            android:theme="@style/Theme.PlugEv">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
