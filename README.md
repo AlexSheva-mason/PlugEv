@@ -9,12 +9,9 @@ Pressing FAB within the BottomSheet allows the user to open a turn-by-turn navig
 The app also contains a handy search bar which allows to enter a postcode and move a camera towards the said destination. Postcode geolocation data is supplied by Postcodes.io.
 
 ## Screenshots
-<img src="imagery/demo.gif" width="250" hspace="5">
-<img src="imagery/screenshot_1" width="250" hspace="5">
-<img src="imagery/screenshot_2" width="250" hspace="5">
-<img src="imagery/screenshot_3" width="250" hspace="5">
-<img src="imagery/screenshot_4" width="250" hspace="5">
-<img src="imagery/screenshot_5" width="250" hspace="5">
+<img src="imagery/demo.gif" width="250" hspace="5"><img src="imagery/screenshot_1.png" width="250" hspace="5"><img src="imagery/screenshot_2.png" width="250" hspace="5">
+
+<img src="imagery/screenshot_3.png" width="250" hspace="5"><img src="imagery/screenshot_4.png" width="250" hspace="5"><img src="imagery/screenshot_5.png" width="250" hspace="5">
 
 ## Key Features
 This app uses the latest cutting edge libraries and tools:
