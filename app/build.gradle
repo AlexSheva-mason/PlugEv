@@ -28,7 +28,19 @@ if (rootProject.file("local.properties").exists()) {
     localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
+    signingConfigs {
+        'release-signed' {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
     compileSdk 30
     buildToolsVersion "30.0.3"
 
@@ -51,6 +63,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.'release-signed'
         }
         create("snapshot") {
             initWith(getByName("debug"))
