@@ -5,6 +5,24 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
+ext.versionMajor = 0
+ext.versionMinor = 8
+ext.versionPatch = 0
+ext.versionClassifier = "alpha"
+ext.minimumSdkVersion = 24
+
+def generateVersionCode() {
+    return ext.minimumSdkVersion * 10000000 + ext.versionMajor * 10000 + ext.versionMinor * 100 + ext.versionPatch
+}
+
+def generateVersionName() {
+    String versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
+    if (ext.versionClassifier != null && !ext.versionClassifier.isEmpty()) {
+        versionName += "-" + ext.versionClassifier
+    }
+    return versionName
+}
+
 def localProperties = new Properties()
 if (rootProject.file("local.properties").exists()) {
     localProperties.load(new FileInputStream(rootProject.file("local.properties")))
@@ -16,10 +34,10 @@ android {
 
     defaultConfig {
         applicationId "com.shevaalex.android.plugev"
-        minSdk 24
+        minSdk project.ext.minimumSdkVersion
         targetSdk 30
-        versionCode 1
-        versionName "1.0"
+        versionCode generateVersionCode()
+        versionName generateVersionName()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
